@@ -35,4 +35,10 @@ export interface User {
     updated_at: string;
 }
 
+export interface Slide {
+  title: string
+  description: string
+  image: string
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

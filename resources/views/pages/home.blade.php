@@ -1,126 +1,65 @@
 <x-app-layout>
   <x-slot name="title">Home</x-slot>
-  <x-slot name="description">Citizen Alliance (CA) is a coalition of civil society organizations and citizen groups
+  <x-slot name="description">
+    Citizen Alliance (CA) is a coalition of civil society organizations and citizen groups
     established in 2012 as a citizen-led engagement initiative on development and governance processes.
   </x-slot>
 
   <!-- Hero Slider Section -->
-  <section class="relative">
-    <div class="relative w-full h-[700px] overflow-hidden">
-      <div x-data="{
-            activeSlide: 0,
-            slides: {{ json_encode($slides) }},
-            init() {
-                setInterval(() => {
-                    this.activeSlide = (this.activeSlide + 1) % this.slides.length
-                }, 5000)
-            }
-        }" class="relative h-full">
-        <template x-for="(slide, index) in slides" :key="index">
-          <div x-show="activeSlide === index"
-               x-transition:enter="transition ease-out duration-300"
-               x-transition:enter-start="opacity-0 transform translate-x-full"
-               x-transition:enter-end="opacity-100 transform translate-x-0"
-               x-transition:leave="transition ease-in duration-300"
-               x-transition:leave-start="opacity-100 transform translate-x-0"
-               x-transition:leave-end="opacity-0 transform -translate-x-full"
-               class="absolute inset-0">
-            <img :src="slide.image" :alt="slide.title"
-                 class="object-cover w-full h-full transform hover:scale-105 transition-transform duration-500">
-
-            <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
-
-            <div class="absolute inset-0 flex items-center">
-              <div class="container mx-auto px-4">
-                <div class="max-w-3xl text-white">
-                  <h1 x-text="slide.title"
-                      class="text-4xl font-display md:text-6xl font-bold mb-4 animate-fade-in">
-                  </h1>
-                  <p x-text="slide.description"
-                     class="text-xl md:text-2xl mb-8 animate-fade-in-delay">
-                  </p>
-                  <a href="#about"
-                     class="inline-flex items-center px-8 py-3 bg-ca-purple text-white rounded-lg hover:bg-ca-primary transition-all duration-300">
-                    Learn More
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <!-- Slider Controls -->
-        <div class="absolute bottom-5 left-0 right-0 flex justify-center space-x-2">
-          <template x-for="(slide, index) in slides" :key="index">
-            <button
-              @click="activeSlide = index"
-              :class="{'bg-white': activeSlide === index, 'bg-white/50': activeSlide !== index}"
-              class="w-3 h-3 rounded-full transition-all duration-300">
-            </button>
-          </template>
-        </div>
-      </div>
-    </div>
-  </section>
+  <hero-slider :slides="{{ json_encode($slides) }}" />
 
   <x-content-container>
-
     <x-impact-stats
       :metrics="[
-            [
-                'icon' => 'users',
-                'title' => 'People Reached',
-                'metric' => '50,000+',
-                'description' => 'Individuals directly impacted across Malawi'
-            ],
-            [
-                'icon' => 'school',
-                'title' => 'Schools Supported',
-                'metric' => '32',
-                'description' => 'Educational institutions receiving our assistance'
-            ],
-            [
-                'icon' => 'medical',
-                'title' => 'Medical Camps',
-                'metric' => '85',
-                'description' => 'Health outreach programs conducted'
-            ],
-            [
-                'icon' => 'water',
-                'title' => 'Water Projects',
-                'metric' => '120',
-                'description' => 'Clean water access points installed'
-            ],
-            [
-                'icon' => 'training',
-                'title' => 'Training Sessions',
-                'metric' => '450+',
-                'description' => 'Skill development workshops conducted'
-            ],
-            [
-                'icon' => 'women',
-                'title' => 'Women Empowered',
-                'metric' => '15,000+',
-                'description' => 'Female participants in our programs'
-            ],
-            [
-                'icon' => 'agriculture',
-                'title' => 'Farmers Trained',
-                'metric' => '2,500+',
-                'description' => 'In sustainable agricultural practices'
-            ],
-            [
-                'icon' => 'volunteers',
-                'title' => 'Volunteers',
-                'metric' => '1,200+',
-                'description' => 'Active community volunteers'
-            ]
-        ]"
-    />
+          [
+              'icon' => 'users',
+              'title' => 'People Reached',
+              'metric' => '50,000+',
+              'description' => 'Individuals directly impacted across Malawi'
+          ],
+          [
+              'icon' => 'school',
+              'title' => 'Schools Supported',
+              'metric' => '32',
+              'description' => 'Educational institutions receiving our assistance'
+          ],
+          [
+              'icon' => 'medical',
+              'title' => 'Medical Camps',
+              'metric' => '85',
+              'description' => 'Health outreach programs conducted'
+          ],
+          [
+              'icon' => 'water',
+              'title' => 'Water Projects',
+              'metric' => '120',
+              'description' => 'Clean water access points installed'
+          ],
+          [
+              'icon' => 'training',
+              'title' => 'Training Sessions',
+              'metric' => '450+',
+              'description' => 'Skill development workshops conducted'
+          ],
+          [
+              'icon' => 'women',
+              'title' => 'Women Empowered',
+              'metric' => '15,000+',
+              'description' => 'Female participants in our programs'
+          ],
+          [
+              'icon' => 'agriculture',
+              'title' => 'Farmers Trained',
+              'metric' => '2,500+',
+              'description' => 'In sustainable agricultural practices'
+          ],
+          [
+              'icon' => 'volunteers',
+              'title' => 'Volunteers',
+              'metric' => '1,200+',
+              'description' => 'Active community volunteers'
+          ]
+      ]" />
 
     <x-programs-section :programs="$programs"/>
 
@@ -242,61 +181,5 @@
   </section>
 
   <!-- Newsletter Section -->
-  <section class="py-16 bg-gray-50 dark:bg-ca-secondary">
-    <div class="container mx-auto px-4">
-      <div class="max-w-xl mx-auto text-center">
-        <h2 class="text-3xl font-bold mb-4 font-display">Stay Updated</h2>
-        <p class="text-gray-600 dark:text-gray-300 mb-8">Subscribe to our newsletter to get all our news in your
-          inbox.</p>
-
-        <form x-data="{
-            email: '',
-            success: false,
-            error: false,
-            loading: false,
-            submit() {
-                this.loading = true;
-                // Add your newsletter subscription logic here
-                setTimeout(() => {
-                    this.loading = false;
-                    this.success = true;
-                    this.email = '';
-                }, 1000);
-            }
-          }" @submit.prevent="submit" class="relative">
-          <div class="flex flex-col md:flex-row">
-            <input type="email"
-                   x-model="email"
-                   required
-                   class="w-full px-4 py-3 rounded-b-none rounded-t-lg md:rounded-s-lg md:rounded-e-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                   placeholder="Enter your email">
-            <button type="submit"
-                    :disabled="loading"
-                    class="px-6 py-3 bg-ca-highlight rounded-t-none rounded-b-lg md:rounded-e-lg md:rounded-s-none text-white hover:bg-ca-primary transition-colors duration-300 disabled:opacity-50">
-              <span x-show="!loading">Subscribe</span>
-              <span x-show="loading" class="flex items-center">
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
-                     fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                            stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
-            </button>
-          </div>
-
-          <!-- Success Message -->
-          <div x-show="success"
-               x-transition:enter="transition ease-out duration-300"
-               x-transition:enter-start="opacity-0 transform translate-y-2"
-               x-transition:enter-end="opacity-100 transform translate-y-0"
-               class="absolute mt-2 text-green-600">
-            Thank you for subscribing to our newsletter!
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
+  <newsletter />
 </x-app-layout>

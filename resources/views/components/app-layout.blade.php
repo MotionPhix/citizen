@@ -93,6 +93,14 @@
   @inertiaHead
 </head>
 <body class="font-sans antialiased">
-  @inertia
+@include('components.header')
+
+<main>
+  {{ $slot }}
+</main>
+
+@include('components.footer')
+
+@inertia
 </body>
 </html>

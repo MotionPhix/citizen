@@ -6,11 +6,14 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
+import HeroSlider from '@/components/HeroSlider.vue';
+import Newsletter from '@/components/Newsletter.vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
     interface ImportMetaEnv {
         readonly VITE_APP_NAME: string;
+
         [key: string]: string | boolean | undefined;
     }
 
@@ -29,6 +32,8 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .component('hero-slider', HeroSlider)
+            .component('newsletter', Newsletter)
             .mount(el);
     },
     progress: {
