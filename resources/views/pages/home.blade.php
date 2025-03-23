@@ -6,60 +6,12 @@
   </x-slot>
 
   <!-- Hero Slider Section -->
-  <hero-slider :slides="{{ json_encode($slides) }}" />
+  <hero-slider :slides="{{ json_encode($slides ?? []) }}" />
 
   <x-content-container>
     <x-impact-stats
-      :metrics="[
-          [
-              'icon' => 'users',
-              'title' => 'People Reached',
-              'metric' => '50,000+',
-              'description' => 'Individuals directly impacted across Malawi'
-          ],
-          [
-              'icon' => 'school',
-              'title' => 'Schools Supported',
-              'metric' => '32',
-              'description' => 'Educational institutions receiving our assistance'
-          ],
-          [
-              'icon' => 'medical',
-              'title' => 'Medical Camps',
-              'metric' => '85',
-              'description' => 'Health outreach programs conducted'
-          ],
-          [
-              'icon' => 'water',
-              'title' => 'Water Projects',
-              'metric' => '120',
-              'description' => 'Clean water access points installed'
-          ],
-          [
-              'icon' => 'training',
-              'title' => 'Training Sessions',
-              'metric' => '450+',
-              'description' => 'Skill development workshops conducted'
-          ],
-          [
-              'icon' => 'women',
-              'title' => 'Women Empowered',
-              'metric' => '15,000+',
-              'description' => 'Female participants in our programs'
-          ],
-          [
-              'icon' => 'agriculture',
-              'title' => 'Farmers Trained',
-              'metric' => '2,500+',
-              'description' => 'In sustainable agricultural practices'
-          ],
-          [
-              'icon' => 'volunteers',
-              'title' => 'Volunteers',
-              'metric' => '1,200+',
-              'description' => 'Active community volunteers'
-          ]
-      ]" />
+      :metrics="$metrics"
+    />
 
     <x-programs-section :programs="$programs"/>
 
@@ -71,7 +23,7 @@
     <div class="grid md:grid-cols-3 gap-8">
       @foreach($approaches as $approach)
         <div
-          class="bg-white rounded-lg shadow-lg p-8 transform hover:-translate-y-1 transition-transform duration-300">
+          class="bg-white rounded-lg shadow p-8 transform hover:-translate-y-1 transition-transform duration-300">
           <div class="w-16 h-16 bg-blue-600 text-white rounded-lg flex items-center justify-center mb-6">
 
             @if($approach['icon'] === 'chat-bubble-left-right')

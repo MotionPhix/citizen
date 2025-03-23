@@ -4,6 +4,7 @@ import { type Slide } from '@/types'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ChevronRight } from 'lucide-vue-next'
+import {Link} from '@inertiajs/vue3'
 
 interface Props {
   slides: Slide[]
@@ -60,18 +61,24 @@ onBeforeUnmount(() => {
                 <h1 class="text-4xl font-display md:text-6xl font-bold mb-4 animate-fade-in">
                   {{ slide.title }}
                 </h1>
+
                 <p class="text-xl md:text-2xl mb-8 animate-fade-in-delay">
                   {{ slide.description }}
                 </p>
+
                 <Button
                   variant="default"
                   size="lg"
                   class="bg-ca-purple hover:bg-ca-primary text-white"
                   asChild>
-                  <a href="#about">
+
+                  <Link
+                    as="button"
+                    :href="route('about')">
                     Learn More
                     <ChevronRight class="ml-2 h-5 w-5" />
-                  </a>
+                  </Link>
+
                 </Button>
               </div>
             </div>
