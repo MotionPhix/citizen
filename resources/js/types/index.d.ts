@@ -39,6 +39,10 @@ export interface Slide {
   title: string
   description: string
   image: string
+  cta?: {
+    text: string
+    url: string
+  }
 }
 
 export interface RouteLink {

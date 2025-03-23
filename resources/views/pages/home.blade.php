@@ -11,7 +11,7 @@
   <x-content-container>
     <x-impact-stats :metrics="$metrics"></x-impact-stats>
 
-    <x-programs-section :programs="$programs"/>
+    <program-section :programs="{{ Js::from($programs) }}"></program-section>
 
     <!-- Approaches Section -->
     <h2 class="text-3xl font-bold text-center font-display mb-12 text-ca-primary dark:text-ca-highlight">
@@ -44,11 +44,11 @@
     <div class="rounded-2xl overflow-hidden my-12">
       <div
         style="background-image: url('{{ asset("/images/about-alliance.jpg") }}')"
-        class="relative h-[30rem] md:h-[calc(100vh-106px)] flex flex-col bg-cover bg-center bg-no-repeat">
-        <div class="relative z-10 mt-auto w-2/3 md:max-w-full ps-5 pb-5 md:ps-10 md:pb-10">
+        class="relative h-[40rem] md:h-[calc(100vh-106px)] flex flex-col bg-cover bg-center bg-no-repeat">
+        <div class="relative z-10 mt-auto w-3/4 md:max-w-full ps-5 pb-5 md:ps-10 md:pb-10">
           <span class="block text-lg text-white mb-2">Who We Are</span>
 
-          <span class="block text-white text-xl md:text-2xl">
+          <span class="block text-white text-lg sm:text-xl md:text-2xl">
             Citizen Alliance (CA) is a coalition of civil society organizations and citizen groups
             established in 2012 as a citizen-led engagement initiative on development and governance processes. The
             organization is registered under the laws of Malawi as a company limited by guaranteed and operates in all the
@@ -56,11 +56,9 @@
           </span>
 
           <div class="mt-5">
-            <a
-              class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-xl bg-white border border-transparent text-black hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
-              href="{{ route('about') }}">
-              Read more
-            </a>
+            <custom-button :is-link="true" href="about">
+              Ream more
+            </custom-button>
           </div>
         </div>
 
