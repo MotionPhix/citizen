@@ -41,4 +41,15 @@ export interface Slide {
   image: string
 }
 
+export interface RouteLink {
+  name: string
+  url: string
+}
+
+export interface SocialLink {
+  platform: 'facebook' | 'twitter' | 'linkedin' | 'instagram' | 'youtube' | 'website'
+  url: string
+  label: string
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

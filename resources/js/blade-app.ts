@@ -1,5 +1,6 @@
 import '../css/app.css';
 
+import AppFooter from '@/components/AppFooter.vue';
 import CounterAnimation from '@/components/CounterAnimation.vue';
 import HeroSlider from '@/components/HeroSlider.vue';
 import ImpactCard from '@/components/ImpactCard.vue';
@@ -8,6 +9,7 @@ import Newsletter from '@/components/Newsletter.vue';
 import { createApp } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
+import GuestAppHeader from '@/components/GuestAppHeader.vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -33,6 +35,8 @@ const registerComponents = (app: ReturnType<typeof createApp>) => {
         .component('newsletter', Newsletter)
         .component('impact-card', ImpactCard)
         .component('toggle-dark', ModeSwitch)
+        .component('app-footer', AppFooter)
+        .component('app-header', GuestAppHeader)
         .component('counter-animation', CounterAnimation);
 
     return app;
