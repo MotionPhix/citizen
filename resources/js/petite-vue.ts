@@ -1,24 +1,28 @@
 import { createApp } from 'petite-vue'
 import '../css/app.css';
 import Swiper from 'swiper'
-import { Pagination, EffectFade, Autoplay } from 'swiper/modules'
-import { BriefcaseIcon, ChartLineIcon, HandshakeIcon, UserIcon } from 'lucide-vue-next';
+import { EffectFade, Autoplay, Navigation } from 'swiper/modules'
 
 // Hero slider handler
 function heroSlider(slides) {
   return {
     slides,
-    currentIndex: 0,
     swiper: null,
+    currentIndex: 0,
     slideOffset: new Array(slides.length).fill(0),
 
     isActive(index) {
       return this.currentIndex === index
     },
 
+    mounted() {
+      // Initialize Swiper when component is mounted
+      this.initSwiper()
+    },
+
     initSwiper() {
       this.swiper = new Swiper('.hero-swiper', {
-        modules: [Pagination, EffectFade, Autoplay],
+        modules: [Navigation, EffectFade, Autoplay], // Remove Parallax
         effect: 'fade',
         speed: 1000,
         loop: true,
@@ -26,38 +30,30 @@ function heroSlider(slides) {
           delay: 5000,
           disableOnInteraction: false,
         },
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
         },
-        on: {
-          slideChange: () => {
-            this.currentIndex = this.swiper.realIndex
-          },
-          setTranslate: () => {
-            // Parallax effect
-            const slides = this.swiper.slides
-            for (let i = 0; i < slides.length; i++) {
-              const slideProgress = slides[i].progress
-              const innerOffset = this.swiper.width * 0.5
-              const innerTranslate = slideProgress * innerOffset
-              this.slideOffset[i] = innerTranslate * 0.8
-            }
-          }
-        }
       })
     },
 
     nextSlide() {
-      this.swiper?.slideNext()
+      if (this.swiper) {
+        this.swiper.slideNext()
+      }
     },
 
     prevSlide() {
-      this.swiper?.slidePrev()
+      if (this.swiper) {
+        this.swiper.slidePrev()
+      }
     },
 
-    destroy() {
-      this.swiper?.destroy()
+    // Clean up when component is destroyed
+    beforeUnmount() {
+      if (this.swiper) {
+        this.swiper.destroy()
+      }
     }
   }
 }
@@ -69,15 +65,6 @@ function impactCard(data) {
     title: data.title,
     metric: data.metric,
     description: data.description,
-
-    get icons() {
-      const iconMap = {
-        'users': UserIcon,
-        'chart': ChartLineIcon,
-        'handshake': HandshakeIcon,
-      }
-      return iconMap[this.icon] || BriefcaseIcon // default icon
-    }
   }
 }
 

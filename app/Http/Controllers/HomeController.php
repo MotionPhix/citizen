@@ -17,7 +17,7 @@ class HomeController extends Controller
       [
         'icon' => 'users',
         'title' => 'People Reached',
-        'metric' => '50,000+',
+        'metric' => '50000',
         'description' => 'Individuals directly impacted across Malawi'
       ],
       [
@@ -41,25 +41,25 @@ class HomeController extends Controller
       [
         'icon' => 'training',
         'title' => 'Training Sessions',
-        'metric' => '450+',
+        'metric' => '450',
         'description' => 'Skill development workshops conducted'
       ],
       [
         'icon' => 'women',
         'title' => 'Women Empowered',
-        'metric' => '15,000+',
+        'metric' => '15000',
         'description' => 'Female participants in our programs'
       ],
       [
         'icon' => 'agriculture',
         'title' => 'Farmers Trained',
-        'metric' => '2,500+',
+        'metric' => '2500',
         'description' => 'In sustainable agricultural practices'
       ],
       [
         'icon' => 'volunteers',
         'title' => 'Volunteers',
-        'metric' => '1,200+',
+        'metric' => '1200',
         'description' => 'Active community volunteers'
       ]
     ]; /*ImpactMetric::where('is_published', true)
