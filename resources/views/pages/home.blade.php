@@ -6,7 +6,89 @@
   </x-slot>
 
   <!-- Hero Slider Section -->
-  <hero-slider :slides="{{ json_encode($slides ?? []) }}" />
+  <div v-scope="heroSlider({{ json_encode($slides) }})" v-cloak class="relative">
+    <div class="swiper hero-swiper h-[700px]">
+      <div class="swiper-wrapper">
+        <template v-for="(slide, index) in slides">
+          <div class="swiper-slide relative">
+            <!-- Background Image with Parallax -->
+            <div
+              class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              :style="{
+              backgroundImage: `url(${slide.image})`,
+              transform: `translate3d(0, ${slideOffset[index]}px, 0)`
+            }"
+            ></div>
+
+            <!-- Dark Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70"></div>
+
+            <!-- Content -->
+            <div class="relative z-10 h-full flex items-center">
+              <div class="container mx-auto px-4">
+                <div
+                  class="max-w-3xl text-white transform transition-all duration-800"
+                  :class="{'opacity-0 translate-y-8': !isActive(index), 'opacity-100 translate-y-0': isActive(index)}"
+                >
+                  <!-- Title -->
+                  <h1
+                    class="text-4xl md:text-6xl font-display font-bold mb-4"
+                    :class="{'animate-fadeInUp': isActive(index)}"
+                    v-html="slide.title"
+                  ></h1>
+
+                  <!-- Description -->
+                  <p
+                    class="text-xl md:text-2xl mb-8"
+                    :class="{'animate-fadeInUp animation-delay-200': isActive(index)}"
+                    v-text="slide.description"
+                  ></p>
+
+                  <!-- CTA Button -->
+                  <a
+                    v-if="slide.cta"
+                    :href="slide.cta.url"
+                    class="inline-flex items-center px-6 py-3 text-base font-medium rounded-md text-white bg-ca-primary hover:bg-ca-primary-dark transition-all duration-300"
+                    :class="{'animate-fadeInUp animation-delay-400': isActive(index)}"
+                  >
+                    @{{ slide.cta.text }}
+                    <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="absolute bottom-8 right-8 z-20 flex space-x-4">
+        <button
+          @click="prevSlide"
+          class="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors duration-300"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <button
+          @click="nextSlide"
+          class="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors duration-300"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Pagination -->
+      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </div>
 
   <x-content-container>
     <x-impact-stats

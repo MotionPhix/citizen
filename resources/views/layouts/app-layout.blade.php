@@ -89,10 +89,10 @@
   <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
   @routes
-  @vite(['resources/js/app.ts'])
+  @vite(['resources/js/petite-vue.ts'])
 </head>
-<body class="font-sans antialiased" id="app">
-
+<body class="font-sans antialiased">
+<div id="blade-app">
   @include('components.header')
 
   <main>
@@ -100,6 +100,6 @@
   </main>
 
   @include('components.footer')
-
+</div>
 </body>
 </html>
