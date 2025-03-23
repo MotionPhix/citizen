@@ -2,6 +2,7 @@ import { createApp } from 'petite-vue'
 import '../css/app.css';
 import Swiper from 'swiper'
 import { Pagination, EffectFade, Autoplay } from 'swiper/modules'
+import { BriefcaseIcon, ChartLineIcon, HandshakeIcon, UserIcon } from 'lucide-vue-next';
 
 // Hero slider handler
 function heroSlider(slides) {
@@ -62,9 +63,21 @@ function heroSlider(slides) {
 }
 
 // Impact Card
-function impactCard() {
+function impactCard(data) {
   return {
-    // Any reactive properties needed for the impact card
+    icon: data.icon,
+    title: data.title,
+    metric: data.metric,
+    description: data.description,
+
+    get icons() {
+      const iconMap = {
+        'users': UserIcon,
+        'chart': ChartLineIcon,
+        'handshake': HandshakeIcon,
+      }
+      return iconMap[this.icon] || BriefcaseIcon // default icon
+    }
   }
 }
 
