@@ -6,12 +6,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@source "../views";
-
-@theme {
-  --font-display: "DM Serif Display", "serif";
-}
-
 body,
 html {
   --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -135,10 +129,6 @@ html {
 
 .hero-swiper .swiper-pagination-bullet-active {
   background: #ffffff;
-}
-
-[v-cloak] {
-  display: none;
 }
 
 @keyframes fadeInUp {

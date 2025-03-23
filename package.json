@@ -16,7 +16,6 @@
         "eslint": "^9.17.0",
         "eslint-config-prettier": "^10.0.1",
         "eslint-plugin-vue": "^9.32.0",
-        "prettier": "^3.4.2",
         "prettier-plugin-organize-imports": "^4.1.0",
         "prettier-plugin-tailwindcss": "^0.6.9",
         "typescript-eslint": "^8.23.0",
@@ -25,6 +24,9 @@
     "dependencies": {
         "@inertiajs/vue3": "^2.0.0-beta.3",
         "@tabler/icons-vue": "^3.31.0",
+        "@tailwindcss/aspect-ratio": "^0.4.2",
+        "@tailwindcss/forms": "^0.5.10",
+        "@tailwindcss/typography": "^0.5.16",
         "@vitejs/plugin-vue": "^5.2.1",
         "@vueuse/core": "^12.8.2",
         "autoprefixer": "^10.4.20",

@@ -13,6 +13,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
+                display: ['DM Serif Display', 'serif'],
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -20,6 +21,15 @@ export default {
                 sm: 'calc(var(--radius) - 4px)',
             },
             colors: {
+                'ca-blue': '#1E3A8A',
+                'ca-purple': '#6D28D9',
+                'ca-red': '#DC2626',
+                'ca-amber': '#F59E0B',
+                'ca-green': '#10B981',
+                'ca-primary': '#4F46E5',
+                'ca-secondary': '#2D3748',
+                'ca-highlight': '#4338CA',
+                'ca-success': '#48BB78',
                 background: 'hsl(var(--background))',
                 foreground: 'hsl(var(--foreground))',
                 card: {
@@ -73,5 +83,10 @@ export default {
             },
         },
     },
-    plugins: [require('tailwindcss-animate')],
+    plugins: [
+        require('tailwindcss-animate'),
+        require('@tailwindcss/forms'),
+        require('@tailwindcss/typography'),
+        require('@tailwindcss/aspect-ratio'),
+    ],
 };
