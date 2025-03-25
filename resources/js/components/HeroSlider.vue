@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { type Slide } from '@/types'
 import { Button } from '@/components/ui/button'
 import { ArrowRightIcon, ChevronRight, MoveLeftIcon } from 'lucide-vue-next'
-import { Link } from '@inertiajs/vue3'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, EffectFade, Navigation } from 'swiper/modules'
 import { gsap } from 'gsap'
@@ -133,13 +132,12 @@ onMounted(() => {
                   size="lg"
                   class="bg-ca-primary hover:bg-ca-primary/90 dark:bg-ca-highlight dark:hover:bg-ca-highlight/90 text-white dark:text-gray-950"
                   asChild>
-                  <Link
+                  <a
                     size="lg"
-                    as="button"
                     :href="route('about')">
                     Learn More
                     <ChevronRight class="ml-2 h-5 w-5" />
-                  </Link>
+                  </a>
                 </Button>
               </div>
             </div>

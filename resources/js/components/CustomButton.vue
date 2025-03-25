@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import {Link} from "@inertiajs/vue3"
 import {useDark} from '@vueuse/core';
 
 defineProps<{
@@ -14,16 +13,18 @@ const isDark = useDark()
 <template>
   <Button
     size="lg"
+    :variant="isDark ? 'secondary': 'outline'"
     as-child
     v-if="isLink">
-    <Link :variant="isDark ? 'secondary': 'outline'" :href="href">
+    <a
+      :href="route(href)">
       <slot />
-    </Link>
+    </a>
   </Button>
 
-  <Button size="lg" v-else>
+  <a :href="href" v-else>
     <slot />
-  </Button>
+  </a>
 </template>
 
 <style scoped>

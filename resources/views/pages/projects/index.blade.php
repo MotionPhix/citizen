@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-app-layout>
   <x-slot name="title">
     Our Impact Projects
   </x-slot>
@@ -18,23 +18,10 @@
         <h1 class="text-5xl md:text-6xl font-display text-white mb-6">
           Transforming Communities
         </h1>
+
         <p class="text-xl text-gray-200 mb-8 leading-relaxed">
           Our projects focus on sustainable development, community empowerment, and lasting social change across Malawi.
         </p>
-
-        <!--div class="flex flex-wrap gap-4">
-          <a href="#featured-projects"
-             class="inline-flex items-center px-6 py-3 bg-white text-ca-primary rounded-full hover:bg-gray-100 transition-colors duration-300">
-            <span>View Projects</span>
-            <x-heroicon-o-arrow-down class="w-5 h-5 ml-2"/>
-          </a>
-
-          <a href="#"
-             class="inline-flex items-center px-6 py-3 bg-ca-highlight text-white rounded-full hover:bg-ca-highlight/90 transition-colors duration-300">
-            <span>Partner With Us</span>
-            <x-heroicon-o-arrow-right class="w-5 h-5 ml-2"/>
-          </a>
-        </div-->
       </div>
     </x-content-container>
   </section>
@@ -141,18 +128,13 @@
     <div class="mt-auto ps-5 pb-5 md:ps-10 max-w-6xl w-full mx-auto">
 
       <div class="md:pb-10 w-full max-w-xl">
-        <span class="block text-white">Supporting communities</span>
-        <span class="block text-white text-xl md:text-3xl">
-        Promoting active citizen participation in development, particularly vulnerable groups like women, youth, children and persons with disabilities
-      </span>
 
-{{--        <div class="mt-5">--}}
-{{--          <a--}}
-{{--            class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-xl bg-white border border-transparent text-black hover:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"--}}
-{{--            href="#">--}}
-{{--            Read more--}}
-{{--          </a>--}}
-{{--        </div>--}}
+        <span class="block text-white">Supporting communities</span>
+
+        <span class="block text-white text-xl md:text-3xl">
+          Promoting active citizen participation in development, particularly vulnerable groups like women, youth, children and persons with disabilities
+        </span>
+
       </div>
 
     </div>
@@ -364,4 +346,4 @@
       </div>
     </x-content-container>
   </section>
-</x-guest-layout>
+</x-app-layout>

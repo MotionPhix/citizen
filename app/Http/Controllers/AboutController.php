@@ -70,9 +70,9 @@ class AboutController extends Controller
         'twitter' => 'https://twitter.com/drgraceb'
       ],
       [
-        'name' => 'Alemekezezeke Chitanje',
+        'name' => 'Alemekezeke Chitanje',
         'position' => 'Board Member',
-        'image' => 'images/team/alemekezezeke-chitanje.jpg',
+        'image' => 'images/team/alemekezeke-chitanje.jpg',
         'bio' => 'Lecturer in Teachers Education with a passion for philanthropic work and supporting vulnerable groups.',
         'linkedin' => 'https://linkedin.com/in/grace-banda',
         'twitter' => 'https://twitter.com/drgraceb'

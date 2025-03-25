@@ -92,6 +92,7 @@
   @vite(['resources/js/blade-app.ts'])
 </head>
 <body class="font-sans antialiased">
+
 <div id="blade_app">
   @include('components.header')
 

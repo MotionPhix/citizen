@@ -3,7 +3,6 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useDark } from '@vueuse/core'
 import { Menu, X } from 'lucide-vue-next'
 import ModeSwitch from './ModeSwitch.vue'
-import {Link} from "@inertiajs/vue3"
 
 interface NavLink {
   name: string
@@ -67,19 +66,19 @@ onUnmounted(() => {
       <nav class="flex items-center justify-between h-16">
         <!-- Logo -->
         <div class="flex-shrink-0">
-          <Link href="/" class="block">
+          <a href="/" class="block">
             <img
               :src="isDark ? logo.dark : logo.light"
               alt="Citizen Alliance"
               class="h-8 w-auto"
             >
-          </Link>
+          </a>
         </div>
 
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center space-x-1">
           <template v-for="link in links" :key="link.url">
-            <Link
+            <a
               :href="link.url"
               class="px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               :class="[
@@ -88,7 +87,7 @@ onUnmounted(() => {
                   : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
               ]">
               {{ link.name }}
-            </Link>
+            </a>
           </template>
 
           <!-- Dark Mode Toggle -->
@@ -120,7 +119,7 @@ onUnmounted(() => {
           class="md:hidden mobile-menu">
           <div class="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-800">
             <template v-for="link in links" :key="link.url">
-              <Link
+              <a
                 :href="link.url"
                 class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                 :class="[
@@ -130,7 +129,7 @@ onUnmounted(() => {
                 ]"
                 @click="isMenuOpen = false">
                 {{ link.name }}
-              </Link>
+              </a>
             </template>
 
             <!-- Mobile Dark Mode Toggle -->
