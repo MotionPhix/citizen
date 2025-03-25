@@ -8,13 +8,17 @@ import HeroSlider from '@/components/HeroSlider.vue';
 import ImpactCard from '@/components/ImpactCard.vue';
 import ModeSwitch from '@/components/ModeSwitch.vue';
 import Newsletter from '@/components/Newsletter.vue';
+import ImpactSection from '@/components/about/ImpactSection.vue';
 import ProgramSection from '../views/components/ProgramSection.vue';
 import AboutBase from '@/components/about/AboutBase.vue';
+import ProjectHero from '@/Components/Projects/ProjectHero.vue'
+import ImpactStats from '@/Components/Projects/ImpactStats.vue'
+import ProjectsGrid from '@/Components/Projects/ProjectsGrid.vue'
+import CallToAction from '@/Components/Projects/CallToAction.vue'
 
 import { createApp } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
-import ImpactSection from '@/components/about/ImpactSection.vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -46,7 +50,11 @@ const registerComponents = (app: ReturnType<typeof createApp>) => {
     .component('custom-button', CustomButton)
     .component('about-base', AboutBase)
     .component('impact-section', ImpactSection)
-    .component('counter-animation', CounterAnimation);
+    .component('counter-animation', CounterAnimation)
+    .component('project-hero', ProjectHero)
+    .component('project-impact-stats', ImpactStats)
+    .component('projects-grid', ProjectsGrid)
+    .component('project-call-to-action', CallToAction);
 
   return app;
 };
