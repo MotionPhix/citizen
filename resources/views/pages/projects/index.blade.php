@@ -9,23 +9,29 @@
   </x-slot>
 
   <div id="blade_app">
-    <project-hero />
+    <project-hero></project-hero>
 
-    <project-impact-stats
-      v-if="impactStats.length"
-      :stats='@json($impactStats)'
-    />
+    @if($impactStats->isNotEmpty())
+
+      <project-impact-stats
+        :stats="{{ Js::from($impactStats) }}">
+      </project-impact-stats>
+
+    @endif
+
+    @if($featuredProjects->isNotEmpty())
+
+      <projects-grid
+        :projects="{{ Js::from($featuredProjects) }}"
+        :featured="true">
+      </projects-grid>
+
+    @endif
 
     <projects-grid
-      v-if="featuredProjects.length"
-      :projects='@json($featuredProjects)'
-      :featured="true"
-    />
+      :projects="{{ Js::from($projects) }}">
+    </projects-grid>
 
-    <projects-grid
-      :projects='@json($projects)'
-    />
-
-    <project-call-to-action />
+    <project-call-to-action></project-call-to-action>
   </div>
 </x-app-layout>

@@ -139,8 +139,8 @@
   </div>
 
   <!-- Map Section -->
-  <div class="w-full h-[600px] relative" x-data>
-    <div id="map" class="w-full h-full" x-init="initContactMap()"></div>
+  <div class="w-full h-[600px] relative">
+    <leaflet-map></leaflet-map>
   </div>
 
   <!-- Call to Action Section -->

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BoundingContainer from '@/components/BoundingContainer.vue'
-import ProjectCard from './ProjectCard.vue'
+import ProjectCard from '@/components/projects/ProjectCard.vue'
 
 interface Project {
   id: number
@@ -15,7 +15,20 @@ interface Project {
 }
 
 const props = defineProps<{
-  projects: Project[]
+  projects: {
+    data: Project[]
+    current_page: number
+    first_page_url: string
+    from?: string|null
+    last_page: string
+    last_page_url: string
+    prev_page_url?: string|null
+    next_page_url?: string|null
+    per_page: number
+    to?: string|null
+    total?: number
+    links: []
+  }
   featured?: boolean
 }>()
 
@@ -40,11 +53,11 @@ const sectionDescription = computed(() =>
         class="text-center mb-16"
         v-motion
         :initial="{ opacity: 0, y: 20 }"
-        :enter="{ opacity: 1, y: 0 }"
-      >
+        :enter="{ opacity: 1, y: 0, transition: { duration: 0.5 } }">
         <h2 class="text-4xl font-display text-ca-primary dark:text-white mb-4">
           {{ sectionTitle }}
         </h2>
+
         <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           {{ sectionDescription }}
         </p>
@@ -53,12 +66,11 @@ const sectionDescription = computed(() =>
       <div
         class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-12"
         v-motion
-        :initial="{ opacity: 0, y: 20 }"
-        :enter="{ opacity: 1, y: 0, transition: { stagger: 0.1 } }"
-      >
+        :initial="{ opacity: 0, y: 40 }"
+        :enter="{ opacity: 1, y: 0, transition: { stagger: 0.1 } }">
         <ProjectCard
-          v-for="project in projects"
-          :key="project.id"
+          v-for="project in projects.data"
+          :key="project?.id"
           :project="project"
         />
       </div>

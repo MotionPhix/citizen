@@ -1,4 +1,6 @@
 import '../css/app.css';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet.fullscreen/Control.FullScreen.css';
 
 import AppFooter from '@/components/AppFooter.vue';
 import CounterAnimation from '@/components/CounterAnimation.vue';
@@ -9,16 +11,18 @@ import ImpactCard from '@/components/ImpactCard.vue';
 import ModeSwitch from '@/components/ModeSwitch.vue';
 import Newsletter from '@/components/Newsletter.vue';
 import ImpactSection from '@/components/about/ImpactSection.vue';
-import ProgramSection from '../views/components/ProgramSection.vue';
+import ProgramSection from '@/components/ProgramSection.vue';
 import AboutBase from '@/components/about/AboutBase.vue';
-import ProjectHero from '@/Components/Projects/ProjectHero.vue'
-import ImpactStats from '@/Components/Projects/ImpactStats.vue'
-import ProjectsGrid from '@/Components/Projects/ProjectsGrid.vue'
-import CallToAction from '@/Components/Projects/CallToAction.vue'
+import ProjectHero from '@/components/projects/ProjectHero.vue';
+import ImpactStats from '@/components/projects/ImpactStats.vue';
+import ProjectsGrid from '@/components/projects/ProjectsGrid.vue';
+import CallToAction from '@/components/projects/CallToAction.vue';
+import LeafletMap from '@/components/LeafletMap.vue'
 
 import { createApp } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
+import { MotionPlugin } from '@vueuse/motion';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -39,7 +43,9 @@ initializeTheme();
 
 // Register components for both Inertia and Blade pages
 const registerComponents = (app: ReturnType<typeof createApp>) => {
-  app.use(ZiggyVue)
+  app
+    .use(ZiggyVue)
+    .use(MotionPlugin)
     .component('hero-slider', HeroSlider)
     .component('newsletter', Newsletter)
     .component('impact-card', ImpactCard)
@@ -54,7 +60,8 @@ const registerComponents = (app: ReturnType<typeof createApp>) => {
     .component('project-hero', ProjectHero)
     .component('project-impact-stats', ImpactStats)
     .component('projects-grid', ProjectsGrid)
-    .component('project-call-to-action', CallToAction);
+    .component('project-call-to-action', CallToAction)
+    .component('leaflet-map', LeafletMap);
 
   return app;
 };

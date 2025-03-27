@@ -46,11 +46,11 @@ defineProps<{
         Our Core Programs
       </h2>
 
-      <div class="space-y-16 divide-y-2 divide-red-500">
+      <div class="space-y-12 divide-y-2 dark:divide-gray-500">
         <div
           v-for="(program, index) in programs"
           :key="program.slug"
-          class="group">
+          class="group py-6">
           <div
             class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"
             :class="index % 2 === 0 ? '' : 'lg:flex-row-reverse'">
