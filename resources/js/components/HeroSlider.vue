@@ -112,7 +112,7 @@ onMounted(() => {
         <!-- Content -->
         <div class="relative h-full flex items-end pb-16">
           <div class="container mx-auto px-4">
-            <div class="max-w-3xl">
+            <div class="max-w-5xl mx-auto">
               <!-- Title -->
               <h1
                 class="slide-title text-4xl md:text-6xl font-display font-bold mb-6 text-white dark:text-gray-100"
