@@ -6,6 +6,7 @@
     ['name' => 'Contact Us', 'url' => 'contact.index'],
     ['name' => 'Blog', 'url' => 'blogs.index'],
   ])}}"
+
   :socials="{{Js::from([
     [
       "platform" => "facebook",

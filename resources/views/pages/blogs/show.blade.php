@@ -79,8 +79,5 @@
         </div>
       </div>
     </div>
-
-    <!-- Toast Messages -->
-    <toast-messages></toast-messages>
   </article>
 </x-app-layout>

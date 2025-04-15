@@ -33,6 +33,12 @@ class Comment extends Model
     return $this->belongsTo(Blog::class);
   }
 
+  public function likes()
+  {
+    return $this->belongsToMany(User::class, 'comment_likes')
+      ->withTimestamps();
+  }
+
   public function parent(): BelongsTo
   {
     return $this->belongsTo(Comment::class, 'parent_id');

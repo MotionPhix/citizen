@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core'
 import type { RouteLink, SocialLink } from '@/types'
-import { Link, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import SocialIcon from '@/components/icons/SocialIcon.vue';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -72,13 +72,13 @@ const handleSubmit = async () => {
           <h3 class="text-gray-900 dark:text-white text-lg font-semibold mb-6 font-display">
             Quick Links
           </h3>
-          <ul class="space-y-4">
+          <ul class="space-y-2">
             <li v-for="path in routes" :key="path.name">
-              <Link
+              <a
                 :href="route(path.url)"
                  class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
                 {{ path.name }}
-              </Link>
+              </a>
             </li>
           </ul>
         </div>

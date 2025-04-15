@@ -89,10 +89,13 @@
   <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
   @routes
-  @vite(['resources/js/app.ts'])
+  @vite(['resources/js/app.ts', 'resources/js/blade-app.ts'])
   @inertiaHead
 </head>
 <body class="font-sans antialiased">
   @inertia
+
+  <!-- Toast Messages -->
+  <toast-messages></toast-messages>
 </body>
 </html>
