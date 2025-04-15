@@ -4,7 +4,7 @@
     ['name' => 'Organisation', 'url' => 'about'],
     ['name' => 'Projects', 'url' => 'projects.index'],
     ['name' => 'Contact Us', 'url' => 'contact.index'],
-    ['name' => 'Donate', 'url' => 'donation.form']
+    ['name' => 'Blog', 'url' => 'blogs.index'],
   ])}}"
   :socials="{{Js::from([
     [

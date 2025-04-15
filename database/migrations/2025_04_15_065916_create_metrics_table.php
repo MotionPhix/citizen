@@ -10,13 +10,15 @@ return new class extends Migration {
    */
   public function up(): void
   {
-    Schema::create('likes', function (Blueprint $table) {
+    Schema::create('metrics', function (Blueprint $table) {
       $table->id();
-      $table->foreignId('user_id')->constrained()->onDelete('cascade');
-      $table->morphs('likeable');
+      $table->string('icon');
+      $table->string('title');
+      $table->string('metric');
+      $table->text('description');
+      $table->integer('sort_order')->default(0);
+      $table->boolean('is_published')->default(true);
       $table->timestamps();
-
-      $table->unique(['user_id', 'likeable_id', 'likeable_type']);
     });
   }
 
@@ -25,6 +27,6 @@ return new class extends Migration {
    */
   public function down(): void
   {
-    Schema::dropIfExists('likes');
+    Schema::dropIfExists('metrics');
   }
 };

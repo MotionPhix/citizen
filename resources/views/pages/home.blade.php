@@ -54,12 +54,6 @@
             organization is registered under the laws of Malawi as a company limited by guaranteed and operates in all the
             districts through Citizen Forums (CFs).
           </span>
-
-          <div class="mt-5">
-            <custom-button :is-link="true" href="about">
-              Ream more
-            </custom-button>
-          </div>
         </div>
 
         <div class="inset-0 bg-black absolute bg-opacity-55"></div>

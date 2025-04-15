@@ -21,9 +21,9 @@
       'isActive' => request()->routeIs('contact.*')
     ],
     [
-      'name' => 'Donate',
-      'url' => route('donation.form'),
-      'isActive' => request()->routeIs('donation.*')
-    ]
+      'name' => 'Blog',
+      'url' => route('blogs.index'),
+      'isActive' => request()->routeIs('blogs.*')
+    ],
   ]) }}">
 </app-header>
