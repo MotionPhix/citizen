@@ -77,7 +77,7 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
       ->middleware('can:delete,comment');
 
     Route::post(
-      '/{blog:slug}/comments/{comment}/like',
+      '/comments/{comment}/like',
       [App\Http\Controllers\CommentLikeController::class, 'toggle']
     )->name('comments.like.toggle');
 
