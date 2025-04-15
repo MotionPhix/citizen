@@ -7,15 +7,17 @@
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div>
         <!-- Blog Post Header Component -->
-        <blog-post-header
-          title="{{ $post->title }}"
-          :tags="@json($post->tags)"
-          author="{{ $post->user->name }}"
-          published-date="{{ $post->published_at->format('M d, Y') }}"
-          likes-count="{{ $post->likes()->count() }}"
-          reading-time="{{ $post->reading_time }}"
-          view-count="{{ $post->view_count }}"
-        />
+        <section>
+          <blog-post-header
+            title="{{ $post->title }}"
+            :tags="@json($post->tags)"
+            author="{{ $post->user->name }}"
+            published-date="{{ $post->published_at->format('M d, Y') }}"
+            likes-count="{{ $post->likes()->count() }}"
+            reading-time="{{ $post->reading_time }}"
+            view-count="{{ $post->view_count }}">
+          </blog-post-header>
+        </section>
 
         <!-- Featured Image -->
         @if($post->hasMedia('blog_images'))
@@ -39,23 +41,25 @@
         <div class="max-w-4xl mx-auto">
           <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8 md:p-12">
             <div class="prose dark:prose-invert prose-lg max-w-none">
-              {!! $post->content !!}
+              {!! str($post->content)->markdown()->sanitizeHtml() !!}
             </div>
 
             <!-- Like Button -->
             <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
               <like-button
-                :post-id="{{ $post->id }}"
-                :initial-count="{{ $post->likes()->count() }}"
-              />
+                post-slug="{{ $post->slug }}"
+                :is-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
+                :initial-count="{{ $post->likes()->count() }}">
+              </like-button>
             </div>
           </div>
 
           <!-- Comments Section -->
           <comments
             post-slug="{{ $post->slug }}"
-            :initial-comments='@json($post->comments->load('user'))'
-          />
+            :is-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
+            :initial-comments='@json($post->comments->load('user'))'>
+          </comments>
 
           <!-- Related Posts -->
           @if($relatedPosts->isNotEmpty())
@@ -66,7 +70,7 @@
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 @foreach($relatedPosts as $relatedPost)
-                  <x-blog-post-card :post="$relatedPost"/>
+                  <x-blog-post-card :post="$relatedPost" />
                 @endforeach
               </div>
             </div>
@@ -76,6 +80,6 @@
     </div>
 
     <!-- Toast Messages -->
-    <toast-messages />
+    <toast-messages></toast-messages>
   </article>
 </x-app-layout>

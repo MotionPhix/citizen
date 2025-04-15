@@ -23,7 +23,7 @@ trait Likeable
   {
     if (!$this->isLikedBy($user)) {
       $this->likes()->create([
-        'user_id' => $user->id,
+        'user_id' => $user->id
       ]);
     }
   }
@@ -53,8 +53,12 @@ trait Likeable
   /**
    * Check if the model is liked by a user
    */
-  public function isLikedBy(User $user): bool
+  public function isLikedBy($user): bool
   {
+    if (!$user) {
+      return false;
+    }
+
     return $this->likes()
       ->where('user_id', $user->id)
       ->exists();

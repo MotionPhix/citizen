@@ -23,6 +23,11 @@ import { createApp } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 import { MotionPlugin } from '@vueuse/motion';
+import LikeButton from '@/components/LikeButton.vue';
+import Comments from '@/components/Comments.vue';
+import BlogPostHeader from '@/components/BlogPostHeader.vue';
+import ToastMessages from '@/components/ToastMessages.vue';
+import AuthDialog from '@/components/AuthDialog.vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -61,7 +66,13 @@ const registerComponents = (app: ReturnType<typeof createApp>) => {
     .component('project-impact-stats', ImpactStats)
     .component('projects-grid', ProjectsGrid)
     .component('project-call-to-action', CallToAction)
-    .component('leaflet-map', LeafletMap);
+    .component('leaflet-map', LeafletMap)
+    // Register new components
+    .component('like-button', LikeButton)
+    .component('comments', Comments)
+    .component('blog-post-header', BlogPostHeader)
+    .component('toast-messages', ToastMessages)
+    .component('auth-dialog', AuthDialog);
 
   return app;
 };

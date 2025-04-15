@@ -23,7 +23,7 @@ class Like extends Model
   }
 
   /**
-   * Get the parent likeable model (blog post, comment, etc.)
+   * Get the parent likeable model
    */
   public function likeable(): MorphTo
   {

@@ -58,7 +58,7 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
     [\App\Http\Controllers\BlogController::class, 'show']
   )->name('show');
 
-// Comments
+  /*
   Route::post(
     '/{slug}/comments',
     [\App\Http\Controllers\CommentController::class, 'store']
@@ -69,7 +69,7 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
     [\App\Http\Controllers\CommentController::class, 'destroy']
   )->name('comments.destroy');
 
-// Likes
+  // Likes
   Route::post(
     '/{slug}/likes',
     [\App\Http\Controllers\LikeController::class, 'store']
@@ -78,7 +78,26 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
   Route::delete(
     '/likes/{like}',
     [\App\Http\Controllers\LikeController::class, 'destroy']
-  )->name('likes.destroy');
+  )->name('likes.destroy');*/
+
+  // Protected routes that require authentication
+  Route::middleware(['auth'])->group(function () {
+    // Comments routes
+    Route::post('/{blog}/comments', [App\Http\Controllers\CommentController::class, 'store'])
+      ->name('comments.store');
+
+    Route::put('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'update'])
+      ->name('comments.update')
+      ->middleware('can:update,comment');
+
+    Route::delete('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])
+      ->name('comments.destroy')
+      ->middleware('can:delete,comment');
+
+    // Likes routes
+    Route::post('/{blog:slug}/like', [App\Http\Controllers\LikeController::class, 'toggle'])
+      ->name('likes.toggle');
+  });
 
 });
 

@@ -67,6 +67,13 @@ class Blog extends Model implements HasMedia
       ->nonQueued();
   }
 
+  /*public function registerMediaCollections(): void
+  {
+    $this->addMediaCollection('blog_images')
+      ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+      ->withResponsiveImages();
+  }*/
+
   public function registerMediaCollections(): void
   {
     $this->addMediaCollection('blog_images')
@@ -106,9 +113,26 @@ class Blog extends Model implements HasMedia
     return $this->hasMany(Comment::class);
   }
 
+  /**
+   * Get all likes for the blog post
+   */
   public function likes()
   {
-    return $this->hasMany(Like::class);
+    return $this->morphMany(Like::class, 'likeable');
+  }
+
+  /**
+   * Check if the blog post is liked by a specific user
+   */
+  public function isLikedBy($user)
+  {
+    if (!$user) {
+      return false;
+    }
+
+    return $this->likes()
+      ->where('user_id', $user->id)
+      ->exists();
   }
 
   // Add scope for published posts
@@ -122,16 +146,6 @@ class Blog extends Model implements HasMedia
   public function incrementViewCount()
   {
     $this->increment('view_count');
-  }
-
-  // Add method to check if post is liked by user
-  public function isLikedBy($user)
-  {
-    if (!$user) {
-      return false;
-    }
-
-    return $this->likes()->where('user_id', $user->id)->exists();
   }
 
   // Add method to get reading time

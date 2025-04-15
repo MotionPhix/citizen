@@ -7,6 +7,7 @@ use App\Filament\Resources\BlogResource\RelationManagers;
 use App\Models\Blog;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -58,7 +59,7 @@ class BlogResource extends Resource
               ->imageEditor()
               ->columnSpanFull(),*/
 
-            FileUpload::make('blog_images')
+            /*FileUpload::make('blog_images')
               ->label('Blog Images')
               ->multiple()
               ->image()
@@ -69,7 +70,25 @@ class BlogResource extends Resource
               ->preserveFilenames()
               ->reorderable()
               ->columnSpanFull()
-              ->helperText('Upload images in JPEG, PNG, WebP, or GIF format. Maximum size: 5MB'),
+              ->helperText('Upload images in JPEG, PNG, WebP, or GIF format. Maximum size: 5MB'),*/
+
+            SpatieMediaLibraryFileUpload::make('blog_images')
+              ->collection('blog_images')
+              ->multiple()
+              ->image()
+              ->imageEditor()
+              ->imageEditorAspectRatios([
+                '16:9',
+                '4:3',
+                '1:1',
+              ])
+              ->imageEditorViewportWidth('1920')
+              ->imageEditorViewportHeight('1080')
+              ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+              ->maxSize(5120)
+              ->downloadable()
+              ->reorderable()
+              ->columnSpanFull(),
           ])
           ->columnSpan(['lg' => 2]),
 
