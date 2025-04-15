@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useEventBus } from '@vueuse/core';
-import { ref } from 'vue';
-import { Heart, Reply } from 'lucide-vue-next';
 import AuthDialog from '@/components/AuthDialog.vue';
+import axios from 'axios';
+import { ref } from 'vue';
+import { useToast } from '@/composables/useToast';
+import {Heart, Reply} from 'lucide-vue-next';
+
+interface User {
+  id: number;
+  name: string;
+  avatar: string;
+}
 
 interface CommentType {
   id: number;
   content: string;
-  user: {
-    id: number;
-    name: string;
-    avatar: string;
-  };
+  user: User;
   created_at: string;
   likes_count: number;
   is_liked: boolean;
@@ -22,61 +25,56 @@ interface CommentType {
 
 const props = defineProps<{
   postSlug: string;
-  isAuthenticated: boolean;
   initialComments: CommentType[];
+  isAuthenticated: boolean;
 }>();
 
-const comments = ref(props.initialComments);
+const comments = ref<CommentType[]>(props.initialComments);
 const newComment = ref('');
+const isSubmitting = ref(false);
 const replyingTo = ref<number | null>(null);
 const replyContent = ref('');
-const toast = useEventBus('toast');
-const isSubmitting = ref(false);
+const { showToast } = useToast();
 
 const submitComment = async () => {
-  if (!newComment.value.trim() || isSubmitting.value) return;
+  if (!newComment.value.trim() || isSubmitting.value) return
 
   try {
-    isSubmitting.value = true;
+    isSubmitting.value = true
     const response = await axios.post(`/blogs/${props.postSlug}/comments`, {
       content: newComment.value,
       parent_id: replyingTo.value
-    });
+    })
 
     if (response.status === 200) {
-      const { comment } = response.data;
+      const { comment } = response.data
 
       if (replyingTo.value) {
-        const parentComment = comments.value.find(c => c.id === replyingTo.value);
+        const parentComment = comments.value.find(c => c.id === replyingTo.value)
         if (parentComment) {
-          parentComment.replies = [...(parentComment.replies || []), comment];
+          parentComment.replies = [...(parentComment.replies || []), comment]
         }
-        replyingTo.value = null;
-        replyContent.value = '';
+        replyingTo.value = null
+        replyContent.value = ''
       } else {
-        comments.value = [comment, ...comments.value];
-        newComment.value = '';
+        comments.value = [comment, ...comments.value]
+        newComment.value = ''
       }
 
-      toast.emit('add', {
+      showToast({
         type: 'success',
         message: 'Comment posted successfully!'
-      });
+      })
     }
-  } catch (error) {
-    toast.emit('add', {
+  } catch (error: any) {
+    showToast({
       type: 'error',
-      message: 'Failed to post comment'
-    });
+      message: error.response?.data?.message || 'Failed to post comment'
+    })
   } finally {
-    isSubmitting.value = false;
+    isSubmitting.value = false
   }
-};
-
-const toggleReply = (commentId: number) => {
-  replyingTo.value = replyingTo.value === commentId ? null : commentId;
-  replyContent.value = '';
-};
+}
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('en-US', {
@@ -84,34 +82,6 @@ const formatDate = (date: string) => {
     month: 'long',
     day: 'numeric'
   });
-};
-
-const toggleLike = async (commentId: number) => {
-  try {
-    const response = await fetch(`/api/comments/${commentId}/like`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      // Update the likes count in the UI
-      comments.value = comments.value.map(comment => {
-        if (comment.id === commentId) {
-          return { ...comment, likes_count: data.likes_count, is_liked: !comment.is_liked };
-        }
-        return comment;
-      });
-    }
-  } catch (error) {
-    toast.emit('add', {
-      type: 'error',
-      message: 'Failed to update like status'
-    });
-  }
 };
 </script>
 
@@ -141,8 +111,7 @@ const toggleLike = async (commentId: number) => {
         />
         <Button
           @click="submitComment"
-          :disabled="!newComment.trim() || isSubmitting"
-        >
+          :disabled="!newComment.trim() || isSubmitting">
           Post Comment
         </Button>
       </div>
@@ -153,8 +122,7 @@ const toggleLike = async (commentId: number) => {
       <div
         v-for="comment in comments"
         :key="comment.id"
-        class="bg-white dark:bg-gray-800 rounded-lg p-6"
-      >
+        class="bg-white dark:bg-gray-800 rounded-lg p-6">
         <div class="flex items-start gap-4">
           <img
             :src="comment.user.avatar"
@@ -173,8 +141,7 @@ const toggleLike = async (commentId: number) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  @click="toggleLike(comment.id)"
-                >
+                  @click="toggleLike(comment.id)">
                   <Heart
                     :class="[
                       'h-4 w-4',
@@ -186,8 +153,7 @@ const toggleLike = async (commentId: number) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  @click="toggleReply(comment.id)"
-                >
+                  @click="toggleReply(comment.id)">
                   <Reply class="h-4 w-4" />
                   <span class="ml-1">Reply</span>
                 </Button>

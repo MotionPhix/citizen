@@ -1,43 +1,44 @@
 <script setup lang="ts">
-import { useEventBus } from '@vueuse/core';
-import { ref } from 'vue';
-import { Check, X, AlertCircle } from 'lucide-vue-next';
-import { Button } from '@/components/ui/button';
+import { ref, onMounted } from 'vue'
+import { useToast } from '@/composables/useToast'
+import {Check, AlertCircle, X} from 'lucide-vue-next'
+import {Button} from '@/components/ui/button';
 
 interface Toast {
-  id: number;
-  type: 'success' | 'error';
-  message: string;
+  id: number
+  message: string
+  type: 'success' | 'error' | 'info'
 }
 
-const toasts = ref<Toast[]>([]);
-const toast = useEventBus('toast');
+const toasts = ref<Toast[]>([])
+let nextId = 0
 
-let counter = 0;
+const { onToast } = useToast()
 
-toast.on('add', (message: { type: 'success' | 'error'; message: string }) => {
-  const id = counter++;
-  toasts.value.push({ ...message, id });
+onMounted(() => {
+  onToast((payload) => {
+    const id = nextId++
+    toasts.value.push({ ...payload, id })
 
-  // Remove toast after 5 seconds
-  setTimeout(() => {
-    removeToast(id);
-  }, 5000);
-});
+    // Remove toast after 5 seconds
+    setTimeout(() => {
+      removeToast(id)
+    }, 5000)
+  })
+})
 
 const removeToast = (id: number) => {
-  const index = toasts.value.findIndex(t => t.id === id);
+  const index = toasts.value.findIndex(t => t.id === id)
   if (index > -1) {
-    toasts.value.splice(index, 1);
+    toasts.value.splice(index, 1)
   }
-};
+}
 </script>
 
 <template>
   <div
     class="fixed bottom-0 right-0 z-50 p-4 space-y-4"
-    style="max-height: 100vh; overflow-y: auto;"
-  >
+    style="max-height: 100vh; overflow-y: auto;">
     <transition-group name="toast">
       <div
         v-for="item in toasts"
@@ -45,8 +46,7 @@ const removeToast = (id: number) => {
         :class="[
           'flex items-center gap-3 p-4 rounded-lg shadow-lg min-w-[300px] max-w-[500px]',
           item.type === 'success' ? 'bg-green-50 dark:bg-green-900/50' : 'bg-red-50 dark:bg-red-900/50'
-        ]"
-      >
+        ]">
         <div
           :class="[
             'flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full',
@@ -57,6 +57,7 @@ const removeToast = (id: number) => {
             v-if="item.type === 'success'"
             class="w-5 h-5 text-green-600 dark:text-green-300"
           />
+
           <AlertCircle
             v-else
             class="w-5 h-5 text-red-600 dark:text-red-300"
@@ -81,8 +82,7 @@ const removeToast = (id: number) => {
           :class="[
             'flex-shrink-0',
             item.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-          ]"
-        >
+          ]">
           <X class="w-4 h-4" />
         </Button>
       </div>

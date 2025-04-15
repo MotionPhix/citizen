@@ -7,6 +7,7 @@ use App\Traits\HasMediaUrls;
 use App\Traits\Likeable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -108,9 +109,9 @@ class Blog extends Model implements HasMedia
     return $this->belongsTo(User::class);
   }
 
-  public function comments()
+  public function comments(): HasMany
   {
-    return $this->hasMany(Comment::class);
+    return $this->hasMany(Comment::class)->whereNull('parent_id');
   }
 
   /**
@@ -159,6 +160,16 @@ class Blog extends Model implements HasMedia
   {
     return $this->morphToMany(Tag::class, 'taggable')
       ->where('type', 'blog_tags');
+  }
+
+  protected static function boot()
+  {
+    parent::boot();
+
+    // Add likes_count to every query
+    static::addGlobalScope('withLikesCount', function ($builder) {
+      $builder->withCount('likes');
+    });
   }
 
 }

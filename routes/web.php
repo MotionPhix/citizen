@@ -83,8 +83,10 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
   // Protected routes that require authentication
   Route::middleware(['auth'])->group(function () {
     // Comments routes
-    Route::post('/{blog}/comments', [App\Http\Controllers\CommentController::class, 'store'])
-      ->name('comments.store');
+    Route::post(
+      '/{blog:slug}/comments',
+      [App\Http\Controllers\CommentController::class, 'store']
+    )->name('comments.store');
 
     Route::put('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'update'])
       ->name('comments.update')

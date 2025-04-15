@@ -48,8 +48,9 @@
             <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
               <like-button
                 post-slug="{{ $post->slug }}"
+                :initial-count="{{ $post->likes_count }}"
                 :is-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
-                :initial-count="{{ $post->likes()->count() }}">
+                :initial-is-liked="{{ auth()->check() ? $post->isLikedBy(auth()->user()) ? 'true' : 'false' : 'false' }}">
               </like-button>
             </div>
           </div>
