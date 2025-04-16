@@ -2,29 +2,48 @@
   <x-slot name="title">{{ $post->title }}</x-slot>
   <x-slot name="description">{{ $post->excerpt }}</x-slot>
 
-  <article class="min-h-screen bg-gray-50 dark:bg-gray-900 pt-12 pb-24">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Blog Post Header Component -->
-      <section class="max-w-7xl mx-auto mb-12">
-        <blog-post-header
-          title="{{ $post->title }}"
-          :tags="@json($post->tags)"
-          author="{{ $post->user->name }}"
-          published-date="{{ $post->published_at->format('M d, Y') }}"
-          likes-count="{{ $post->likes()->count() }}"
-          reading-time="{{ $post->reading_time }}"
-          view-count="{{ $post->view_count }}">
-        </blog-post-header>
-      </section>
+  <!-- Blog Article -->
+  <div class="max-w-[85rem] px-4 sm:px-6 lg:px-8 mx-auto">
+    <div class="grid lg:grid-cols-3 gap-y-8 lg:gap-y-0 lg:gap-x-6">
+      <!-- Content -->
+      <div class="lg:col-span-2">
+        <div class="py-8 lg:pe-8">
+          <div class="space-y-5 lg:space-y-8">
+            <a class="inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:underline focus:outline-hidden focus:underline dark:text-blue-500" href="{{ route('blogs.index') }}">
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              Back to Blog
+            </a>
 
-      <!-- Main Content Area with Sidebar -->
-      <div class="max-w-7xl mx-auto">
-        <div class="lg:grid lg:grid-cols-12 lg:gap-8">
-          <!-- Main Content -->
-          <div class="lg:col-span-8">
+            <h2 class="text-3xl font-bold lg:text-5xl dark:text-white">
+              {{ $post->title }}
+            </h2>
+
+            <div class="flex items-center gap-x-5">
+              @if($post->tags->isNotEmpty())
+                <div class="flex flex-wrap gap-2">
+                  @foreach($post->tags as $tag)
+                    <a class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs sm:text-sm bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800" href="{{ route('blogs.index', ['tag' => $tag->slug]) }}">
+                      {{ $tag->name }}
+                    </a>
+                  @endforeach
+                </div>
+              @endif
+              <p class="text-xs sm:text-sm text-gray-800 dark:text-neutral-200">
+                {{ $post->published_at?->format('M d, Y') }}
+              </p>
+            </div>
+
+            @if($post->excerpt)
+              <blockquote>
+                <p class="text-lg text-gray-800 dark:text-neutral-200">
+                  {{ $post->excerpt }}
+                </p>
+              </blockquote>
+            @endif
+
             <!-- Featured Image -->
             @if($post->hasMedia('blog_images'))
-              <div class="mb-12">
+              <div class="max-w-5xl mx-auto mb-12">
                 <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden shadow-xl">
                   <img
                     src="{{ $post->getFirstMediaUrl('blog_images', 'preview') }}"
@@ -35,44 +54,67 @@
                            1200px"
                     alt="{{ $post->title }}"
                     class="w-full h-full object-cover"
-                    loading="lazy">
+                    loading="lazy"
+                    width="1200"
+                    height="675">
                 </div>
               </div>
             @endif
 
             <!-- Article Content -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-8 md:p-12">
-              <div class="prose dark:prose-invert prose-lg max-w-none">
-                {!! str($post->content)->markdown()->sanitizeHtml() !!}
-              </div>
+            <div class="prose prose-lg max-w-none dark:prose-invert">
+              {!! str($post->content)->markdown() !!}
+            </div>
 
+            <!-- Tags and Interactions -->
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-y-5 lg:gap-y-0 mt-8 pt-8 border-t border-gray-200 dark:border-neutral-700">
               <!-- Tags -->
-              <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              @if($post->tags->isNotEmpty())
                 <div class="flex flex-wrap gap-2">
                   @foreach($post->tags as $tag)
-                    <a
-                      href="{{ route('blogs.index', ['tag' => $tag->slug]) }}"
-                      class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-                    >
-                      #{{ $tag->name }}
+                    <a class="inline-flex items-center gap-1.5 py-2 px-3 rounded-full text-sm bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700" href="{{ route('blogs.index', ['tag' => $tag->slug]) }}">
+                      {{ $tag->name }}
                     </a>
                   @endforeach
                 </div>
-              </div>
+              @endif
 
-              <!-- Like Button -->
-              <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <!-- Interaction Buttons -->
+              <div class="flex justify-end items-center gap-x-1.5">
+                <!-- Like Button -->
                 <like-button
                   post-slug="{{ $post->slug }}"
-                  :initial-count="{{ $post->likes_count }}"
+                  :initial-count="{{ $post->likes()->count() }}"
                   :is-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
-                  :initial-is-liked="{{ auth()->check() ? $post->isLikedBy(auth()->user()) ? 'true' : 'false' : 'false' }}"
-                  :is-owner="{{ auth()->check() && $post->user_id === auth()->id() ? 'true' : 'false' }}">
+                  :initial-is-liked="{{ auth()->check() ? $post->isLikedBy(auth()->user()) ? 'true' : 'false' : 'false' }}">
                 </like-button>
+
+                <div class="block h-3 border-e border-gray-300 mx-3 dark:border-neutral-600"></div>
+
+                <!-- Comments Count -->
+                <div class="hs-tooltip inline-block">
+                  <button type="button" class="hs-tooltip-toggle flex items-center gap-x-2 text-sm text-gray-500 hover:text-gray-800 focus:outline-hidden focus:text-gray-800 dark:text-neutral-400 dark:hover:text-neutral-200 dark:focus:text-neutral-200">
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+                    {{ $post->comments->count() }}
+                    <span class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-1 px-2 bg-gray-900 text-xs font-medium text-white rounded-md shadow-2xs dark:bg-black" role="tooltip">
+                      Comments
+                    </span>
+                  </button>
+                </div>
+
+                <div class="block h-3 border-e border-gray-300 mx-3 dark:border-neutral-600"></div>
+
+                <!-- Share Button -->
+                <share-button
+                  url="{{ url()->current() }}"
+                  title="{{ $post->title }}">
+                </share-button>
               </div>
             </div>
+          </div>
 
-            <!-- Comments Section -->
+          <!-- Comments Section -->
+          <div class="mt-8 pt-8 border-t border-gray-200 dark:border-neutral-700">
             <comments
               post-slug="{{ $post->slug }}"
               :is-authenticated="{{ auth()->check() ? 'true' : 'false' }}"
@@ -80,126 +122,104 @@
               :initial-comments='@json($post->comments->load('user'))'>
             </comments>
           </div>
+        </div>
+      </div>
+      <!-- End Content -->
 
-          <!-- Sidebar -->
-          <div class="lg:col-span-4 space-y-8 mt-8 lg:mt-0">
-            <!-- Author Card -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-              <div class="flex items-center space-x-4 mb-4">
-                @if($post->user->getFirstMediaUrl('avatar'))
-                  <img
-                    src="{{ $post->user->getFirstMediaUrl('avatar', 'thumb') }}"
-                    alt="{{ $post->user->name }}"
-                    class="h-16 w-16 rounded-full object-cover"
-                  >
-                @else
-                  <div class="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <span class="text-2xl font-medium text-gray-600 dark:text-gray-300">
-                      {{ substr($post->user->name, 0, 1) }}
-                    </span>
-                  </div>
-                @endif
-
-                <div>
-                  <h3 class="font-display font-bold text-gray-900 dark:text-white">
-                    {{ $post->user->name }}
-                  </h3>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ '@' . str($post->user->name)->lower()->slug() }}
-                  </p>
+      <!-- Sidebar -->
+      <div class="lg:col-span-1 lg:w-full lg:h-full lg:bg-gradient-to-r lg:from-gray-50 lg:via-transparent lg:to-transparent dark:from-neutral-800">
+        <div class="sticky top-10 start-0 py-8 lg:ps-8">
+          <!-- Author Info -->
+          <div class="group flex items-center gap-x-3 border-b border-gray-200 pb-8 mb-8 dark:border-neutral-700">
+            <a class="block shrink-0 focus:outline-hidden" href="#">
+              @if($post->user->getFirstMediaUrl('avatar'))
+                <img class="size-10 rounded-full" src="{{ $post->user->getFirstMediaUrl('avatar', 'thumb') }}" alt="{{ $post->user->name }}">
+              @else
+                <div class="size-10 rounded-full bg-gray-200 dark:bg-neutral-700 flex items-center justify-center">
+                  <span class="text-lg font-medium text-gray-600 dark:text-neutral-300">
+                    {{ substr($post->user->name, 0, 1) }}
+                  </span>
                 </div>
-              </div>
-
-              @if($post->user->bio)
-                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                  {{ $post->user->bio }}
-                </p>
               @endif
+            </a>
 
-              <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                <div>
-                  <span class="font-medium text-gray-900 dark:text-white">
-                    {{ $post->user->posts()->published()->count() }}
-                  </span>
-                  posts
-                </div>
-                <div>
-                  <span class="font-medium text-gray-900 dark:text-white">
-                    {{ $post->user->totalPostLikes() }}
-                  </span>
-                  total likes
-                </div>
-              </div>
+            <div class="grow">
+              <h5 class="text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                {{ $post->user->name }}
+              </h5>
+              <p class="text-sm text-gray-500 dark:text-neutral-500">
+                {{ '@' . str($post->user->name)->lower()->slug() }}
+              </p>
             </div>
 
-            <!-- Table of Contents -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-              <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">
-                Table of Contents
-              </h3>
-              <nav class="space-y-1 text-sm">
-                <table-of-contents
-                  content="{{ $post->content }}"
-                  class="prose-toc">
-                </table-of-contents>
-              </nav>
-            </div>
-
-            <!-- Related Posts -->
-            @if($relatedPosts->isNotEmpty())
-              <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-                <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">
-                  Related Posts
-                </h3>
-                <div class="space-y-6">
-                  @foreach($relatedPosts as $relatedPost)
-                    <div class="flex space-x-4">
-                      @if($relatedPost->hasMedia('blog_images'))
-                        <div class="flex-shrink-0">
-                          <img
-                            src="{{ $relatedPost->getFirstMediaUrl('blog_images', 'thumbnail') }}"
-                            alt="{{ $relatedPost->title }}"
-                            class="h-16 w-16 object-cover rounded-lg"
-                          >
-                        </div>
-                      @endif
-                      <div>
-                        <h4 class="font-medium text-gray-900 dark:text-white line-clamp-2">
-                          <a href="{{ route('blogs.show', $relatedPost->slug) }}" class="hover:text-primary-600 dark:hover:text-primary-400">
-                            {{ $relatedPost->title }}
-                          </a>
-                        </h4>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                          {{ $relatedPost->published_at->format('M d, Y') }}
-                          · {{ $relatedPost->reading_time }} min read
-                        </p>
-                      </div>
-                    </div>
-                  @endforeach
+            @if(auth()->check() && auth()->id() !== $post->user_id)
+              <div class="grow">
+                <div class="flex justify-end">
+                  <button type="button" class="py-1.5 px-2.5 inline-flex items-center gap-x-2 text-xs font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                    Follow
+                  </button>
                 </div>
               </div>
             @endif
-
-            <!-- Popular Tags -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
-              <h3 class="font-display font-bold text-gray-900 dark:text-white mb-4">
-                Popular Tags
-              </h3>
-              <div class="flex flex-wrap gap-2">
-                @foreach($popularTags as $tag)
-                  <a
-                    href="{{ route('blogs.index', ['tag' => $tag->slug]) }}"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-                  >
-                    #{{ $tag->name }}
-                    <span class="ml-1 text-gray-500 dark:text-gray-400">{{ $tag->posts_count }}</span>
-                  </a>
-                @endforeach
-              </div>
-            </div>
           </div>
+
+          <!-- Related Posts -->
+          @if($relatedPosts->isNotEmpty())
+            <div class="space-y-6">
+              @foreach($relatedPosts as $relatedPost)
+                <a class="group flex items-center gap-x-6 focus:outline-hidden" href="{{ route('blogs.show', $relatedPost->slug) }}">
+                  <div class="grow">
+                    <span class="text-sm font-bold text-gray-800 group-hover:text-blue-600 group-focus:text-blue-600 dark:text-neutral-200 dark:group-hover:text-blue-500 dark:group-focus:text-blue-500">
+                      {{ $relatedPost->title }}
+                    </span>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-neutral-500">
+                      {{ $relatedPost->published_at?->format('M d, Y') }}
+                    </p>
+                  </div>
+
+                  @if($relatedPost->hasMedia('blog_images'))
+                    <div class="shrink-0 relative rounded-lg overflow-hidden size-20">
+                      <img
+                        class="size-full absolute top-0 start-0 object-cover rounded-lg"
+                        src="{{ $relatedPost->getFirstMediaUrl('blog_images', 'thumbnail') }}"
+                        alt="{{ $relatedPost->title }}"
+                        loading="lazy"
+                        width="80"
+                        height="80">
+                    </div>
+                  @endif
+                </a>
+              @endforeach
+            </div>
+          @endif
         </div>
       </div>
+      <!-- End Sidebar -->
     </div>
-  </article>
+  </div>
+  <!-- End Blog Article -->
+
+  @push('scripts')
+    <script>
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          // Show a toast notification
+          window.dispatchEvent(new CustomEvent('toast', {
+            detail: {
+              type: 'success',
+              message: 'Link copied to clipboard!'
+            }
+          }));
+        }).catch(() => {
+          window.dispatchEvent(new CustomEvent('toast', {
+            detail: {
+              type: 'error',
+              message: 'Failed to copy link'
+            }
+          }));
+        });
+      }
+    </script>
+  @endpush
 </x-app-layout>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Tags\Tag;
 
 class BlogController extends Controller
@@ -77,11 +78,19 @@ class BlogController extends Controller
     // Check if the current user has liked the post
     $isLiked = auth()->check() ? $post->isLikedBy(auth()->user()) : false;
 
-    $popularTags = Tag::withCount(['posts' => function ($query) {
-      $query->published();
-    }])
+    // Get popular tags by counting their usage in published blog posts
+    $popularTags = Tag::query()
+      ->select(['tags.*', DB::raw('COUNT(DISTINCT blogs.id) as posts_count')])
+      ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
+      ->join('blogs', function ($join) {
+        $join->on('taggables.taggable_id', '=', 'blogs.id')
+          ->where('taggables.taggable_type', '=', Blog::class);
+      })
+      ->whereNotNull('blogs.published_at')
+      ->where('blogs.published_at', '<=', now())
+      ->groupBy('tags.id', 'tags.name', 'tags.type', 'tags.created_at', 'tags.updated_at', 'tags.order_column')
       ->having('posts_count', '>', 0)
-      ->orderBy('posts_count', 'desc')
+      ->orderByDesc('posts_count')
       ->limit(10)
       ->get();
 
