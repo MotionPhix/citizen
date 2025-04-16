@@ -16,6 +16,13 @@ class LikeController extends Controller
     try {
       $user = $request->user();
 
+      // Check if user is the blog owner
+      if ($blog->user_id === $user->id) {
+        return response()->json([
+          'message' => 'You cannot like your own blog post',
+        ], 403);
+      }
+
       if ($blog->isLikedBy($user)) {
         $blog->unlike($user);
         $message = 'Blog post unliked successfully';

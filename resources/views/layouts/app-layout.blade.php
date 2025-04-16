@@ -101,6 +101,9 @@
   </main>
 
   @include('components.footer')
+
+  <!-- Toast Messages -->
+  <toast-messages></toast-messages>
 </div>
 </body>
 </html>

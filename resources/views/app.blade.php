@@ -94,8 +94,5 @@
 </head>
 <body class="font-sans antialiased">
   @inertia
-
-  <!-- Toast Messages -->
-  <toast-messages></toast-messages>
 </body>
 </html>
