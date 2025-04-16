@@ -81,7 +81,7 @@ const shareLinks = [
         </template>
 
         <template v-else>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem>
             <a
               :href="link.href"
               target="_blank"
@@ -89,8 +89,8 @@ const shareLinks = [
               class="flex items-center">
               <component
                 class="mr-2 h-4 w-4"
-                :is="link.icon"
-              />
+                :is="link.icon">
+              </component>
               <span>{{ link.name }}</span>
             </a>
           </DropdownMenuItem>
