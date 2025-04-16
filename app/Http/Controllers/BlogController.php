@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Blog;
 use Illuminate\Http\Request;
+use Spatie\Tags\Tag;
 
 class BlogController extends Controller
 {
@@ -76,7 +77,18 @@ class BlogController extends Controller
     // Check if the current user has liked the post
     $isLiked = auth()->check() ? $post->isLikedBy(auth()->user()) : false;
 
-    return view('pages.blogs.show', compact('post', 'relatedPosts', 'isLiked'));
+    $popularTags = Tag::withCount(['posts' => function ($query) {
+      $query->published();
+    }])
+      ->having('posts_count', '>', 0)
+      ->orderBy('posts_count', 'desc')
+      ->limit(10)
+      ->get();
+
+    return view(
+      'pages.blogs.show',
+      compact('post', 'relatedPosts', 'isLiked', 'popularTags')
+    );
   }
 
 }
