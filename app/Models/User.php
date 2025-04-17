@@ -29,6 +29,7 @@ class User extends Authenticatable implements HasMedia
     'name',
     'email',
     'password',
+    'is_active',
     'role',
   ];
 
@@ -52,6 +53,7 @@ class User extends Authenticatable implements HasMedia
     return [
       'email_verified_at' => 'datetime',
       'password' => 'hashed',
+      'is_active' => 'boolean',
     ];
   }
 
@@ -62,7 +64,7 @@ class User extends Authenticatable implements HasMedia
   {
     $this->addMediaCollection('avatar')
       ->singleFile()
-      ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif'])
+      ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
       ->registerMediaConversions(function () {
         $this->addMediaConversion('thumb')
           ->width(100)

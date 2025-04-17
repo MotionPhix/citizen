@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class ContactSubmission extends Model
 {
-  use HasFactory;
+  use HasFactory, Notifiable;
 
   protected $fillable = [
     'name',
@@ -15,6 +16,7 @@ class ContactSubmission extends Model
     'subject',
     'message',
     'status',
+    'response',
     'ip_address',
     'user_agent',
   ];
@@ -32,5 +34,10 @@ class ContactSubmission extends Model
   public function markAsRead()
   {
     $this->update(['status' => 'read']);
+  }
+
+  public function routeNotificationForMail()
+  {
+    return $this->email;
   }
 }

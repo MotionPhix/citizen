@@ -41,8 +41,8 @@ class ContactController extends Controller
     ]);
 
     // Send notification to admin
-    User::where('role', 'admin')->each(function ($admin) use ($request) {
-      $admin->notify(new ContactFormSubmission($request->validated()));
+    User::where('role', 'admin')->each(function ($admin) use ($submission) {
+      $admin->notify(new ContactFormSubmission($submission));
     });
 
     return back()->with('success', 'Thank you for your message. We will get back to you soon!');

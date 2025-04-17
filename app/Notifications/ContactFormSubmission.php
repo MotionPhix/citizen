@@ -2,16 +2,14 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
+use App\Models\ContactSubmission;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ContactFormSubmission extends Notification
 {
-  use Queueable;
-
   public function __construct(
-    public array $data
+    public ContactSubmission $submission
   ) {}
 
   public function via($notifiable): array
@@ -23,6 +21,23 @@ class ContactFormSubmission extends Notification
   {
     return (new MailMessage)
       ->subject('New Contact Form Submission')
-      ->view('emails.contact-form', ['data' => $this->data]);
+      ->view('emails.contact-form', [
+        'data' => [
+          'name' => $this->submission->name,
+          'email' => $this->submission->email,
+          'subject' => $this->submission->subject,
+          'message' => $this->submission->message,
+        ]
+      ]);
+  }
+
+  public function toArray($notifiable): array
+  {
+    return [
+      'submission_id' => $this->submission->id,
+      'name' => $this->submission->name,
+      'subject' => $this->submission->subject,
+      'email' => $this->submission->email,
+    ];
   }
 }
