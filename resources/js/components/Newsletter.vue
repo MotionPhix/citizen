@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import { ref } from 'vue';
+import axios from 'axios'
 
-const form = useForm({
-  email: ''
-})
+const email = ref()
+const errors = ref()
+const isLoading = ref(false)
 
 const handleSubmit = async () => {
-  form.post('/newsletter', {
+  axios.post('/newsletter', {
     preserveScroll: true,
     onSuccess: () => {
       toast.success({
         description: 'Thank you for subscribing to our newsletter!'
       })
-      form.reset()
     },
     onError: () => {
       toast.error({
@@ -41,37 +41,34 @@ const handleSubmit = async () => {
         <form @submit.prevent="handleSubmit" class="relative">
           <div class="flex flex-col sm:flex-row">
             <Input
-              v-model="form.email"
+              v-model="email"
               type="email"
               required
               placeholder="Enter your email"
-              :disabled="form.processing"
               class="flex-1 sm:rounded-e-none h-11"
               :class="{
-                'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.email
+                'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': errors.email
               }"
             />
 
             <Button
               size="lg"
               type="submit"
-              :disabled="form.processing"
               class="sm:rounded-s-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
             >
               <Loader2
-                v-if="form.processing"
+                v-if="isLoading"
                 class="w-4 h-4 mr-2 animate-spin"
               />
-              {{ form.processing ? 'Processing...' : 'Subscribe' }}
+              {{ isLoading ? 'Processing...' : 'Subscribe' }}
             </Button>
           </div>
 
           <!-- Error Message -->
           <p
-            v-if="form.errors.email"
-            class="absolute mt-1 text-sm text-red-500 dark:text-red-400"
-          >
-            {{ form.errors.email }}
+            v-if="errors.email"
+            class="absolute mt-1 text-sm text-red-500 dark:text-red-400">
+            {{ errors.email }}
           </p>
         </form>
       </div>

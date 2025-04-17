@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactFormRequest;
+use App\Models\ContactSubmission;
 use App\Models\User;
 use App\Notifications\ContactFormSubmission;
 use Illuminate\Http\RedirectResponse;
@@ -28,9 +29,20 @@ class ContactController extends Controller
 
     RateLimiter::hit($key, 3600); // Key expires in 1 hour
 
+    // Store the submission
+    $submission = ContactSubmission::create([
+      'name' => $request->name,
+      'email' => $request->email,
+      'subject' => $request->subject,
+      'message' => $request->message,
+      'status' => 'unread',
+      'ip_address' => $request->ip(),
+      'user_agent' => $request->userAgent(),
+    ]);
+
     // Send notification to admin
-    User::where('role', 'admin')->each(function ($admin) use ($request) {
-      $admin->notify(new ContactFormSubmission($request->validated()));
+    User::where('role', 'admin')->each(function ($admin) use ($submission) {
+      $admin->notify(new ContactFormSubmission($submission));
     });
 
     return back()->with('success', 'Thank you for your message. We will get back to you soon!');

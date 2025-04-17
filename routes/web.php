@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -86,6 +87,23 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
       ->name('likes.toggle');
   });
 
+});
+
+Route::middleware(['auth'])->group(function () {
+  Route::post('/profile/avatar', function (Request $request) {
+    $request->validate([
+      'avatar' => ['required', 'image', 'max:2048']
+    ]);
+
+    $user = $request->user();
+    $user->clearMediaCollection('avatar');
+    $media = $user->addMediaFromRequest('avatar')
+      ->toMediaCollection('avatar');
+
+    return response()->json([
+      'avatar_url' => $media->getUrl('thumb')
+    ]);
+  })->name('profile.avatar.update');
 });
 
 Route::get('dashboard', function () {

@@ -24,7 +24,7 @@ class CommentController extends Controller
         'content' => $validated['content'],
         'user_id' => $request->user()->id,
         'parent_id' => $validated['parent_id'] ?? null,
-        'is_approved' => true, // You might want to change this based on your moderation needs
+        'is_approved' => true,
       ]);
 
       // Load relations for the response

@@ -28,6 +28,8 @@ import Comments from '@/components/Comments.vue';
 import BlogPostHeader from '@/components/BlogPostHeader.vue';
 import ToastMessages from '@/components/ToastMessages.vue';
 import AuthDialog from '@/components/AuthDialog.vue';
+import TableOfContents from '@/components/TableOfContents.vue';
+import ShareButton from '@/components/ShareButton.vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -70,7 +72,9 @@ const registerComponents = (app: ReturnType<typeof createApp>) => {
     // Register new components
     .component('like-button', LikeButton)
     .component('comments', Comments)
+    .component('share-button', ShareButton)
     .component('blog-post-header', BlogPostHeader)
+    .component('table-of-contents', TableOfContents)
     .component('toast-messages', ToastMessages)
     .component('auth-dialog', AuthDialog);
 

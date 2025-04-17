@@ -94,7 +94,7 @@ const toggleLike = async (comment: CommentType) => {
   if (!props.isAuthenticated) return;
 
   try {
-    const response = await axios.post(route('blogs.comments.like.toggle', { blog: props.postSlug, comment: comment}));
+    const response = await axios.post(route('blogs.comments.like.toggle', comment.id));
 
     if (response.status === 200) {
       // Update the comment's like status and count

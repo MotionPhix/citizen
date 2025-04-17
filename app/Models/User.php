@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
   /** @use HasFactory<\Database\Factories\UserFactory> */
-  use HasFactory, Notifiable, HasApiTokens;
+  use HasFactory, Notifiable, HasApiTokens, InteractsWithMedia;
 
   /**
    * The available user roles.
@@ -28,6 +29,7 @@ class User extends Authenticatable
     'name',
     'email',
     'password',
+    'is_active',
     'role',
   ];
 
@@ -51,7 +53,29 @@ class User extends Authenticatable
     return [
       'email_verified_at' => 'datetime',
       'password' => 'hashed',
+      'is_active' => 'boolean',
     ];
+  }
+
+  /**
+   * Register the media collections for the user.
+   */
+  public function registerMediaCollections(): void
+  {
+    $this->addMediaCollection('avatar')
+      ->singleFile()
+      ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+      ->registerMediaConversions(function () {
+        $this->addMediaConversion('thumb')
+          ->width(100)
+          ->height(100)
+          ->sharpen(10);
+
+        $this->addMediaConversion('medium')
+          ->width(300)
+          ->height(300)
+          ->sharpen(10);
+      });
   }
 
   /**
@@ -97,5 +121,24 @@ class User extends Authenticatable
       self::ROLE_ADMIN,
       self::ROLE_USER,
     ];
+  }
+
+  /**
+   * Get total likes across all user's posts.
+   */
+  public function totalPostLikes(): int
+  {
+    return $this->posts()
+      ->withCount('likes')
+      ->get()
+      ->sum('likes_count');
+  }
+
+  /**
+   * Get all posts by the user.
+   */
+  public function posts()
+  {
+    return $this->hasMany(Blog::class);
   }
 }
