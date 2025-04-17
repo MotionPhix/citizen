@@ -18,7 +18,7 @@ class ContactFormRequest extends FormRequest
       'email' => ['required', 'email', 'max:255'],
       'subject' => ['required', 'string', 'max:255'],
       'message' => ['required', 'string', 'max:5000'],
-      'h-captcha-response' => ['required', 'HCaptcha'], // We'll use hCaptcha for spam protection
+      'h-captcha-response' => ['required', 'HCaptcha'],
     ];
   }
 
