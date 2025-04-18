@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SubscriberResource\Pages;
 use App\Filament\Resources\SubscriberResource\RelationManagers;
+use App\Filament\Widgets\SubscriberStats;
 use App\Models\Subscriber;
 use Filament\Forms;
 use Filament\Forms\Form;

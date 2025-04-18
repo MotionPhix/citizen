@@ -7,7 +7,7 @@ import {
   Scale,
   HandIcon,
   Lightbulb,
-  ArrowDown,
+  Loader2,
   ArrowRight,
   ArrowUpRight
 } from 'lucide-vue-next';
@@ -21,8 +21,9 @@ import TimelineItem from './TimelineItem.vue'
 import BoundingContainer from '@/components/BoundingContainer.vue';
 import { provideTimeline } from './TimelineContext'
 import TeamMember from '@/components/about/TeamMember.vue';
-
-// Inside setup
+import { useForm } from '@inertiajs/vue3';
+import {Input} from '@/components/ui/input'
+import { toast } from 'vue-sonner';
 const { activeIndex } = provideTimeline()
 
 interface Value {
@@ -50,6 +51,7 @@ defineProps<{
   values: Value[]
   team: TeamMember[]
   timeline: TimelineItem[]
+  subscriberCount: number
 }>();
 
 const heroSection = ref<HTMLElement | null>(null);
@@ -97,6 +99,10 @@ useIntersectionObserver(ctaSection, ([{ isIntersecting }]) => {
   ctaVisible.value = isIntersecting;
 });
 
+const form = useForm<{ email: string }>({
+  email: '',
+})
+
 const achievements = [
   {
     icon: IconSchool,
@@ -117,6 +123,26 @@ const achievements = [
 
 // Mouse parallax effect using VueUse
 const { elementX, elementY } = useMouseInElement(heroSection);
+
+const handleSubmit = () => {
+  form.post(route('newsletter.subscribe'), {
+    preserveScroll: true,
+    onSuccess: () => {
+      toast({
+        title: 'Thank you for subscribing!',
+        description: 'You will receive our next newsletter in your inbox.',
+      })
+      form.reset()
+    },
+    onError: () => {
+      toast({
+        title: 'Subscription failed',
+        description: 'Please try again or contact support if the problem persists.',
+        variant: 'destructive'
+      })
+    }
+  })
+}
 </script>
 
 <template>
@@ -319,41 +345,59 @@ const { elementX, elementY } = useMouseInElement(heroSection);
   <!-- Call to Action Section -->
   <section
     ref="ctaSection"
-    class="relative py-24 bg-gradient-to-br from-ca-primary to-ca-highlight dark:from-gray-900 dark:to-ca-primary/50 overflow-hidden"
+    class="relative bg-gradient-to-br from-ca-primary to-ca-highlight dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 overflow-hidden"
   >
-    <div class="container mx-auto px-4 relative">
-      <div
-        class="max-w-3xl mx-auto text-center"
-        :class="{ 'opacity-0': !ctaVisible, 'opacity-100': ctaVisible }"
-      >
-        <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-6">
-          Join Us in Making a Difference
-        </h2>
+    <!-- Subtle pattern overlay -->
+    <div
+      class="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-10 dark:opacity-20"
+      :style="{
+        transform: `translate(${elementX / 20}px, ${elementY / 20}px)`
+      }"
+    />
 
-        <p class="text-xl text-white/90 mb-12">
-          Whether you're an organization looking to partner with us or an individual wanting to support our cause,
-          your involvement can help create lasting change in Malawi.
-        </p>
+    <div class="relative py-24">
+      <div class="container mx-auto px-4">
+        <div
+          class="max-w-4xl mx-auto"
+          :class="{ 'opacity-0 translate-y-6': !ctaVisible, 'opacity-100 translate-y-0': ctaVisible }"
+        >
+          <div class="text-center mb-8">
+            <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+              Join Our Newsletter
+            </h2>
+            <p class="text-xl text-white/90">
+              Stay informed about our initiatives and make a difference in Malawi's development journey
+            </p>
+          </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-          <Button
-            variant="secondary"
-            size="lg"
-            @click="() => window.location.href = route('contact.index')"
-          >
-            Contact Us
-            <ArrowRight class="w-5 h-5 ml-2" />
-          </Button>
+          <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 md:p-8">
+            <form @submit.prevent="handleSubmit" class="flex flex-col md:flex-row gap-4">
+              <Input
+                v-model="form.email"
+                type="email"
+                required
+                placeholder="Enter your email address"
+                class="flex-1 h-12 bg-white/90 dark:bg-gray-900/90 border-0 focus:ring-2 focus:ring-white/30 dark:focus:ring-gray-700/50"
+              />
 
-          <Button
-            variant="outline"
-            size="lg"
-            class="text-white border-white hover:bg-white/10"
-            @click="() => window.location.href = route('projects.index')"
-          >
-            View Our Projects
-            <ArrowUpRight class="w-5 h-5 ml-2" />
-          </Button>
+              <Button
+                type="submit"
+                size="xl"
+                :disabled="form.processing"
+                class="md:w-auto h-12 px-8 bg-white hover:bg-gray-100 text-ca-primary hover:text-ca-primary/90 dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-white"
+              >
+                <Loader2
+                  v-if="form.processing"
+                  class="w-4 h-4 mr-2 animate-spin"
+                />
+                {{ form.processing ? 'Subscribing...' : 'Subscribe Now' }}
+              </Button>
+            </form>
+
+            <p class="mt-4 text-sm text-white/80 text-center">
+              Join {{ subscriberCount.toLocaleString() }}+ members who receive our updates. No spam, unsubscribe anytime.
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { useDark } from '@vueuse/core'
 import type { RouteLink, SocialLink } from '@/types'
-import { useForm } from '@inertiajs/vue3';
-import SocialIcon from '@/components/icons/SocialIcon.vue';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import SocialIcon from '@/components/icons/SocialIcon.vue'
+import Newsletter from '@/components/Newsletter.vue'
 
 interface Props {
   routes: RouteLink[]
@@ -17,24 +15,6 @@ withDefaults(defineProps<Props>(), {
 })
 
 const isDark = useDark()
-const form = useForm({
-  email: ''
-})
-
-const handleSubmit = async () => {
-  if (!email.value) return
-
-  try {
-    // Add your newsletter subscription logic here
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    success.value = true
-    email.value = ''
-  } catch (error) {
-    console.error('Newsletter subscription failed:', error)
-  } finally {
-    loading.value = false
-  }
-}
 </script>
 
 <template>
@@ -76,7 +56,7 @@ const handleSubmit = async () => {
             <li v-for="path in routes" :key="path.name">
               <a
                 :href="route(path.url)"
-                 class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
+                class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">
                 {{ path.name }}
               </a>
             </li>
@@ -112,40 +92,8 @@ const handleSubmit = async () => {
             Subscribe to our newsletter to get all our news in your inbox. Stay connected with our latest updates.
           </p>
 
-          <form
-            @submit.prevent="handleSubmit"
-            class="relative">
-            <div class="flex">
-              <Input
-                v-model="form.email"
-                type="email"
-                required class="!rounded-e-none h-12 outline-none !focus:outline-none"
-                placeholder="Email Address"
-              />
-
-              <Button
-                type="submit"
-                class="!rounded-s-none grow-0 h-11"
-                :disabled="form.processing">
-                <span v-if="!form.processing">Subscribe</span>
-                <span v-else class="flex items-center">
-                  <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </span>
-              </Button>
-            </div>
-
-            <Transition
-              enter-active-class="transition ease-out duration-300"
-              enter-from-class="opacity-0 transform translate-y-2"
-              enter-to-class="opacity-100 transform translate-y-0">
-              <div v-if="form.recentlySuccessful" class="absolute mt-2 text-sm text-green-500 dark:text-green-400">
-                Thank you for subscribing!
-              </div>
-            </Transition>
-          </form>
+          <!-- Using the Newsletter component with footer styling -->
+          <Newsletter compact />
         </div>
       </div>
     </div>

@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subscriber;
 use Illuminate\View\View;
 
 class AboutController extends Controller
 {
   public function index(): View
   {
+    $subscriberCount = Subscriber::where('status', 'subscribed')->count();
+
     return view('pages.about', [
       'values' => $this->getValues(),
       'team' => $this->getTeamMembers(),
       'timeline' => $this->getTimeline(),
       'partners' => $this->getPartners(),
+      'subscriberCount' => $subscriberCount,
     ]);
   }
 

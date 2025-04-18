@@ -9,7 +9,8 @@
     <about-base
       :values='@json($values)'
       :team='@json($team)'
-      :timeline='@json($timeline)'>
+      :timeline='@json($timeline)'
+      :subscriber-count='@json($subscriberCount)'>
       <template #impact>
 
         <!-- Impact Section -->

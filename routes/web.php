@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\NewsletterController;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -109,6 +110,17 @@ Route::middleware(['auth'])->group(function () {
 Route::get('dashboard', function () {
   return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Newsletter routes
+Route::post(
+  '/newsletter/subscribe',
+  [NewsletterController::class, 'subscribe']
+)->name('newsletter.subscribe');
+
+Route::get(
+  '/newsletter/unsubscribe/{subscriber}/{token}',
+  [NewsletterController::class, 'unsubscribe']
+)->name('newsletter.unsubscribe');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
