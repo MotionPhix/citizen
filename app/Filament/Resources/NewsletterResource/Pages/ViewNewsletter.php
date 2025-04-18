@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\NewsletterResource\Pages;
 
 use App\Filament\Resources\NewsletterResource;
+use App\Filament\Widgets\NewsletterStatsOverview;
 use App\Jobs\SendNewsletter;
 use App\Models\Subscriber;
 use App\Notifications\NewsletterMail;
