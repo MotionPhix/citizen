@@ -103,6 +103,7 @@
   @include('components.footer')
 
   <!-- Toast Messages -->
+  <toaster rich-colors></toaster>
   <toast-messages></toast-messages>
 </div>
 </body>

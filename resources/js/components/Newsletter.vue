@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
+import Form from 'vform'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import { ref } from 'vue';
 
 interface Props {
   compact?: boolean
@@ -11,29 +12,33 @@ interface Props {
 
 defineProps<Props>()
 
-const form = useForm({
+const form = new Form({
   email: '',
   name: ''
 })
 
-const handleSubmit = () => {
-  form.post(route('newsletter.subscribe'), {
-    preserveScroll: true,
-    onSuccess: () => {
-      toast({
-        title: 'Success!',
-        description: 'Thank you for subscribing to our newsletter!',
-      })
-      form.reset()
-    },
-    onError: () => {
-      toast({
-        title: 'Error!',
-        description: 'Failed to subscribe to newsletter. Please try again.',
-        variant: 'destructive'
-      })
-    }
-  })
+const isLoading = ref(false)
+
+const handleSubmit = async () => {
+  try {
+    isLoading.value = true;
+
+    await form.post(route('newsletter.subscribe'))
+
+    toast({
+      title: 'Success!',
+      description: 'Thank you for subscribing to our newsletter!',
+    })
+
+    form.reset()
+  } catch (err) {
+    toast({
+      title: 'Error!',
+      description: 'Failed to subscribe to newsletter. Please try again.',
+      variant: 'destructive'
+    })
+  }
+
 }
 </script>
 
@@ -57,7 +62,7 @@ const handleSubmit = () => {
               v-model="form.name"
               type="text"
               placeholder="Your Name (Optional)"
-              :disabled="form.processing"
+              :disabled="form.startProcessing"
               class="flex-1"
               :class="{
                 'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.name
@@ -69,7 +74,7 @@ const handleSubmit = () => {
               type="email"
               required
               placeholder="Your Email"
-              :disabled="form.processing"
+              :disabled="form.startProcessing"
               class="flex-1"
               :class="{
                 'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.email
@@ -79,14 +84,14 @@ const handleSubmit = () => {
             <Button
               size="lg"
               type="submit"
-              :disabled="form.processing"
+              :disabled="form.startProcessing"
               class="w-full sm:w-auto bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
             >
               <Loader2
-                v-if="form.processing"
+                v-if="form.startProcessing"
                 class="w-4 h-4 mr-2 animate-spin"
               />
-              {{ form.processing ? 'Processing...' : 'Subscribe' }}
+              {{ form.startProcessing ? 'Processing...' : 'Subscribe' }}
             </Button>
           </div>
 
@@ -97,7 +102,7 @@ const handleSubmit = () => {
               type="email"
               required
               placeholder="Your Email"
-              :disabled="form.processing"
+              :disabled="form.startProcessing"
               class="w-full"
               :class="{
                 'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.email
@@ -107,14 +112,14 @@ const handleSubmit = () => {
             <Button
               size="lg"
               type="submit"
-              :disabled="form.processing"
+              :disabled="form.startProcessing"
               class="w-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
             >
               <Loader2
                 v-if="form.processing"
                 class="w-4 h-4 mr-2 animate-spin"
               />
-              {{ form.processing ? 'Processing...' : 'Subscribe' }}
+              {{ form.startProcessing ? 'Processing...' : 'Subscribe' }}
             </Button>
           </div>
 
@@ -125,15 +130,14 @@ const handleSubmit = () => {
           >
             <p
               v-if="form.errors.name"
-              class="text-sm text-red-500 dark:text-red-400"
-            >
-              {{ form.errors.name }}
+              class="text-sm text-red-500 dark:text-red-400">
+              {{ form.errors.get('name') }}
             </p>
             <p
               v-if="form.errors.email"
               class="text-sm text-red-500 dark:text-red-400"
             >
-              {{ form.errors.email }}
+              {{ form.errors.get('email') }}
             </p>
           </div>
         </form>

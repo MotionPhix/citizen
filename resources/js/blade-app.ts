@@ -30,6 +30,8 @@ import ToastMessages from '@/components/ToastMessages.vue';
 import AuthDialog from '@/components/AuthDialog.vue';
 import TableOfContents from '@/components/TableOfContents.vue';
 import ShareButton from '@/components/ShareButton.vue';
+import ContactForm from '@/components/ContactForm.vue';
+import { Toaster } from 'vue-sonner';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -76,6 +78,8 @@ const registerComponents = (app: ReturnType<typeof createApp>) => {
     .component('blog-post-header', BlogPostHeader)
     .component('table-of-contents', TableOfContents)
     .component('toast-messages', ToastMessages)
+    .component('contact-form', ContactForm)
+    .component('toaster', Toaster)
     .component('auth-dialog', AuthDialog);
 
   return app;

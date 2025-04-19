@@ -31,6 +31,10 @@ return Application::configure(basePath: dirname(__DIR__))
       \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     ]);
 
+    $middleware->alias([
+      'HCaptcha' => Scyllaly\HCaptcha\Facades\HCaptcha::class,
+    ]);
+
   })
   ->withExceptions(function (Exceptions $exceptions) {
     //
