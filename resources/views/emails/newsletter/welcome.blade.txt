@@ -1,0 +1,109 @@
+@component('mail::message')
+
+  <div style="text-align: center; margin-bottom: 32px;">
+    <img src="{{ asset('images/logo.png') }}" alt="Citizen Alliance Logo" style="width: 80px; height: auto;">
+  </div>
+
+  <div style="text-align: center; margin-bottom: 40px;">
+    <h1 style="font-size: 32px; color: #1a1a1a; margin-bottom: 16px;">
+      Welcome to the Movement for Change!
+    </h1>
+    <p style="font-size: 18px; color: #666666; margin-bottom: 24px;">
+      You've joined over 10,000 engaged citizens working<br>together for a better Malawi.
+    </p>
+  </div>
+
+  <div style="margin-bottom: 40px;">
+    <img src="{{ asset('images/community-impact.jpg') }}" alt="Community Impact" style="width: 100%; height: auto; border-radius: 8px;">
+  </div>
+
+  <p style="font-size: 16px; color: #333333; margin-bottom: 32px;">
+    Dear {{ $subscriber->name ?: 'Change Maker' }},
+  </p>
+
+  <p style="font-size: 16px; color: #333333; margin-bottom: 24px;">
+    We're thrilled to have you join our community of passionate citizens committed to building a stronger, more prosperous Malawi. Your decision to stay informed and engaged is the first step toward meaningful change.
+  </p>
+
+  <div style="background: #f8f9fa; border-radius: 8px; padding: 32px; margin-bottom: 32px;">
+    <h2 style="font-size: 24px; color: #1a1a1a; margin-bottom: 24px;">
+      3 Ways We're Making an Impact
+    </h2>
+
+    <div style="margin-bottom: 20px;">
+      <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+        <div style="margin-right: 16px;">
+          <img src="{{ asset('images/icons/civic-education.png') }}" alt="Civic Education" style="width: 48px; height: 48px;">
+        </div>
+        <div>
+          <h3 style="font-size: 18px; color: #1a1a1a; margin-bottom: 8px;">Civic Education</h3>
+          <p style="font-size: 16px; color: #666666;">Empowering citizens with knowledge about their rights and responsibilities.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
+        <div style="margin-right: 16px;">
+          <img src="{{ asset('images/icons/community-projects.png') }}" alt="Community Projects" style="width: 48px; height: 48px;">
+        </div>
+        <div>
+          <h3 style="font-size: 18px; color: #1a1a1a; margin-bottom: 8px;">Community Projects</h3>
+          <p style="font-size: 16px; color: #666666;">Implementing initiatives that directly improve lives in local communities.</p>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: flex-start;">
+        <div style="margin-right: 16px;">
+          <img src="{{ asset('images/icons/advocacy.png') }}" alt="Advocacy" style="width: 48px; height: 48px;">
+        </div>
+        <div>
+          <h3 style="font-size: 18px; color: #1a1a1a; margin-bottom: 8px;">Policy Advocacy</h3>
+          <p style="font-size: 16px; color: #666666;">Working with stakeholders to promote policies that benefit all Malawians.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-bottom: 32px;">
+    <h2 style="font-size: 24px; color: #1a1a1a; margin-bottom: 16px;">What's Next?</h2>
+    <p style="font-size: 16px; color: #666666; margin-bottom: 24px;">
+      Look out for our bi-weekly newsletters featuring:
+    </p>
+    <ul style="list-style: none; padding: 0; margin: 0 0 24px 0;">
+      <li style="font-size: 16px; color: #333333; margin-bottom: 12px;">📰 Latest community updates</li>
+      <li style="font-size: 16px; color: #333333; margin-bottom: 12px;">🎯 Upcoming project announcements</li>
+      <li style="font-size: 16px; color: #333333; margin-bottom: 12px;">🤝 Opportunities to get involved</li>
+      <li style="font-size: 16px; color: #333333;">📚 Educational resources</li>
+    </ul>
+  </div>
+
+  @component('mail::button', ['url' => config('app.url'), 'color' => 'primary'])
+    Visit Our Website
+  @endcomponent
+
+  <div style="text-align: center; margin-top: 40px;">
+    <div>
+    <p style="font-size: 16px; color: #333333; margin-bottom: 8px;">
+      Together for a Better Malawi,
+    </p>
+    <p style="font-size: 18px; font-weight: bold; color: #1a1a1a;">
+      The Citizen Alliance Team
+    </p>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 32px;">
+    <div style="margin-bottom: 16px;">
+      <a href="#" style="margin: 0 8px;"><img src="{{ asset('images/icons/facebook.png') }}" alt="Facebook" style="width: 24px; height: 24px;"></a>
+      <a href="#" style="margin: 0 8px;"><img src="{{ asset('images/icons/twitter.png') }}" alt="Twitter" style="width: 24px; height: 24px;"></a>
+      <a href="#" style="margin: 0 8px;"><img src="{{ asset('images/icons/instagram.png') }}" alt="Instagram" style="width: 24px; height: 24px;"></a>
+    </div>
+  </div>
+
+  @component('mail::subcopy')
+    <p style="font-size: 14px; color: #666666; text-align: center;">
+      You received this email because you subscribed to Citizen Alliance's newsletter.<br>
+      To stop receiving these emails, <a href="{{ $unsubscribeUrl }}" style="color: #666666; text-decoration: underline;">unsubscribe here</a>.
+    </p>
+  @endcomponent
+
+@endcomponent

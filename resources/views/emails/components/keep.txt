@@ -1,0 +1,250 @@
+<style>
+  /* Custom Fonts */
+  @font-face {
+    font-family: 'Inter';
+    src: url('{{ asset('fonts/email/Inter-Regular.woff2') }}') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    mso-font-alt: 'Helvetica';
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('{{ asset('fonts/email/Inter-Medium.woff2') }}') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    mso-font-alt: 'Helvetica';
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('{{ asset('fonts/email/Inter-Bold.woff2') }}') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    mso-font-alt: 'Helvetica';
+  }
+
+  /* Custom Properties */
+  :root {
+    /* Typography */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-size-base: 16px;
+    --line-height-base: 1.5;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+
+    /* Colors */
+    --primary: #2563eb;
+    --secondary: #1e40af;
+    --accent: #fbbf24;
+    --text: #1a1a1a;
+    --text-light: #666666;
+    --background: #f8f9fa;
+  }
+
+  /* Base Reset */
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-family: var(--font-primary);
+    line-height: var(--line-height-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Container */
+  .email-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+  }
+
+  /* Typography */
+  h1, h2, h3, p {
+    font-family: var(--font-primary);
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 32px;
+    line-height: 1.2;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.01em;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: var(--font-weight-medium);
+  }
+
+  p {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    font-weight: var(--font-weight-normal);
+  }
+
+  /* Components */
+  .header {
+    text-align: center;
+    padding: 32px 0;
+  }
+
+  .header h1 {
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    font-family: var(--font-primary);
+    font-size: 18px;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: var(--font-weight-normal);
+  }
+
+  .hero {
+    margin-bottom: 40px;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+
+  .feature-box {
+    background-color: var(--background);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+  }
+
+  .feature-item:hover {
+    transform: translateY(-2px);
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .button {
+    font-family: var(--font-primary);
+    display: inline-block;
+    padding: 12px 28px;
+    background-color: var(--primary);
+    color: #ffffff !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: var(--font-weight-medium);
+    font-size: 16px;
+    margin: 16px 0;
+    transition: background-color 0.2s ease;
+  }
+
+  .button:hover {
+    background-color: var(--secondary);
+  }
+
+  .social-links {
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  .social-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0 8px;
+  }
+
+  .signature {
+    font-family: var(--font-primary);
+    text-align: center;
+    margin: 32px 0;
+  }
+
+  .signature strong {
+    font-weight: var(--font-weight-medium);
+    color: var(--text);
+  }
+
+  .footer {
+    font-family: var(--font-primary);
+    text-align: center;
+    padding: 24px 0;
+    border-top: 1px solid #eaeaea;
+    margin-top: 32px;
+    color: var(--text-light);
+    font-size: 14px;
+  }
+
+  /* Responsive Design */
+  @media only screen and (max-width: 600px) {
+    :root {
+      --font-size-base: 15px;
+    }
+
+    .email-container {
+      width: 100% !important;
+      padding: 16px !important;
+    }
+
+    h1 {
+      font-size: 28px;
+    }
+
+    h2 {
+      font-size: 22px;
+    }
+
+    h3 {
+      font-size: 17px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+    }
+
+    .feature-item {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .feature-icon {
+      margin: 0 auto 16px;
+    }
+  }
+
+  /* MSO Fallbacks */
+  [style*="Inter"] {
+    font-family: 'Inter', Helvetica, Arial, sans-serif !important;
+  }
+</style>

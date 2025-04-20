@@ -25,7 +25,7 @@ class NewsletterMail extends Notification implements ShouldQueue
   {
     return (new MailMessage)
       ->subject($this->newsletter->title)
-      ->view('emails.newsletter', [
+      ->view('emails.newsletter.blog', [
         'content' => $this->newsletter->content,
         'unsubscribeUrl' => route('newsletter.unsubscribe', [
           'subscriber' => $notifiable->id,

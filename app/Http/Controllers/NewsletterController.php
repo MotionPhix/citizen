@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscriber;
+use App\Notifications\WelcomeNewsletterSubscriber;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class NewsletterController extends Controller
 {
@@ -29,7 +32,13 @@ class NewsletterController extends Controller
       ]);
     }
 
-    return back()->with('success', 'Thank you for subscribing to our newsletter!');
+    // Send welcome email
+    $subscriber->notify(new WelcomeNewsletterSubscriber($subscriber));
+
+    return response()->json([
+      'message' => 'Thank you for subscribing to our newsletter!',
+      'subscriber' => $subscriber
+    ], 201);
   }
 
   public function unsubscribe(Subscriber $subscriber, $token)
@@ -38,11 +47,22 @@ class NewsletterController extends Controller
       abort(404);
     }
 
-    $subscriber->update([
-      'status' => 'unsubscribed',
-      'unsubscribed_at' => now(),
-    ]);
+    try {
+      $subscriber->update([
+        'status' => 'unsubscribed',
+        'unsubscribed_at' => now(),
+      ]);
 
-    return view('newsletter.unsubscribed');
+      return response()->json([
+        'message' => 'You have been successfully unsubscribed from our newsletter.',
+      ]);
+
+    } catch (\Exception $e) {
+      report($e);
+
+      return response()->json([
+        'message' => 'Failed to process your unsubscription. Please try again later.',
+      ], 500);
+    }
   }
 }

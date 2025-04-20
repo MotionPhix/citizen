@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
-import { ref } from 'vue';
 
 interface Props {
   compact?: boolean
@@ -17,25 +16,19 @@ const form = new Form({
   name: ''
 })
 
-const isLoading = ref(false)
-
 const handleSubmit = async () => {
   try {
-    isLoading.value = true;
-
     await form.post(route('newsletter.subscribe'))
 
-    toast({
-      title: 'Success!',
+    toast.success('Success!', {
       description: 'Thank you for subscribing to our newsletter!',
     })
 
     form.reset()
-  } catch (err) {
-    toast({
-      title: 'Error!',
-      description: 'Failed to subscribe to newsletter. Please try again.',
-      variant: 'destructive'
+  } catch (error) {
+    console.log(error);
+    toast.error('Error!', {
+      description: error.response?.data?.message || 'Failed to subscribe to newsletter. Please try again.'
     })
   }
 
@@ -62,7 +55,7 @@ const handleSubmit = async () => {
               v-model="form.name"
               type="text"
               placeholder="Your Name (Optional)"
-              :disabled="form.startProcessing"
+              :disabled="form.busy"
               class="flex-1"
               :class="{
                 'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.name
@@ -74,7 +67,7 @@ const handleSubmit = async () => {
               type="email"
               required
               placeholder="Your Email"
-              :disabled="form.startProcessing"
+              :disabled="form.busy"
               class="flex-1"
               :class="{
                 'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.email
@@ -84,14 +77,14 @@ const handleSubmit = async () => {
             <Button
               size="lg"
               type="submit"
-              :disabled="form.startProcessing"
+              :disabled="form.busy"
               class="w-full sm:w-auto bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
             >
               <Loader2
-                v-if="form.startProcessing"
+                v-if="form.busy"
                 class="w-4 h-4 mr-2 animate-spin"
               />
-              {{ form.startProcessing ? 'Processing...' : 'Subscribe' }}
+              {{ form.busy ? 'Processing...' : 'Subscribe' }}
             </Button>
           </div>
 
@@ -102,7 +95,7 @@ const handleSubmit = async () => {
               type="email"
               required
               placeholder="Your Email"
-              :disabled="form.startProcessing"
+              :disabled="form.busy"
               class="w-full"
               :class="{
                 'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.email
@@ -112,29 +105,29 @@ const handleSubmit = async () => {
             <Button
               size="lg"
               type="submit"
-              :disabled="form.startProcessing"
+              :disabled="form.busy"
               class="w-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
             >
               <Loader2
                 v-if="form.processing"
                 class="w-4 h-4 mr-2 animate-spin"
               />
-              {{ form.startProcessing ? 'Processing...' : 'Subscribe' }}
+              {{ form.busy ? 'Processing...' : 'Subscribe' }}
             </Button>
           </div>
 
           <!-- Error Messages -->
           <div
-            v-if="form.errors.email || form.errors.name"
+            v-if="form.errors.has('email') || form.errors.has('name')"
             class="space-y-1 text-left"
           >
             <p
-              v-if="form.errors.name"
+              v-if="form.errors.has('name')"
               class="text-sm text-red-500 dark:text-red-400">
               {{ form.errors.get('name') }}
             </p>
             <p
-              v-if="form.errors.email"
+              v-if="form.errors.has('email')"
               class="text-sm text-red-500 dark:text-red-400"
             >
               {{ form.errors.get('email') }}

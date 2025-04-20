@@ -21,7 +21,7 @@ import TimelineItem from './TimelineItem.vue'
 import BoundingContainer from '@/components/BoundingContainer.vue';
 import { provideTimeline } from './TimelineContext'
 import TeamMember from '@/components/about/TeamMember.vue';
-import { useForm } from '@inertiajs/vue3';
+import Form from 'vform';
 import {Input} from '@/components/ui/input'
 import { toast } from 'vue-sonner';
 const { activeIndex } = provideTimeline()
@@ -99,8 +99,9 @@ useIntersectionObserver(ctaSection, ([{ isIntersecting }]) => {
   ctaVisible.value = isIntersecting;
 });
 
-const form = useForm<{ email: string }>({
+const form = new Form<{ email: string, name?: string }>({
   email: '',
+  name: ''
 })
 
 const achievements = [
@@ -124,24 +125,22 @@ const achievements = [
 // Mouse parallax effect using VueUse
 const { elementX, elementY } = useMouseInElement(heroSection);
 
-const handleSubmit = () => {
-  form.post(route('newsletter.subscribe'), {
-    preserveScroll: true,
-    onSuccess: () => {
-      toast({
-        title: 'Thank you for subscribing!',
-        description: 'You will receive our next newsletter in your inbox.',
-      })
-      form.reset()
-    },
-    onError: () => {
-      toast({
-        title: 'Subscription failed',
-        description: 'Please try again or contact support if the problem persists.',
-        variant: 'destructive'
-      })
-    }
-  })
+const handleSubmit = async () => {
+  try {
+    await form.post(route('newsletter.subscribe'))
+
+    toast.success('Thank you for subscribing!', {
+      description: 'You will receive our next newsletter in your inbox.'
+    })
+
+    form.reset()
+  } catch (e) {
+    console.log(e);
+
+    toast.error('Subscription failed', {
+      description: 'Please try again or contact support if the problem persists.'
+    })
+  }
 }
 </script>
 
@@ -373,6 +372,12 @@ const handleSubmit = () => {
           <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 md:p-8">
             <form @submit.prevent="handleSubmit" class="flex flex-col md:flex-row gap-4">
               <Input
+                v-model="form.name"
+                placeholder="Enter your full name"
+                class="flex-1 h-12 bg-white/90 dark:bg-gray-900/90 border-0 focus:ring-2 focus:ring-white/30 dark:focus:ring-gray-700/50"
+              />
+
+              <Input
                 v-model="form.email"
                 type="email"
                 required
@@ -382,15 +387,14 @@ const handleSubmit = () => {
 
               <Button
                 type="submit"
-                size="xl"
-                :disabled="form.processing"
+                :disabled="form.busy"
                 class="md:w-auto h-12 px-8 bg-white hover:bg-gray-100 text-ca-primary hover:text-ca-primary/90 dark:bg-gray-900 dark:hover:bg-gray-800 dark:text-white"
               >
                 <Loader2
-                  v-if="form.processing"
+                  v-if="form.busy"
                   class="w-4 h-4 mr-2 animate-spin"
                 />
-                {{ form.processing ? 'Subscribing...' : 'Subscribe Now' }}
+                {{ form.busy ? 'Subscribing...' : 'Subscribe Now' }}
               </Button>
             </form>
 
