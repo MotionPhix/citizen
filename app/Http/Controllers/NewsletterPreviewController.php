@@ -16,7 +16,7 @@ class NewsletterPreviewController extends Controller
       'status' => 'subscribed'
     ]);
 
-    return view('emails.newsletter.bi-weekly', [
+    return view('newsletters.preview', [
       'issue' => $newsletterIssue->load(['stories', 'updates', 'events']),
       'subscriber' => $previewSubscriber,
       'isPreview' => true,

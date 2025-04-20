@@ -113,8 +113,12 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
-  Route::get('admin/newsletters/{newsletterIssue}/preview', [NewsletterPreviewController::class, 'show'])
-    ->name('newsletter.preview');
+
+  Route::get(
+    'preview/t/newsletters/{newsletterIssue}',
+    [NewsletterPreviewController::class, 'show']
+  )->name('newsletter.preview');
+
 });
 
 // Newsletter routes
