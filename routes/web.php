@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\NewsletterPreviewController;
+use App\Http\Controllers\SubscriberController;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -111,15 +112,20 @@ Route::get('dashboard', function () {
   return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware(['auth'])->group(function () {
+  Route::get('admin/newsletters/{newsletterIssue}/preview', [NewsletterPreviewController::class, 'show'])
+    ->name('newsletter.preview');
+});
+
 // Newsletter routes
 Route::post(
   '/newsletter/subscribe',
-  [NewsletterController::class, 'subscribe']
+  [SubscriberController::class, 'subscribe']
 )->name('newsletter.subscribe');
 
 Route::get(
   '/newsletter/unsubscribe/{subscriber}/{token}',
-  [NewsletterController::class, 'unsubscribe']
+  [SubscriberController::class, 'unsubscribe']
 )->name('newsletter.unsubscribe');
 
 require __DIR__ . '/settings.php';
