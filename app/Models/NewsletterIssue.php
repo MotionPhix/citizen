@@ -39,6 +39,11 @@ class NewsletterIssue extends Model implements HasMedia
     return $this->hasMany(Event::class);
   }
 
+  public function feedback()
+  {
+    return $this->hasMany(NewsletterFeedback::class);
+  }
+
   public function registerMediaCollections(): void
   {
     $this->addMediaCollection('featured_images')

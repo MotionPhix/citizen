@@ -4,39 +4,68 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subscriber extends Model
 {
-  use HasFactory, SoftDeletes, Notifiable;
+  use HasFactory;
 
   protected $fillable = [
     'email',
     'name',
-    'status',
-    'unsubscribed_at',
+    'preferences',
+    'status'
   ];
 
   protected $casts = [
-    'unsubscribed_at' => 'datetime',
+    'preferences' => 'array',
+    'last_sent_at' => 'datetime'
   ];
 
-  public function newsletters()
+  public const FREQUENCIES = [
+    'daily' => 'Daily',
+    'weekly' => 'Weekly',
+    'biweekly' => 'Every two weeks',
+    'monthly' => 'Monthly',
+    'quarterly' => 'Quarterly'
+  ];
+
+  public const CATEGORIES = [
+    'news' => 'News & Updates',
+    'events' => 'Events & Meetups',
+    'announcements' => 'Important Announcements',
+    'blog_posts' => 'Blog Posts',
+    'projects' => 'Project Updates',
+    'tutorials' => 'Tutorials & Guides'
+  ];
+
+  public const TIMEZONES = [
+    'UTC' => 'UTC (Coordinated Universal Time)',
+    'Africa/Blantyre' => 'Africa/Blantyre (CAT)',
+    'Africa/Johannesburg' => 'Africa/Johannesburg (SAST)',
+    'Africa/Lagos' => 'Africa/Lagos (WAT)',
+    'Africa/Nairobi' => 'Africa/Nairobi (EAT)'
+  ];
+
+  public function feedback(): HasMany
   {
-    return $this->belongsToMany(Newsletter::class, 'newsletter_sends')
-      ->withTimestamps()
-      ->withPivot(['status', 'error_message']);
+    return $this->hasMany(NewsletterFeedback::class);
   }
 
-  public function scopeActive($query)
+  public function getDefaultPreferences(): array
   {
-    return $query->where('status', 'subscribed')
-      ->whereNull('unsubscribed_at');
-  }
-
-  public function routeNotificationForMail()
-  {
-    return $this->email;
+    return [
+      'frequency' => 'weekly',
+      'categories' => ['news', 'announcements'],
+      'format' => 'html',
+      'timezone' => 'UTC',
+      'time_of_day' => '08:00',
+      'digest' => true,
+      'notifications' => [
+        'browser' => false,
+        'mobile' => false
+      ],
+      'language' => 'en'
+    ];
   }
 }

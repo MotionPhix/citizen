@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\NewsletterPreviewController;
+use App\Http\Controllers\SubscriberController;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,6 +17,7 @@ Route::get(
 )->name('about');
 
 Route::prefix('contact')->name('contact.')->group(function () {
+
   Route::get(
     '/',
     [\App\Http\Controllers\ContactController::class, 'index']
@@ -24,9 +27,11 @@ Route::prefix('contact')->name('contact.')->group(function () {
     '/',
     [\App\Http\Controllers\ContactController::class, 'submit']
   )->name('submit');
+
 });
 
 Route::prefix('projects')->name('projects.')->group(function () {
+
   Route::get(
     '/',
     [\App\Http\Controllers\ProjectController::class, 'index'],
@@ -41,9 +46,11 @@ Route::prefix('projects')->name('projects.')->group(function () {
     '/s/{project:slug}',
     [\App\Http\Controllers\ProjectController::class, 'show']
   )->name('show');
+
 });
 
 Route::prefix('blogs')->name('blogs.')->group(function () {
+
   Route::get(
     '/',
     [\App\Http\Controllers\BlogController::class, 'index']
@@ -81,6 +88,7 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
     Route::post('/{blog:slug}/like', [App\Http\Controllers\LikeController::class, 'toggle'])
       ->name('likes.toggle');
   });
+
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -104,7 +112,25 @@ Route::get('dashboard', function () {
   return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Import route files
-require __DIR__ . '/newsletter.php';
+Route::middleware(['auth'])->group(function () {
+
+  Route::get(
+    'preview/t/newsletters/{newsletterIssue}',
+    [NewsletterPreviewController::class, 'show']
+  )->name('newsletter.preview');
+
+});
+
+// Newsletter routes
+Route::post(
+  '/newsletter/subscribe',
+  [SubscriberController::class, 'subscribe']
+)->name('newsletter.subscribe');
+
+Route::get(
+  '/newsletter/unsubscribe/{subscriber}/{token}',
+  [SubscriberController::class, 'unsubscribe']
+)->name('newsletter.unsubscribe');
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
