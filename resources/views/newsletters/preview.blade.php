@@ -1,180 +1,141 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ $issue->title }} - Preview</title>
+<x-email-layout>
+  <div class="header">
+    <img src="{{ asset('images/email/logo.png') }}" alt="Citizen Alliance Logo" class="logo">
 
-  @include('emails.components.styles')
-
-  @if($previewMode)
-    <style>
-      .preview-banner {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: var(--primary);
-        color: white;
-        text-align: center;
-        padding: var(--space-2);
-        z-index: 1000;
-      }
-
-      .preview-controls {
-        position: fixed;
-        bottom: var(--space-5);
-        right: var(--space-5);
-        background: var(--background-alt);
-        padding: var(--space-4);
-        border-radius: var(--radius-lg);
-        box-shadow: 0 2px 4px var(--shadow);
-        z-index: 1000;
-      }
-
-      body { margin-top: 40px; }
-    </style>
-  @endif
-</head>
-<body>
-@if($previewMode)
-  <div class="preview-banner">
-    Preview Mode - This is how your newsletter will appear to subscribers
+    <h1>{{ $issue->title }}</h1>
+    <p class="subtitle">{{ $issue->description }}</p>
+    <p class="date">{{ $issue->published_at->format('F j, Y') }}</p>
   </div>
-@endif
 
-<div style="max-width: 600px; margin: 0 auto; padding: var(--space-6);">
-  {{-- Newsletter Header --}}
-  <x-emails.components.interactive type="card">
-    <h1 style="margin-top: 0; color: var(--text);">{{ $issue->title }}</h1>
-    @if($issue->description)
-      <p style="color: var(--text-light);">{{ $issue->description }}</p>
-    @endif
-  </x-emails.components.interactive>
-
-  {{-- Featured Image --}}
-  @if($issue->getFirstMedia('featured_images'))
-    <div style="margin: var(--space-6) 0;">
-      <img src="{{ $issue->getFirstMedia('featured_images')->getUrl() }}"
-           alt="{{ $issue->title }}"
-           style="width: 100%; height: auto; border-radius: var(--radius-lg);">
+  @if($issue->featured_image)
+    <div class="hero">
+      <img src="{{ $issue->featured_image }}" alt="{{ $issue->title }}" class="hero-image">
     </div>
   @endif
 
-  {{-- Featured Stories --}}
-  @if($issue->stories->isNotEmpty())
-    <h2 style="color: var(--text); margin-top: var(--space-8);">Featured Stories</h2>
-    @foreach($issue->stories->sortBy('order') as $story)
-      <x-emails.components.interactive type="card">
-        <h3 style="margin-top: 0; color: var(--text);">{{ $story->title }}</h3>
-        <p style="color: var(--text-light);">{{ $story->excerpt }}</p>
-        @if($story->url)
-          <x-emails.components.interactive
-            type="button"
-            :href="$story->url"
-            text="Read More"
-          />
-        @endif
-      </x-emails.components.interactive>
-    @endforeach
-  @endif
+  <div class="content">
+    {{-- Featured Story --}}
+    @if($issue->featured_story)
+      <x-emails.interactive type="card">
+        <h2>{{ $issue->featured_story->title }}</h2>
+        <p>{{ $issue->featured_story->excerpt }}</p>
+        <x-emails.interactive
+          type="button"
+          :href="$issue->featured_story->url"
+          text="Read More"
+          icon="arrow-right.png"
+        />
+      </x-emails.interactive>
+    @endif
 
-  {{-- Latest Updates --}}
-  @if($issue->updates->isNotEmpty())
-    <h2 style="color: var(--text); margin-top: var(--space-8);">Latest Updates</h2>
-    @foreach($issue->updates->sortBy('order') as $update)
-      <x-emails.components.interactive type="card">
-                    <span style="display: inline-block; padding: var(--space-1) var(--space-2); background: var(--{{ $update->category }}); color: white; border-radius: var(--radius-full); font-size: 0.875rem;">
-                        {{ ucfirst($update->category) }}
-                    </span>
-        <h3 style="margin-top: var(--space-2); color: var(--text);">{{ $update->title }}</h3>
-        <p style="color: var(--text-light);">{{ $update->excerpt }}</p>
-        @if($update->url)
-          <x-emails.components.interactive
-            type="button"
-            :href="$update->url"
-            text="Learn More"
-          />
-        @endif
-      </x-emails.components.interactive>
-    @endforeach
-  @endif
-
-  {{-- Upcoming Events --}}
-  @if($issue->events->isNotEmpty())
-    <h2 style="color: var(--text); margin-top: var(--space-8);">Upcoming Events</h2>
-    @foreach($issue->events->sortBy('start_date') as $event)
-      <x-emails.components.interactive type="card">
-        <div style="display: flex; gap: var(--space-4);">
-          <div style="text-align: center; min-width: 60px;">
-            <div style="font-size: 24px; font-weight: var(--font-weight-bold); color: var(--primary);">
-              {{ $event->start_date->format('d') }}
-            </div>
-            <div style="font-size: 14px; color: var(--text-light);">
-              {{ $event->start_date->format('M') }}
-            </div>
-          </div>
+    {{-- Latest Updates --}}
+    <h2>Latest Updates</h2>
+    @foreach($issue->updates as $update)
+      <x-emails.interactive type="card">
+        <div style="display: flex; gap: 16px;">
+          @if($update->image)
+            <img src="{{ $update->image }}" alt="" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+          @endif
           <div>
-            <h3 style="margin-top: 0; color: var(--text);">{{ $event->title }}</h3>
-            <p style="color: var(--text-light);">{{ $event->description }}</p>
-            <p style="color: var(--text-light);">
-              <strong>Location:</strong> {{ $event->location }}
-            </p>
-            @if($event->capacity)
-              <p style="color: var(--text-light);">
-                <strong>Capacity:</strong> {{ $event->capacity }} attendees
-              </p>
-            @endif
-            @if($event->registration_url)
-              <x-emails.components.interactive
+            <h3>{{ $update->title }}</h3>
+            <p>{{ $update->excerpt }}</p>
+            <x-emails.interactive
+              type="button"
+              :href="$update->url"
+              text="Learn More"
+            />
+          </div>
+        </div>
+      </x-emails.interactive>
+    @endforeach
+
+    {{-- Upcoming Events --}}
+    @if($issue->events->count() > 0)
+      <h2>Upcoming Events</h2>
+      @foreach($issue->events as $event)
+        <x-emails.interactive type="card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="text-align: center; min-width: 60px;">
+              <div style="font-size: 24px; font-weight: bold;">{{ $event->start_date->format('d') }}</div>
+              <div style="font-size: 14px;">{{ $event->start_date->format('M') }}</div>
+            </div>
+            <div>
+              <h3>{{ $event->title }}</h3>
+              <p>{{ $event->location }}</p>
+              <x-emails.interactive
                 type="button"
                 :href="$event->registration_url"
                 text="Register Now"
               />
-            @endif
+            </div>
           </div>
-        </div>
-      </x-emails.components.interactive>
-    @endforeach
-  @endif
+        </x-emails.interactive>
+      @endforeach
+    @endif
 
-  {{-- Footer --}}
-  <x-emails.components.interactive type="cta" text="Stay Connected">
-    <div style="display: flex; justify-content: center; gap: var(--space-4);">
-      <x-emails.components.interactive
-        type="social"
+    {{-- Call to Action --}}
+    <x-emails.interactive
+      type="cta"
+      text="Get Involved!"
+    >
+      <p style="color: #ffffff; margin-bottom: 16px;">
+        Join our upcoming community project and make a difference.
+      </p>
+      <x-emails.interactive
+        type="button"
         href="#"
-        text="Twitter"
-        icon="twitter.png"
+        text="Volunteer Now"
+        color="secondary"
       />
-      <x-emails.components.interactive
-        type="social"
+    </x-emails.interactive>
+
+    {{-- Feedback Section --}}
+    <div style="text-align: center; margin: 32px 0;">
+      <h3>How useful was this newsletter?</h3>
+      <x-emails.interactive
+        type="rating"
         href="#"
-        text="Facebook"
-        icon="facebook.png"
       />
-      <x-emails.components.interactive
-        type="social"
-        href="#"
-        text="LinkedIn"
-        icon="linkedin.png"
-      />
+{{--      route('newsletter.feedback', ['issue' => $issue->id])--}}
     </div>
-  </x-emails.components.interactive>
-</div>
 
-@if($previewMode)
-  <div class="preview-controls">
-    <x-emails.components.interactive
-      type="button"
-      :href="url()->previous()"
-      text="Back to Admin"
-    />
-    <button onclick="window.print()"
-            style="display: inline-block; padding: var(--space-3) var(--space-4); background: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; margin-left: var(--space-2);">
-      Print Preview
-    </button>
+    {{-- Social Links --}}
+    <div style="text-align: center; margin: 32px 0;">
+      <h3>Follow Us</h3>
+      <div style="margin-top: 16px;">
+        <x-emails.interactive
+          type="social"
+          href="https://facebook.com/citizenalliance"
+          icon="facebook.png"
+          text="Facebook"
+        />
+        <x-emails.interactive
+          type="social"
+          href="https://twitter.com/citizenalliance"
+          icon="twitter.png"
+          text="Twitter"
+        />
+        <x-emails.interactive
+          type="social"
+          href="https://instagram.com/citizenalliance"
+          icon="instagram.png"
+          text="Instagram"
+        />
+      </div>
+    </div>
+
+    {{-- Footer --}}
+    <div class="footer">
+      <p>
+        You're receiving this email because you subscribed to our newsletter.
+        <br>
+{{--        {{ route('newsletter.preferences', ['subscriber' => $subscriber->id, 'token' => $subscriber->token]) }}--}}
+        <a href="#">
+          Update your preferences
+        </a>
+        or
+        <a href="{{ $unsubscribeUrl }}">unsubscribe</a>
+      </p>
+    </div>
   </div>
-@endif
-</body>
-</html>
+</x-email-layout>

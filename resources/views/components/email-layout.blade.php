@@ -18,7 +18,7 @@
     }
   </style>
   <![endif]-->
-  @include('emails.components.styles')
+  @include('emails.styles')
 </head>
 <body>
 <div class="email-container">
