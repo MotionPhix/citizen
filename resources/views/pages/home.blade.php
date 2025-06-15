@@ -21,7 +21,7 @@
     <div class="grid md:grid-cols-3 gap-8">
       @foreach($approaches as $approach)
         <div
-          class="bg-white rounded-lg shadow p-8 transform hover:-translate-y-1 transition-transform duration-300">
+          class="bg-white dark:bg-gray-400/10 rounded-lg shadow p-8 transform hover:-translate-y-1 transition-transform duration-300">
           <div class="w-16 h-16 bg-blue-600 text-white rounded-lg flex items-center justify-center mb-6">
 
             @if($approach['icon'] === 'chat-bubble-left-right')
@@ -34,8 +34,13 @@
 
           </div>
 
-          <h3 class="text-xl font-display font-semibold mb-4">{{ $approach['title'] }}</h3>
-          <p class="text-gray-600">{{ $approach['description'] }}</p>
+          <h3 class="text-xl font-display font-semibold mb-4">
+            {{ $approach['title'] }}
+          </h3>
+
+          <p class="text-gray-600 dark:text-gray-400">
+            {{ $approach['description'] }}
+          </p>
         </div>
       @endforeach
     </div>
