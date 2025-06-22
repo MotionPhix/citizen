@@ -100,6 +100,7 @@
                     <div class="flex-shrink-0 w-10 h-10 rounded-full bg-ca-primary/10 dark:bg-ca-highlight/20 flex items-center justify-center group-hover:bg-ca-primary dark:group-hover:bg-ca-highlight transition-colors duration-300">
                       <x-heroicon-o-check class="w-5 h-5 text-ca-primary dark:text-ca-highlight group-hover:text-white transition-colors duration-300" />
                     </div>
+
                     <p class="ml-4 text-gray-700 dark:text-gray-300">
                       {{ $achievement }}
                     </p>

@@ -2,7 +2,7 @@
 
 <section class="py-16 bg-gray-50 dark:bg-ca-secondary">
   <x-content-container>
-    <h2 class="text-3xl font-display font-bold text-center mb-12 text-ca-primary dark:text-ca-highlight">
+    <h2 class="text-4xl md:text-5xl font-display font-bold text-center mb-12 text-ca-primary dark:text-gray-200">
       What People Say About Us
     </h2>
 

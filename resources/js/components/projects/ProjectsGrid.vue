@@ -41,8 +41,6 @@ const sectionDescription = computed(() =>
     ? 'Explore our flagship initiatives that are making significant impacts in communities across Malawi.'
     : 'Browse through our complete portfolio of projects that are making a difference in communities.'
 )
-
-console.log(props.projects);
 </script>
 
 <template>
@@ -56,7 +54,7 @@ console.log(props.projects);
         v-motion
         :initial="{ opacity: 0, y: 20 }"
         :enter="{ opacity: 1, y: 0, transition: { duration: 0.5 } }">
-        <h2 class="text-4xl font-display text-ca-primary dark:text-white mb-4">
+        <h2 class="text-4xl md:text-5xl font-display text-ca-primary dark:text-white mb-4">
           {{ sectionTitle }}
         </h2>
 

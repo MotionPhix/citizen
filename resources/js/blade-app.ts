@@ -32,6 +32,7 @@ import TableOfContents from '@/components/TableOfContents.vue';
 import ShareButton from '@/components/ShareButton.vue';
 import ContactForm from '@/components/ContactForm.vue';
 import { Toaster } from 'vue-sonner';
+import AboutSection from '@/components/about/AboutSection.vue';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -64,6 +65,7 @@ const registerComponents = (app: ReturnType<typeof createApp>) => {
     .component('program-section', ProgramSection)
     .component('custom-button', CustomButton)
     .component('about-base', AboutBase)
+    .component('about-section', AboutSection)
     .component('impact-section', ImpactSection)
     .component('counter-animation', CounterAnimation)
     .component('project-hero', ProjectHero)

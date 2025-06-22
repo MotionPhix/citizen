@@ -79,8 +79,7 @@ const statusVariant = computed(() => {
 <template>
   <a
     :href="`/projects/s/${project.uuid}`"
-    class="group block"
-  >
+    class="group block">
     <div class="relative aspect-w-16 aspect-h-12 overflow-hidden bg-gray-100 rounded-2xl dark:bg-neutral-800">
       <img
         :src="projectImage"
