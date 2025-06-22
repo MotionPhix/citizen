@@ -1,6 +1,8 @@
 <x-app-layout>
   <x-slot name="title">Contact Us</x-slot>
-  <x-slot name="description">Get in touch with Citizen Alliance for inquiries, collaborations, or support.</x-slot>
+  <x-slot name="description">
+    Get in touch with Citizen Alliance for inquiries, collaborations, or support.
+  </x-slot>
 
   <!-- Hero Section -->
   <section class="relative">
@@ -8,7 +10,7 @@
       <div class="absolute inset-0 bg-pattern opacity-10"></div>
       <div class="absolute inset-0 flex items-center">
         <div class="container mx-auto px-4 text-center">
-          <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">Contact Us</h1>
+          <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4">Contact Us</h1>
           <p class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
             We'd love to hear from you! Reach out for inquiries, collaborations, or support.
           </p>
@@ -19,7 +21,13 @@
 
   <!-- Contact Information Section -->
   <x-content-container class="py-16">
-    <h2 class="text-3xl font-bold text-center mb-8">Get in Touch</h2>
+    <h2 class="font-display text-3xl font-bold text-center">Get in Touch</h2>
+
+    <p class="mx-auto max-w-xl text-center text-gray-600 dark:text-gray-400 mt-4 mb-12">
+      Whether you have a question, want to collaborate, or need support, we're here to help.
+      Feel free to reach out using the contact details below or fill out the form.
+    </p>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Address -->
       <div class="text-center">
@@ -67,7 +75,13 @@
       <x-content-container class="py-16">
 
         <div class="max-w-2xl mx-auto">
-          <h2 class="text-3xl font-bold text-center mb-8">Send Us a Message</h2>
+          <h2 class="font-display text-3xl font-bold text-center mb-4">
+            Send Us a Message
+          </h2>
+          <p class="max-w-2xl mx-auto text-center text-gray-600 dark:text-gray-400 mb-12">
+            Fill out the form below and we'll get back to you as soon as possible.
+          </p>
+
           <contact-form></contact-form>
         </div>
 
@@ -86,8 +100,8 @@
   <section class="py-16 bg-ca-primary text-white relative overflow-hidden">
     <div class="absolute inset-0 bg-pattern opacity-10"></div>
     <div class="container mx-auto px-4 relative">
-      <div class="text-center max-w-3xl mx-auto">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6">Partner With Us</h2>
+      <div class="text-center max-w-2xl mx-auto">
+        <h2 class="font-display text-3xl md:text-4xl font-bold mb-6">Partner With Us</h2>
         <p class="text-xl mb-8">
           Join us in our mission to empower citizens and drive sustainable development in Malawi.
         </p>

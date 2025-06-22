@@ -29,8 +29,8 @@ useIntersectionObserver(statsRef, ([{ isIntersecting }]) => {
 <template>
   <section
     ref="statsRef"
-    class="bg-white dark:bg-ca-secondary py-16 relative overflow-hidden"
-  >
+    class="bg-white dark:bg-ca-secondary py-16 relative overflow-hidden">
+
     <GridPattern
       class="absolute inset-0 text-ca-primary/[0.02]"
       size="60"
@@ -41,23 +41,29 @@ useIntersectionObserver(statsRef, ([{ isIntersecting }]) => {
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
         v-motion
         :initial="{ opacity: 0, y: 20 }"
-        :enter="{ opacity: 1, y: 0, transition: { stagger: 0.1 } }"
-      >
+        :enter="{ opacity: 1, y: 0, transition: { stagger: 0.1 } }">
+
         <div
-          v-for="stat in stats"
-          :key="stat.id"
-          class="bg-white dark:bg-ca-primary/20 rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:-translate-y-1"
+          v-for="stat in stats" :key="stat.id"
+          class="bg-gray-100 dark:bg-ca-primary/20 rounded-2xl p-8 shadow-card hover:shadow-card-hover transition-all duration-300 transform hover:-translate-y-1"
         >
           <div class="flex items-center mb-4">
             <span class="text-4xl font-bold text-ca-primary dark:text-white">
               <CounterAnimation
                 v-if="isVisible"
-                :end-value="stat.number"
+                :target-value="stat.number"
                 :duration="2000"
-              />{{ stat.suffix }}
+              />
+
+              <span v-if="stat.suffix">
+                {{ stat.suffix }}
+              </span>
             </span>
           </div>
-          <p class="text-gray-600 dark:text-gray-300">{{ stat.label }}</p>
+
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ stat.label }}
+          </p>
         </div>
       </div>
     </BoundingContainer>

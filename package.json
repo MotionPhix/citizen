@@ -37,6 +37,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "concurrently": "^9.0.1",
+    "fslightbox": "^3.6.1",
     "gsap": "^3.12.7",
     "laravel-vite-plugin": "^1.0",
     "leaflet": "^1.9.4",

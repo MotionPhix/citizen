@@ -51,14 +51,18 @@ class Blog extends Model implements HasMedia
 
     $this->addMediaConversion('thumbnail')
       ->width(400)
-      ->height(400)
+      ->height(225)
       ->sharpen(10)
+      ->optimize()
+      ->performOnCollections('blog_images')
       ->nonQueued();
 
     $this->addMediaConversion('preview')
       ->width(800)
-      ->height(600)
+      ->height(450)
       ->sharpen(10)
+      ->optimize()
+      ->performOnCollections('blog_images')
       ->nonQueued();
 
     $this->addMediaConversion('hero')
@@ -67,13 +71,6 @@ class Blog extends Model implements HasMedia
       ->sharpen(10)
       ->nonQueued();
   }
-
-  /*public function registerMediaCollections(): void
-  {
-    $this->addMediaCollection('blog_images')
-      ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
-      ->withResponsiveImages();
-  }*/
 
   public function registerMediaCollections(): void
   {

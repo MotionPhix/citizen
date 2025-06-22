@@ -26,7 +26,6 @@ class BlogResource extends Resource
   {
     return $form
       ->schema([
-        // Add this hidden field at the beginning of your schema
         Forms\Components\Hidden::make('user_id')
           ->default(auth()->id()),
 
@@ -36,12 +35,15 @@ class BlogResource extends Resource
               ->required()
               ->maxLength(255)
               ->live(onBlur: true)
-              ->afterStateUpdated(fn (string $state, Forms\Set $set) => $set('slug', Str::slug($state))),
+              ->afterStateUpdated(function (string $state, Forms\Set $set) {
+                $set('slug', Str::slug($state));
+              }),
 
             Forms\Components\TextInput::make('slug')
               ->required()
               ->maxLength(255)
-              ->unique(ignoreRecord: true),
+              ->unique(ignoreRecord: true)
+              ->disabled(),
 
             Forms\Components\MarkdownEditor::make('content')
               ->required()
@@ -72,22 +74,19 @@ class BlogResource extends Resource
               ->columnSpanFull()
               ->helperText('Upload images in JPEG, PNG, WebP, or GIF format. Maximum size: 5MB'),*/
 
-            SpatieMediaLibraryFileUpload::make('blog_images')
+            SpatieMediaLibraryFileUpload::make('featured_image')
               ->collection('blog_images')
-              ->multiple()
               ->image()
               ->imageEditor()
               ->imageEditorAspectRatios([
                 '16:9',
                 '4:3',
-                '1:1',
               ])
               ->imageEditorViewportWidth('1920')
               ->imageEditorViewportHeight('1080')
               ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
               ->maxSize(5120)
               ->downloadable()
-              ->reorderable()
               ->columnSpanFull(),
           ])
           ->columnSpan(['lg' => 2]),

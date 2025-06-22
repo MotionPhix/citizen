@@ -41,6 +41,8 @@ const sectionDescription = computed(() =>
     ? 'Explore our flagship initiatives that are making significant impacts in communities across Malawi.'
     : 'Browse through our complete portfolio of projects that are making a difference in communities.'
 )
+
+console.log(props.projects);
 </script>
 
 <template>
@@ -70,7 +72,7 @@ const sectionDescription = computed(() =>
         :enter="{ opacity: 1, y: 0, transition: { stagger: 0.1 } }">
         <ProjectCard
           v-for="project in projects.data"
-          :key="project?.id"
+          :key="project?.uuid"
           :project="project"
         />
       </div>
