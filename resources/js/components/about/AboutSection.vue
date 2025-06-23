@@ -46,14 +46,16 @@ const scrollToSection = (event: Event) => {
             </p>
           </div>
 
+          <div class="my-4 border border-gray-300 dark:border-gray-700"></div>
+
           <!-- Key Stats -->
           <div class="grid grid-cols-2 gap-6 mb-8">
-            <div class="bg-white/60 dark:bg-fuchsia-400/20 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <div class="bg-white/60 dark:bg-fuchsia-400/20 backdrop-blur-sm rounded-xl border border-white/20">
               <div class="text-3xl font-bold text-blue-600 mb-2">12+</div>
               <div class="text-gray-700 dark:text-gray-200 font-medium">Years of Impact</div>
             </div>
 
-            <div class="bg-white/60 dark:bg-blue-300 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <div class="bg-white/60 dark:bg-blue-300 backdrop-blur-sm rounded-xl border border-white/20">
               <div class="text-3xl font-bold text-green-600 mb-2">28</div>
               <div class="text-gray-700 font-medium">Districts Reached</div>
             </div>

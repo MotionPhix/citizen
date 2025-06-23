@@ -36,7 +36,7 @@
             @elseif($approach['icon'] === 'megaphone')
               <x-heroicon-o-megaphone class="w-8 h-8"/>
             @else
-              <x-heroicon-o-chart-bar class="w-8 h-8"/>
+              <library class="w-8 h-8"></library>
             @endif
 
           </div>
