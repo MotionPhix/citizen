@@ -20,7 +20,7 @@ class ContactSubmissionResource extends Resource
   protected static ?string $model = ContactSubmission::class;
   protected static ?string $navigationIcon = 'heroicon-o-inbox';
   protected static ?string $navigationGroup = 'Communication';
-  protected static ?int $navigationSort = 2;
+  protected static ?int $navigationSort = 4;
 
   public static function form(Form $form): Form
   {

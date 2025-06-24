@@ -8,5 +8,5 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateImpactMetric extends CreateRecord
 {
-    protected static string $resource = ImpactMetricResource::class;
+  protected static string $resource = ImpactMetricResource::class;
 }

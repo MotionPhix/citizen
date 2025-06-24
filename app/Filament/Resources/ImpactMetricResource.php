@@ -7,22 +7,23 @@ use App\Models\ImpactMetric;
 use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontFamily;
 use Filament\Support\RawJs;
 use Filament\Tables;
 
 class ImpactMetricResource extends Resource
 {
   protected static ?string $model = ImpactMetric::class;
-  protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+  protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-up';
   protected static ?string $navigationGroup = 'Content';
+  protected static ?string $navigationLabel = 'Metrics';
   protected static ?int $navigationSort = 3;
 
   public static function form(Forms\Form $form): Forms\Form
   {
     return $form
       ->schema([
-        Section::make('Rate limiting')
-          ->description('Prevent abuse by limiting the number of requests per period')
+        Section::make()
           ->aside()
           ->schema([
             Forms\Components\Select::make('icon')
@@ -69,15 +70,30 @@ class ImpactMetricResource extends Resource
     return $table
       ->columns([
         Tables\Columns\TextColumn::make('title')
-          ->searchable(),
-        Tables\Columns\TextColumn::make('metric')
-          ->searchable(),
+          ->label('Metric Title')
+          ->description(
+            fn (ImpactMetric $record): string => $record->metric,
+            position: 'above'
+          )
+          ->searchable([
+            'title',
+            'metric',
+          ]),
+
         Tables\Columns\IconColumn::make('is_published')
+          ->alignCenter()
           ->boolean(),
+
         Tables\Columns\TextColumn::make('sort_order')
+          ->label('Order')
+          ->numeric()
+          ->alignCenter()
           ->sortable(),
+
         Tables\Columns\TextColumn::make('updated_at')
-          ->dateTime()
+          ->label('Last Updated')
+          ->since()
+          ->dateTimeTooltip()
           ->sortable(),
       ])
       ->defaultSort('sort_order')
@@ -86,8 +102,10 @@ class ImpactMetricResource extends Resource
         Tables\Filters\TernaryFilter::make('is_published'),
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\ActionGroup::make([
+          Tables\Actions\EditAction::make(),
+          Tables\Actions\DeleteAction::make(),
+        ])
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -103,5 +121,10 @@ class ImpactMetricResource extends Resource
       'create' => Pages\CreateImpactMetric::route('/create'),
       'edit' => Pages\EditImpactMetric::route('/{record}/edit'),
     ];
+  }
+
+  public static function getNavigationBadge(): ?string
+  {
+    return static::getModel()::count();
   }
 }

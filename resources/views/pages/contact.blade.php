@@ -10,7 +10,7 @@
       <div class="absolute inset-0 bg-pattern opacity-10"></div>
       <div class="absolute inset-0 flex items-center">
         <div class="container mx-auto px-4 text-center">
-          <h1 class="font-display text-4xl md:text-6xl font-bold text-white mb-4">Contact Us</h1>
+          <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-4">Contact Us</h1>
           <p class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
             We'd love to hear from you! Reach out for inquiries, collaborations, or support.
           </p>
@@ -21,7 +21,7 @@
 
   <!-- Contact Information Section -->
   <x-content-container class="py-16">
-    <h2 class="font-display text-3xl font-bold text-center">Get in Touch</h2>
+    <h2 class="font-display text-3xl md:text-4xl font-bold text-center">Get In Touch</h2>
 
     <p class="mx-auto max-w-xl text-center text-gray-600 dark:text-gray-400 mt-4 mb-12">
       Whether you have a question, want to collaborate, or need support, we're here to help.
@@ -82,7 +82,7 @@
             Fill out the form below and we'll get back to you as soon as possible.
           </p>
 
-          <contact-form></contact-form>
+          <contact-form :honeypot="{{ Js::from($honeypot) }}"></contact-form>
         </div>
 
       </x-content-container>

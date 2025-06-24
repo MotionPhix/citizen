@@ -23,7 +23,8 @@ Route::prefix('contact')->name('contact.')->group(function () {
   Route::post(
     '/',
     [\App\Http\Controllers\ContactController::class, 'submit']
-  )->name('submit');
+  )->name('submit')
+  ->middleware('honeypot');
 });
 
 Route::prefix('projects')->name('projects.')->group(function () {

@@ -2,23 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasMedia
 {
   /** @use HasFactory<\Database\Factories\UserFactory> */
-  use HasFactory, Notifiable, HasApiTokens, InteractsWithMedia;
-
-  /**
-   * The available user roles.
-   */
-  const ROLE_ADMIN = 'admin';
-  const ROLE_USER = 'user';
+  use HasFactory, HasUuid, HasRoles, Notifiable, HasApiTokens, InteractsWithMedia;
 
   /**
    * The attributes that are mass assignable.
@@ -30,7 +28,7 @@ class User extends Authenticatable implements HasMedia
     'email',
     'password',
     'is_active',
-    'role',
+    'metadata',
   ];
 
   /**
@@ -54,6 +52,7 @@ class User extends Authenticatable implements HasMedia
       'email_verified_at' => 'datetime',
       'password' => 'hashed',
       'is_active' => 'boolean',
+      'metadata' => 'array',
     ];
   }
 
@@ -78,12 +77,18 @@ class User extends Authenticatable implements HasMedia
       });
   }
 
+  #[Scope]
+  protected function active(Builder $query): void
+  {
+    $query->where('is_active', true);
+  }
+
   /**
    * Check if the user is an admin.
    */
   public function isAdmin(): bool
   {
-    return $this->role === self::ROLE_ADMIN;
+    return $this->hasRole(['super-admin', 'admin']);
   }
 
   /**
@@ -91,7 +96,7 @@ class User extends Authenticatable implements HasMedia
    */
   public function canManagePosts(): bool
   {
-    return $this->isAdmin();
+    return $this->hasAnyPermission(['create blogs', 'edit blogs', 'delete blogs']);
   }
 
   /**
@@ -99,7 +104,7 @@ class User extends Authenticatable implements HasMedia
    */
   public function canManageComments(): bool
   {
-    return $this->isAdmin();
+    return $this->hasPermissionTo('moderate comments');
   }
 
   /**
@@ -107,21 +112,10 @@ class User extends Authenticatable implements HasMedia
    */
   public function canDeleteComment(Comment $comment): bool
   {
-    return $this->isAdmin() || $comment->user_id === $this->id;
+    return $this->hasPermissionTo('delete comments') ||
+      ($comment->user_id === $this->id && $this->hasPermissionTo('edit comments'));
   }
 
-  /**
-   * Get all available user roles.
-   *
-   * @return array<string>
-   */
-  public static function getRoles(): array
-  {
-    return [
-      self::ROLE_ADMIN,
-      self::ROLE_USER,
-    ];
-  }
 
   /**
    * Get total likes across all user's posts.
@@ -140,5 +134,16 @@ class User extends Authenticatable implements HasMedia
   public function posts()
   {
     return $this->hasMany(Blog::class);
+  }
+
+  public static function boot()
+  {
+    parent::boot();
+
+    static::creating(function ($user) {
+      if (self::count() <= 0 && !$user->role) {
+        $user->assignRole('super-admin');
+      }
+    });
   }
 }

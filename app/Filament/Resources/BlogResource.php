@@ -3,17 +3,15 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BlogResource\Pages;
-use App\Filament\Resources\BlogResource\RelationManagers;
 use App\Models\Blog;
 use Filament\Forms;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class BlogResource extends Resource
@@ -55,24 +53,6 @@ class BlogResource extends Resource
 
             Forms\Components\SpatieTagsInput::make('tags')
               ->columnSpanFull(),
-
-            /*Forms\Components\FileUpload::make('blog_images')
-              ->image()
-              ->imageEditor()
-              ->columnSpanFull(),*/
-
-            /*FileUpload::make('blog_images')
-              ->label('Blog Images')
-              ->multiple()
-              ->image()
-              ->imageEditor()
-              ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-              ->maxSize(5120) // 5MB
-              ->directory('blog-images/' . now()->format('Y/m'))
-              ->preserveFilenames()
-              ->reorderable()
-              ->columnSpanFull()
-              ->helperText('Upload images in JPEG, PNG, WebP, or GIF format. Maximum size: 5MB'),*/
 
             SpatieMediaLibraryFileUpload::make('featured_image')
               ->collection('blog_images')
@@ -118,34 +98,90 @@ class BlogResource extends Resource
     return $table
       ->columns([
         Tables\Columns\ImageColumn::make('featured_image.thumbnail')
-          ->label('Image'),
+          ->label('Image')
+          ->circular(),
+
         Tables\Columns\TextColumn::make('title')
           ->searchable()
+          ->wrap()
+          ->lineClamp(2)
           ->sortable(),
-        Tables\Columns\TextColumn::make('published_at')
-          ->dateTime()
-          ->sortable(),
-        Tables\Columns\IconColumn::make('is_published')
-          ->boolean()
-          ->sortable(),
+
+        Tables\Columns\TextColumn::make('is_published')
+          ->label('Status')
+          ->badge()
+          ->formatStateUsing(fn (bool $state) => $state ? 'Published' : 'Draft')
+          ->color(fn (bool $state): string => match ($state) {
+            true => 'success',
+            false => 'danger',
+          }),
+
         Tables\Columns\TextColumn::make('view_count')
-          ->sortable(),
+          ->label('Views')
+          ->numeric()
+          ->sortable()
+          ->alignCenter(),
+
+        Tables\Columns\TextColumn::make('likes_count')
+          ->label('Likes')
+          ->numeric()
+          ->sortable()
+          ->alignCenter(),
       ])
+      ->defaultSort('created_at', 'desc')
       ->filters([
         Tables\Filters\TernaryFilter::make('is_published')
           ->label('Published')
           ->placeholder('All Posts')
           ->trueLabel('Published Posts')
           ->falseLabel('Draft Posts'),
+
+        Tables\Filters\Filter::make('published_at')
+          ->form([
+            Forms\Components\DatePicker::make('published_from'),
+            Forms\Components\DatePicker::make('published_until'),
+          ])
+          ->query(function (Builder $query, array $data): Builder {
+            return $query
+              ->when(
+                $data['published_from'],
+                fn (Builder $query, $date): Builder => $query->whereDate('published_at', '>=', $date),
+              )
+              ->when(
+                $data['published_until'],
+                fn (Builder $query, $date): Builder => $query->whereDate('published_at', '<=', $date),
+              );
+          })
       ])
       ->actions([
-        Tables\Actions\EditAction::make(),
-        Tables\Actions\DeleteAction::make(),
+        Tables\Actions\ActionGroup::make([
+          Tables\Actions\EditAction::make()
+            ->iconButton(),
+
+          Tables\Actions\DeleteAction::make()
+            ->iconButton(),
+        ])
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
           Tables\Actions\DeleteBulkAction::make(),
+          Tables\Actions\BulkAction::make('togglePublish')
+            ->label('Toggle Publish Status')
+            ->icon('heroicon-o-arrow-path')
+            ->action(function (Collection $records): void {
+              foreach ($records as $record) {
+                $record->update([
+                  'is_published' => !$record->is_published,
+                  'published_at' => $record->is_published ? null : now(),
+                ]);
+              }
+            })
+            ->deselectRecordsAfterCompletion()
+            ->requiresConfirmation(),
         ]),
+      ])
+      ->emptyStateActions([
+        Tables\Actions\CreateAction::make(),
       ]);
   }
 
@@ -156,5 +192,10 @@ class BlogResource extends Resource
       'create' => Pages\CreateBlog::route('/create'),
       'edit' => Pages\EditBlog::route('/{record}/edit'),
     ];
+  }
+
+  public static function getNavigationBadge(): ?string
+  {
+    return static::getModel()::count();
   }
 }

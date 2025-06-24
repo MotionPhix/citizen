@@ -1,29 +1,62 @@
 <script setup lang="ts">
-import Form from 'vform'
+import { onMounted, ref } from 'vue';
+import { Form } from 'vform'
 import VueHcaptcha from '@hcaptcha/vue3-hcaptcha'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { LucideAirplay } from 'lucide-vue-next'
+import { Label } from '@/components/ui/label'
+import { useDark } from '@vueuse/core'
 import { toast } from 'vue-sonner'
-import { ref } from 'vue'
-import { useDark } from '@vueuse/core';
-import { Label } from '@/components/ui/label';
+import { LucideAirplay } from 'lucide-vue-next'
 
 const sitekey = import.meta.env.VITE_HCAPTCHA_SITEKEY
-
 const isDark = useDark()
-
-const captchaToken = ref('')
 const hcaptcha = ref()
+
+const props = defineProps<{
+  honeypot: object
+}>()
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+    onRecaptchaLoad: () => void;
+  }
+}
 
 const form = new Form({
   name: '',
   email: '',
   subject: '',
   message: '',
-  'h-captcha-response': ''
+  'g-recaptcha-response': '',
+  [props.honeypot.nameFieldName]: '',
+  [props.honeypot.validFromFieldName]: props.honeypot.encryptedValidFrom,
 })
+
+const isSubmitting = ref(false)
+
+onMounted(() => {
+  // Load reCAPTCHA script
+  const script = document.createElement('script')
+  script.src = `https://www.google.com/recaptcha/api.js?render=${import.meta.env.VITE_GOOGLE_RECAPTCHA_SITE_KEY}`
+  document.head.appendChild(script)
+})
+
+const executeRecaptcha = async () => {
+  try {
+    const token = await window.grecaptcha.execute(import.meta.env.VITE_GOOGLE_RECAPTCHA_SITE_KEY, { action: 'contact' })
+    form['g-recaptcha-response'] = token
+    return true
+  } catch (error) {
+    console.error('reCAPTCHA error:', error)
+    toast.error('Verification Error', {
+      description: 'Failed to verify you are human. Please try again.'
+    })
+    return false
+  }
+}
 
 const onVerify = (token: string) => {
   form['h-captcha-response'] = token
@@ -31,173 +64,204 @@ const onVerify = (token: string) => {
 
 const onError = (error: Error) => {
   console.error('hCaptcha error:', error)
-
-  toast.error('Error', {
-    description: 'Failed to verify captcha. Please try again.'
+  toast.error('Captcha Error', {
+    description: 'Failed to load captcha. Please refresh and try again.'
   })
 }
 
 const onExpire = () => {
   form['h-captcha-response'] = ''
-
-  toast.error({
-    description: 'Captcha expired. Please verify again.',
+  toast.error('Captcha Expired', {
+    description: 'The captcha has expired. Please verify again.'
   })
 }
 
-const handleSubmit = async () => {
+/*const handleSubmit = async () => {
   try {
-    const resp = await form.post(route('contact.submit'))
+    if (!form['h-captcha-response']) {
+      toast.error('Verification Required', {
+        description: 'Please complete the captcha verification.'
+      })
+      return
+    }
 
-    toast.success('Success!', {
-      description: resp.data.message
-    })
+    const response = await form.post(route('contact.submit'))
 
-    form.reset()
-    hcaptcha.value?.reset()
+    if (response.data.message) {
+      toast.success('Success!', {
+        description: response.data.message
+      })
 
-  } catch (error) {
-    // Handle different types of errors based on status codes
+      // Reset form and captcha
+      form.reset()
+      hcaptcha.value?.reset()
+    }
+  } catch (error: any) {
     if (error.response?.status === 429) {
-
-      toast.error('Rate Limit Exceeded', {
+      toast.error('Too Many Attempts', {
         description: error.response.data.message
       })
-
-    } else if (error.response?.data?.errors) {
-      Object.keys(error.response.data.errors).forEach(field => {
+    } else {
+      const errors = error.response?.data?.errors || {}
+      Object.entries(errors).forEach(([field, messages]) => {
         toast.error('Validation Error', {
-          description: error.response.data.errors[field][0]
+          description: Array.isArray(messages) ? messages[0] : messages
         })
       })
+    }
+  }
+}*/
+
+const handleSubmit = async () => {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+
+  try {
+    const recaptchaSuccess = await executeRecaptcha()
+    if (!recaptchaSuccess) {
+      isSubmitting.value = false
+      return
+    }
+
+    const response = await form.post(route('contact.submit'))
+
+    if (response.data.message) {
+      toast.success('Success!', {
+        description: response.data.message
+      })
+      form.reset()
+    }
+  } catch (error: any) {
+    if (error.response?.status === 429) {
+      toast.error('Too Many Attempts', {
+        description: error.response.data.message
+      })
     } else {
-      toast.error('Error', {
-        description: error.response?.data?.message || 'Failed to send message. Please try again.',
+      const errors = error.response?.data?.errors || {}
+      Object.entries(errors).forEach(([field, messages]) => {
+        toast.error('Validation Error', {
+          description: Array.isArray(messages) ? messages[0] : messages
+        })
       })
     }
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
 
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-6">
+    <div v-if="honeypot.enabled" style="display:none;">
+      <input type="text"
+             :name="honeypot.nameFieldName"
+             :id="honeypot.nameFieldName"
+             v-model="form[honeypot.nameFieldName]" />
+      <input type="text"
+             name="valid_from"
+             v-model="form.valid_from" />
+    </div>
+
+    <!-- Name and Email Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="gap-y-2">
-        <Label for="name">
-          Name
+      <div class="space-y-2">
+        <Label for="name" class="font-medium">
+          Full Name
         </Label>
         <Input
           id="name"
-          class="h-12"
           v-model="form.name"
           type="text"
+          class="h-12"
+          placeholder="John Doe"
           required
-          :class="{
-            'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.has('name')
-          }"
+          :class="{ 'border-red-500': form.errors.has('name') }"
         />
-        <p
-          v-if="form.errors.has('name')"
-          class="mt-1 text-sm text-red-500"
-        >
+        <p v-if="form.errors.has('name')" class="text-sm text-red-500">
           {{ form.errors.get('name') }}
         </p>
       </div>
 
-      <div class="gap-y-2">
-        <Label for="email">
-          Email
+      <div class="space-y-2">
+        <Label for="email" class="font-medium">
+          Email Address
         </Label>
-
         <Input
           id="email"
-          class="h-12"
           v-model="form.email"
           type="email"
+          class="h-12"
+          placeholder="johndoe@example.com"
           required
-          :class="{
-            'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.has('email')
-          }"
+          :class="{ 'border-red-500': form.errors.has('email') }"
         />
-        <p
-          v-if="form.errors.has('email')"
-          class="mt-1 text-sm text-red-500"
-        >
+        <p v-if="form.errors.has('email')" class="text-sm text-red-500">
           {{ form.errors.get('email') }}
         </p>
       </div>
     </div>
 
-    <div class="gap-y-2">
-      <Label for="subject">
+    <!-- Subject -->
+    <div class="space-y-2">
+      <Label for="subject" class="font-medium">
         Subject
       </Label>
       <Input
         id="subject"
         v-model="form.subject"
         type="text"
-        required
         class="h-12"
-        :class="{
-          'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.has('subject')
-        }"
+        placeholder="How can we help you?"
+        required
+        :class="{ 'border-red-500': form.errors.has('subject') }"
       />
-      <p
-        v-if="form.errors.has('subject')"
-        class="mt-1 text-sm text-red-500"
-      >
+      <p v-if="form.errors.has('subject')" class="text-sm text-red-500">
         {{ form.errors.get('subject') }}
       </p>
     </div>
 
-    <div class="gap-y-2">
-      <Label for="message">
+    <!-- Message -->
+    <div class="space-y-2">
+      <Label for="message" class="font-medium">
         Message
       </Label>
       <Textarea
         id="message"
         v-model="form.message"
         rows="5"
+        placeholder="Write your message here..."
         required
-        :class="{
-          'border-red-500 dark:border-red-500 focus:ring-red-500 dark:focus:ring-red-500': form.errors.has('message')
-        }"
+        :class="{ 'border-red-500': form.errors.has('message') }"
       />
-      <p
-        v-if="form.errors.has('message')"
-        class="mt-1 text-sm text-red-500"
-      >
+      <p v-if="form.errors.has('message')" class="text-sm text-red-500">
         {{ form.errors.get('message') }}
       </p>
     </div>
 
-    <div>
-      <VueHcaptcha
-        ref="hcaptcha"
-        :sitekey="sitekey"
-        @verify="onVerify"
-        @error="onError"
-        @expired="onExpire"
-        :theme="isDark ? 'dark' : 'light'"
-      />
-      <p
-        v-if="form.errors.has('h-captcha-response')"
-        class="mt-1 text-sm text-red-500">
-        {{ form.errors.get('h-captcha-response') }}
-      </p>
-    </div>
+    <!-- Captcha -->
+<!--    <div class="space-y-2">-->
+<!--      <VueHcaptcha-->
+<!--        ref="hcaptcha"-->
+<!--        :sitekey="sitekey"-->
+<!--        @verify="onVerify"-->
+<!--        @error="onError"-->
+<!--        @expired="onExpire"-->
+<!--        :theme="isDark ? 'dark' : 'light'"-->
+<!--      />-->
+<!--      <p v-if="form.errors.has('h-captcha-response')" class="text-sm text-red-500">-->
+<!--        {{ form.errors.get('h-captcha-response') }}-->
+<!--      </p>-->
+<!--    </div>-->
 
+    <!-- Submit Button -->
     <div>
       <Button
         type="submit"
         :disabled="form.busy"
         class="inline-flex items-center h-14 px-6 py-3 bg-ca-highlight text-white rounded-lg hover:bg-ca-highlight/90 transition-colors duration-300"
       >
-        {{ form.busy ? 'Sending...' : 'Send Message' }}
-        <LucideAirplay
-          v-if="!form.busy"
-          class="w-5 h-5 ml-2"
-        />
+        <span>{{ form.busy ? 'Sending...' : 'Send Message' }}</span>
+        <LucideAirplay v-if="!form.busy" class="w-5 h-5 ml-2" />
       </Button>
     </div>
   </form>

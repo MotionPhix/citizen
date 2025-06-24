@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\BlogResource\Pages;
 
 use App\Filament\Resources\BlogResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Enums\MaxWidth;
 
 class CreateBlog extends CreateRecord
 {
@@ -15,5 +15,10 @@ class CreateBlog extends CreateRecord
     $data['user_id'] = auth()->id();
 
     return $data;
+  }
+
+  public function getMaxContentWidth(): MaxWidth|string|null
+  {
+    return MaxWidth::FourExtraLarge;
   }
 }

@@ -5,10 +5,21 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="color-scheme" content="light">
   <meta name="supported-color-schemes" content="light">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    body {
+      font-family: "Courier New", monospace, -apple-system  !important;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .email-body {
+        background-color: #1a202c !important;
+        color: #e2e8f0 !important;
+      }
+      .content-box {
+        background-color: #2d3748 !important;
+      }
+    }
+
     @media only screen and (max-width: 600px) {
       .main-container {
         width: 100% !important;
@@ -45,8 +56,23 @@
       }
     }
   </style>
+  <!--[if mso]>
+  <style type="text/css">
+    .fallback-text {
+      font-family: "Courier New", monospace;
+    }
+  </style>
+  <![endif]-->
 </head>
 <body style="box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; position: relative; -webkit-text-size-adjust: none; background-color: #f8fafc; color: #4a5568; height: 100%; line-height: 1.4; margin: 0; padding: 0; width: 100% !important;">
+<div style="display: none; max-height: 0px; overflow: hidden;">
+  New contact form submission from {{ $data['name'] }} - {{ $data['subject'] }}
+</div>
+<!-- Add white space after preview text to prevent email content from showing -->
+<div style="display: none; max-height: 0px; overflow: hidden;">
+  &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+</div>
+
 <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color: #f8fafc; margin: 0; padding: 0; width: 100%;">
   <tr>
     <td align="center" style="vertical-align: top; padding: 24px;">
@@ -79,10 +105,20 @@
                           {{ strtoupper(substr($data['name'], 0, 1)) }}
                         </div>
                       </td>
+
                       <td style="padding-left: 15px; vertical-align: top;" class="mobile-center mobile-stack mobile-no-padding">
                         <h3 style="color: #2d3748; font-size: 18px; font-weight: 600; margin: 0 0 5px;" class="mobile-text-center">{{ $data['name'] }}</h3>
                         <p style="color: #4a5568; font-size: 14px; margin: 0;" class="mobile-text-center">
                           <a href="mailto:{{ $data['email'] }}" style="color: #4299e1; text-decoration: none;">{{ $data['email'] }}</a>
+                        </p>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td style="padding: 20px; border-top: 1px solid #e2e8f0;">
+                        <p style="color: #718096; font-size: 12px; margin: 0;">
+                          From the following IP address<br>
+                          <strong>{{ $data['ip_address'] }}</strong>
                         </p>
                       </td>
                     </tr>
@@ -119,7 +155,7 @@
                 <td>
                   <p style="color: #718096; font-size: 13px; line-height: 1.5; margin: 0;">
                     This email was sent from the contact form at
-                    <a href="{{ config('app.url') }}" style="color: #4299e1; text-decoration: none;">Citizen Alliance</a>
+                    <a href="{{ config('app.url') }}" title="Visit Citizen Alliance" target="_blank" style="color: #4299e1; text-decoration: none;">Citizen Alliance</a>
                   </p>
                   <p style="color: #718096; font-size: 13px; line-height: 1.5; margin: 10px 0 0;">
                     © {{ date('Y') }} Citizen Alliance. All rights reserved.
