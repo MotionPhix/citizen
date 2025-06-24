@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ImpactMetric;
 use App\Models\Program;
 use Illuminate\View\View;
 
@@ -13,58 +14,9 @@ class HomeController extends Controller
       ->orderBy('sort_order')
       ->get();
 
-    $metrics = [
-      [
-        'icon' => 'users',
-        'title' => 'People Reached',
-        'metric' => '50000',
-        'description' => 'Individuals directly impacted across Malawi'
-      ],
-      [
-        'icon' => 'school',
-        'title' => 'Schools Supported',
-        'metric' => '32',
-        'description' => 'Educational institutions receiving our assistance'
-      ],
-      [
-        'icon' => 'medical',
-        'title' => 'Medical Camps',
-        'metric' => '85',
-        'description' => 'Health outreach programs conducted'
-      ],
-      [
-        'icon' => 'water',
-        'title' => 'Water Projects',
-        'metric' => '120',
-        'description' => 'Clean water access points installed'
-      ],
-      [
-        'icon' => 'training',
-        'title' => 'Training Sessions',
-        'metric' => '450',
-        'description' => 'Skill development workshops conducted'
-      ],
-      [
-        'icon' => 'women',
-        'title' => 'Women Empowered',
-        'metric' => '15000',
-        'description' => 'Female participants in our programs'
-      ],
-      [
-        'icon' => 'agriculture',
-        'title' => 'Farmers Trained',
-        'metric' => '2500',
-        'description' => 'In sustainable agricultural practices'
-      ],
-      [
-        'icon' => 'volunteers',
-        'title' => 'Volunteers',
-        'metric' => '1200',
-        'description' => 'Active community volunteers'
-      ]
-    ]; /*ImpactMetric::where('is_published', true)
+    $metrics = ImpactMetric::where('is_published', true)
       ->orderBy('sort_order')
-      ->get();*/
+      ->get();
 
     return view('pages.home', [
       'slides' => $this->getSliderData(),
@@ -105,12 +57,12 @@ class HomeController extends Controller
       ],
       [
         'title' => 'Advocacy & Campaign Approach',
-        'description' => 'Influencing change on matters affecting the vulnerable and marginalized groups.',
+        'description' => 'Influencing change on matters affecting the vulnerable and marginalized groups through strategic advocacy.',
         'icon' => 'megaphone',
       ],
       [
         'title' => 'Research Approach',
-        'description' => 'Collection of data and information to inform advocacy interventions.',
+        'description' => 'Collection of data and information to inform advocacy interventions and evidence-based policy recommendations.',
         'icon' => 'chart-bar',
       ],
     ];

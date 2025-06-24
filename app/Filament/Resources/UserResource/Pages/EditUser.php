@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource;
 use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\MaxWidth;
 
 class EditUser extends EditRecord
 {
@@ -29,5 +30,10 @@ class EditUser extends EditRecord
           $this->record->delete();
         }),
     ];
+  }
+
+  public function getMaxContentWidth(): \Filament\Support\Enums\MaxWidth
+  {
+    return \Filament\Support\Enums\MaxWidth::FourExtraLarge;
   }
 }

@@ -14,8 +14,8 @@ class StoryResource extends Resource
 {
   protected static ?string $model = Story::class;
   protected static ?string $navigationIcon = 'heroicon-o-book-open';
-  protected static ?string $navigationGroup = 'Newsletter Content';
-  protected static ?int $navigationSort = 2;
+  protected static ?string $navigationGroup = 'Newsletter';
+  protected static ?int $navigationSort = 1;
 
   public static function form(Form $form): Form
   {

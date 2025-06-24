@@ -181,4 +181,10 @@ html {
   display: none;
 }
 
+.fix-images img {
+  width: 100%;
+  height: auto;
+  @apply object-cover rounded-2xl;
+}
+
 html body { overflow: auto !important; padding-right: 0 !important; }

@@ -11,12 +11,19 @@
   <x-content-container>
     <x-impact-stats :metrics="$metrics"></x-impact-stats>
 
-    <program-section :programs="{{ Js::from($programs) }}"></program-section>
+{{--    <program-section :programs="{{ Js::from($programs) }}"></program-section>--}}
 
     <!-- Approaches Section -->
-    <h2 class="text-3xl font-bold text-center font-display mb-12 text-ca-primary dark:text-ca-highlight">
-      Our Approach
-    </h2>
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-center font-display text-ca-primary dark:text-ca-highlight mb-6">
+        Our Approaches
+      </h2>
+
+      <p class="text-xl dark:text-gray-300 text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        We employ three strategic approaches to facilitate meaningful citizen engagement
+        and promote democratic governance across Malawi.
+      </p>
+    </div>
 
     <div class="grid md:grid-cols-3 gap-8">
       @foreach($approaches as $approach)
@@ -29,7 +36,7 @@
             @elseif($approach['icon'] === 'megaphone')
               <x-heroicon-o-megaphone class="w-8 h-8"/>
             @else
-              <x-heroicon-o-chart-bar class="w-8 h-8"/>
+              <library class="w-8 h-8"></library>
             @endif
 
           </div>
@@ -45,6 +52,23 @@
       @endforeach
     </div>
 
+    <!-- Call to Action -->
+    <div class="text-center mt-16">
+      <p class="text-lg text-gray-600 mb-6 dark:text-gray-400">
+        Want to learn more about how we're making a difference?
+      </p>
+
+      <a
+        href="/projects"
+        class="inline-flex items-center bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+      >
+        Explore Our Projects
+        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </a>
+    </div>
+
     <!-- About Section -->
     <div class="rounded-2xl overflow-hidden my-12">
       <div
@@ -55,15 +79,15 @@
 
           <span class="block text-white text-lg sm:text-xl md:text-2xl">
             Citizen Alliance (CA) is a coalition of civil society organizations and citizen groups
-            established in 2012 as a citizen-led engagement initiative on development and governance processes. The
-            organization is registered under the laws of Malawi as a company limited by guaranteed and operates in all the
-            districts through Citizen Forums (CFs).
+            established in 2012 as a citizen-led engagement initiative on development and governance processes.
           </span>
         </div>
 
         <div class="inset-0 bg-black absolute bg-opacity-55"></div>
       </div>
     </div>
+
+    <about-section></about-section>
     <!-- End About Section -->
 
   </x-content-container>

@@ -9,12 +9,12 @@
       <div class="lg:col-span-2">
         <div class="py-8 lg:pe-8">
           <div class="space-y-5 lg:space-y-8">
-            <a class="inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:underline focus:outline-hidden focus:underline dark:text-blue-500" href="{{ route('blogs.index') }}">
+            <a class="font-display inline-flex items-center gap-x-1.5 text-sm text-gray-600 decoration-2 hover:underline focus:outline-hidden focus:underline dark:text-blue-500" href="{{ route('blogs.index') }}">
               <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               Back to Blog
             </a>
 
-            <h2 class="text-3xl font-bold lg:text-5xl dark:text-white">
+            <h2 class="font-display text-3xl font-bold lg:text-5xl dark:text-white">
               {{ $post->title }}
             </h2>
 
@@ -34,16 +34,20 @@
             </div>
 
             @if($post->excerpt)
-              <blockquote>
-                <p class="text-lg text-gray-800 dark:text-neutral-200">
-                  {{ $post->excerpt }}
+              <blockquote class="relative border-s-4 border-gray-200 ps-4 sm:ps-6 dark:border-neutral-700">
+                <p class="text-gray-800 sm:text-xl dark:text-white">
+                  <em>
+                    {{ $post->excerpt }}
+                  </em>
                 </p>
               </blockquote>
             @endif
 
+            <section class="py-12">
+
             <!-- Featured Image -->
             @if($post->hasMedia('blog_images'))
-              <div class="max-w-5xl mx-auto mb-12">
+              <div class="max-w-5xl mx-auto">
                 <div class="aspect-w-16 aspect-h-9 rounded-2xl overflow-hidden shadow-xl">
                   <img
                     src="{{ $post->getFirstMediaUrl('blog_images', 'preview') }}"
@@ -61,8 +65,10 @@
               </div>
             @endif
 
+            </section>
+
             <!-- Article Content -->
-            <div class="prose prose-lg max-w-none dark:prose-invert">
+            <div class="mt-12 prose prose-lg max-w-none dark:prose-invert fix-images">
               {!! str($post->content)->markdown() !!}
             </div>
 

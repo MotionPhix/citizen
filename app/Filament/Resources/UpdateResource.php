@@ -14,7 +14,7 @@ class UpdateResource extends Resource
 {
   protected static ?string $model = Update::class;
   protected static ?string $navigationIcon = 'heroicon-o-newspaper';
-  protected static ?string $navigationGroup = 'Newsletter Content';
+  protected static ?string $navigationGroup = 'Newsletter';
   protected static ?int $navigationSort = 3;
 
   public static function form(Form $form): Form

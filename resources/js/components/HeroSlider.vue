@@ -91,7 +91,7 @@ onMounted(() => {
         prevEl: '.swiper-button-prev',
       }"
       @slideChange="handleSlideChange"
-      class="h-[700px]">
+      class="h-[calc(100vh-5rem)]">
       <SwiperSlide
         v-for="(slide, index) in slides"
         :key="index"

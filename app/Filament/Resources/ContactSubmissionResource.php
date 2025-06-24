@@ -6,6 +6,7 @@ use App\Filament\Resources\ContactSubmissionResource\Pages;
 use App\Filament\Resources\ContactSubmissionResource\RelationManagers;
 use App\Models\ContactSubmission;
 use App\Notifications\ContactFormResponse;
+use Filament\Actions\ActionGroup;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -20,7 +21,9 @@ class ContactSubmissionResource extends Resource
   protected static ?string $model = ContactSubmission::class;
   protected static ?string $navigationIcon = 'heroicon-o-inbox';
   protected static ?string $navigationGroup = 'Communication';
-  protected static ?int $navigationSort = 2;
+  protected static ?string $navigationLabel = 'Messages';
+  protected static ?string $breadcrumb = 'Messages';
+  protected static ?int $navigationSort = 4;
 
   public static function form(Form $form): Form
   {
@@ -88,15 +91,10 @@ class ContactSubmissionResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\TextColumn::make('created_at')
-          ->dateTime()
-          ->sortable(),
-
         Tables\Columns\TextColumn::make('name')
-          ->searchable(),
-
-        Tables\Columns\TextColumn::make('email')
-          ->searchable(),
+          ->weight('bold')
+          ->description(fn($record) => $record->email)
+          ->searchable(['name', 'email']),
 
         Tables\Columns\TextColumn::make('subject')
           ->searchable()
@@ -108,6 +106,10 @@ class ContactSubmissionResource extends Resource
             'warning' => 'read',
             'success' => 'replied',
           ]),
+
+        Tables\Columns\TextColumn::make('created_at')
+          ->dateTime()
+          ->sortable(),
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
@@ -119,32 +121,38 @@ class ContactSubmissionResource extends Resource
           ]),
       ])
       ->actions([
-        Tables\Actions\ViewAction::make(),
-        Tables\Actions\Action::make('reply')
-          ->form([
-            Forms\Components\Textarea::make('response')
-              ->label('Your Response')
-              ->required()
-              ->maxLength(65535),
-          ])
-          ->action(function (ContactSubmission $record, array $data): void {
-            $record->update([
-              'response' => $data['response'],
-              'status' => 'replied',
-            ]);
+        ActionGroup::make()
+          ->label('Actions')
+          ->icon('heroicon-o-cog')
+          ->actions([
+            Tables\Actions\ViewAction::make(),
+            Tables\Actions\Action::make('reply')
+              ->form([
+                Forms\Components\Textarea::make('response')
+                  ->label('Your Response')
+                  ->required()
+                  ->maxLength(65535),
+              ])
+              ->action(function (ContactSubmission $record, array $data): void {
+                $record->update([
+                  'response' => $data['response'],
+                  'status' => 'replied',
+                ]);
 
-            // Send email to the contact
-            Notification::make()
-              ->title('Response sent successfully')
-              ->success()
-              ->send();
+                // Send email to the contact
+                Notification::make()
+                  ->title('Response sent successfully')
+                  ->success()
+                  ->send();
 
-            // Send the email using your existing notification system
-            $record->notify(new ContactFormResponse($record, $data['response']));
-          })
-          ->visible(fn($record) => $record->status !== 'replied')
-          ->icon('heroicon-o-paper-airplane')
-          ->color('success'),
+                // Send the email using your existing notification system
+                $record->notify(new ContactFormResponse($record, $data['response']));
+              })
+              ->visible(fn($record) => $record->status !== 'replied')
+              ->icon('heroicon-o-paper-airplane')
+              ->color('success'),
+            Tables\Actions\DeleteAction::make(),
+          ]),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
@@ -165,7 +173,6 @@ class ContactSubmissionResource extends Resource
     return [
       'index' => Pages\ListContactSubmissions::route('/'),
       'create' => Pages\CreateContactSubmission::route('/create'),
-      'edit' => Pages\EditContactSubmission::route('/{record}/edit'),
       'view' => Pages\ViewContactSubmission::route('/{record}'),
     ];
   }

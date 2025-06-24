@@ -54,7 +54,7 @@ const sectionDescription = computed(() =>
         v-motion
         :initial="{ opacity: 0, y: 20 }"
         :enter="{ opacity: 1, y: 0, transition: { duration: 0.5 } }">
-        <h2 class="text-4xl font-display text-ca-primary dark:text-white mb-4">
+        <h2 class="text-4xl md:text-5xl font-display text-ca-primary dark:text-white mb-4">
           {{ sectionTitle }}
         </h2>
 
@@ -70,7 +70,7 @@ const sectionDescription = computed(() =>
         :enter="{ opacity: 1, y: 0, transition: { stagger: 0.1 } }">
         <ProjectCard
           v-for="project in projects.data"
-          :key="project?.id"
+          :key="project?.uuid"
           :project="project"
         />
       </div>

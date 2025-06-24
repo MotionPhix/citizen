@@ -31,6 +31,7 @@ class ContactFormSubmission extends Notification implements ShouldQueue
           'email' => $this->submission->email,
           'subject' => $this->submission->subject,
           'message' => $this->submission->message,
+          'ip_address' => $this->submission->ip_address,
         ]
       ]);
   }
@@ -42,6 +43,8 @@ class ContactFormSubmission extends Notification implements ShouldQueue
       'name' => $this->submission->name,
       'subject' => $this->submission->subject,
       'email' => $this->submission->email,
+      'message' => $this->submission->message,
+      'ip_address' => $this->submission->ip_address,
     ];
   }
 }

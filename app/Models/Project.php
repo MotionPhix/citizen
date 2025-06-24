@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +19,7 @@ use Spatie\Tags\HasTags;
 
 class Project extends Model implements HasMedia
 {
-  use HasFactory, HasSlug, InteractsWithMedia, HasTags, SoftDeletes;
+  use HasFactory, HasUuid, HasSlug, InteractsWithMedia, HasTags, SoftDeletes;
 
   protected $fillable = [
     'title',
@@ -56,7 +60,7 @@ class Project extends Model implements HasMedia
     }
 
     $this->addMediaConversion('thumbnail')
-      ->fit(Fit::Crop, 300, 300)
+      ->fit(Fit::Crop, 400, 300)
       ->nonQueued();
 
     $this->addMediaConversion('preview')
@@ -80,20 +84,24 @@ class Project extends Model implements HasMedia
       ->withResponsiveImages();
   }
 
-  public function scopeFeatured($query)
+  #[Scope]
+  protected function featured(Builder $query): void
   {
-    return $query->where('is_featured', true);
+    $query->where('is_featured', true);
   }
 
-  public function scopeByStatus($query, $status)
+  #[Scope]
+  protected function byStatus($query, $status): void
   {
-    return $query->where('status', $status);
+    $query->where('status', $status);
   }
 
   // Helper method to get the featured image URL
-  public function getFeaturedImageAttribute()
+  public function featuredImage(): Attribute
   {
-    return $this->getFirstMediaUrl('project_image', 'preview') ?: null;
+    return Attribute::make(
+      get: fn() => $this->getFirstMediaUrl('project_image', 'hero') ?: null,
+    );
   }
 
   // Helper method to get the gallery images

@@ -6,6 +6,7 @@ use App\Filament\Resources\ContactSubmissionResource;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use Filament\Support\Enums\MaxWidth;
 
 class ViewContactSubmission extends ViewRecord
 {
@@ -91,5 +92,15 @@ class ViewContactSubmission extends ViewRecord
         ->icon('heroicon-o-paper-airplane')
         ->color('success'),
     ];
+  }
+
+  public function getTitle(): string
+  {
+    return 'Viewing ' . $this->record->subject . ' from ' . $this->record->name;
+  }
+
+  public function getMaxContentWidth(): MaxWidth|string|null
+  {
+    return MaxWidth::FourExtraLarge;
   }
 }

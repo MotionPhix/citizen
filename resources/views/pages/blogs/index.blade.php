@@ -52,9 +52,17 @@
                 <div class="aspect-w-16 aspect-h-9 bg-gray-100 dark:bg-gray-700">
                   @if($post->hasMedia('blog_images'))
                     <img
-                      src="{{ $post->getFirstMediaUrl('blog_images') }}"
+                      src="{{ $post->getFirstMediaUrl('blog_images', 'preview') }}"
+                      srcset="{{ $post->getFirstMediaUrl('blog_images', 'thumbnail') }} 400w,
+                        {{ $post->getFirstMediaUrl('blog_images', 'preview') }} 800w"
+                                sizes="(max-width: 768px) 100vw,
+                       (max-width: 1200px) 50vw,
+                       33vw"
                       alt="{{ $post->title }}"
                       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                      width="800"
+                      height="450"
                     >
                   @else
                     <div class="flex items-center justify-center h-full">

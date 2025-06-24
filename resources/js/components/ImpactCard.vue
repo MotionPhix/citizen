@@ -2,11 +2,12 @@
 import {
   Users,
   GraduationCap,
-  Heart,
-  HandMetal,
-  Sun,
-  Cloud,
-  BarChart, User2
+  Scale,
+  HandHeart,
+  Landmark,
+  Venus,
+  BarChart,
+  Handshake,
 } from 'lucide-vue-next';
 import CounterAnimation from '@/components/CounterAnimation.vue'
 
@@ -24,13 +25,12 @@ const props = defineProps<Props>()
 const getIcon = (iconName: string) => {
   const icons = {
     users: Users,
-    school: GraduationCap,
-    medical: Heart,
+    handshake: Handshake,
+    medical: Scale,
     training: GraduationCap,
-    women: User2,
-    volunteers: HandMetal,
-    agriculture: Sun,
-    water: Cloud
+    women: Venus,
+    volunteers: HandHeart,
+    water: Landmark
   }
 
   return icons[iconName as keyof typeof icons] || BarChart

@@ -31,6 +31,13 @@ return Application::configure(basePath: dirname(__DIR__))
       \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     ]);
 
+    $middleware->alias([
+      'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+      'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+      'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+      'honeypot' => \Spatie\Honeypot\ProtectAgainstSpam::class,
+    ]);
+
   })
   ->withExceptions(function (Exceptions $exceptions) {
     //

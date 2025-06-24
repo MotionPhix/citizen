@@ -40,4 +40,9 @@ return [
     'sitekey' => env('HCAPTCHA_SITE_KEY'),
     'secret' => env('HCAPTCHA_SECRET_KEY'),
   ],
+
+  'recaptcha' => [
+    'site_key' => env('GOOGLE_RECAPTCHA_SITE_KEY'),
+    'secret_key' => env('GOOGLE_RECAPTCHA_SECRET'),
+  ],
 ];
