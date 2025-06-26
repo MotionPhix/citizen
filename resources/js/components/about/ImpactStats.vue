@@ -35,14 +35,12 @@ onMounted(() => {
 <template>
   <div
     ref="statsRef"
-    class="absolute bottom-0 left-0 right-0 p-8"
-  >
+    class="absolute bottom-0 left-0 right-0 p-8">
     <div class="grid grid-cols-2 gap-8">
       <div
         v-for="(stat, index) in stats"
         :key="index"
-        class="text-white"
-      >
+        class="text-white">
         <p class="text-3xl font-bold flex items-end">
           <CounterAnimation
             v-if="isVisible"

@@ -95,23 +95,17 @@
   <!-- Testimonials Section -->
   <x-testimonials :testimonials="[
     [
-      'name' => 'Steven Phiri',
-      'role' => 'Community Leader',
-      'image' => 'images/testimonials/john-doe.jpg',
-      'quote' => 'Citizen Alliance has transformed our community through their education programs.'
+      'name' => 'Katerina',
+      'role' => 'Phone Victim',
+      'avatar' => '/images/testimonials/katerina.jpg',
+      'quote' => 'Citizen Alliance stood by me when the police took my phones. Their support brought justice and gave me my voice back. I’m truly grateful.'
     ],
     [
-      'name' => 'Sydney Gondwe',
-      'role' => 'Health Worker',
-      'image' => 'images/testimonials/jane-smith.jpg',
-      'quote' => 'Their health initiatives have saved countless lives in our district.'
+      'name' => 'Kola Dymon',
+      'role' => 'Farm Land Owner',
+      'avatar' => '/images/testimonials/kola-dymon.jpg',
+      'quote' => 'Losing my farm felt like losing my future. Citizen Alliance didn’t just fight for my land—they fought for my right to live with dignity. Thanks to their support, my farm is mine again'
     ],
-    [
-      'name' => 'Joshua Lukhere',
-      'role' => 'Farmer',
-      'image' => 'images/testimonials/michael-johnson.jpg',
-      'quote' => 'The agricultural training has helped me double my crop yields.'
-    ]
   ]"
   />
 

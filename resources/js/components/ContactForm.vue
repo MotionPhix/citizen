@@ -1,128 +1,117 @@
+
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, defineProps, onMounted, onUnmounted } from 'vue';
 import { Form } from 'vform'
-import VueHcaptcha from '@hcaptcha/vue3-hcaptcha'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { useDark } from '@vueuse/core'
 import { toast } from 'vue-sonner'
 import { LucideAirplay } from 'lucide-vue-next'
-
-const sitekey = import.meta.env.VITE_HCAPTCHA_SITEKEY
-const isDark = useDark()
-const hcaptcha = ref()
+import { useDark } from '@vueuse/core';
 
 const props = defineProps<{
-  honeypot: object
-}>()
-
-declare global {
-  interface Window {
-    grecaptcha: any;
-    onRecaptchaLoad: () => void;
+  honeypot: {
+    enabled: boolean
+    nameFieldName: string
+    validFromFieldName: string
+    encryptedValidFrom: string
   }
-}
+}>()
 
 const form = new Form({
   name: '',
   email: '',
   subject: '',
   message: '',
-  'g-recaptcha-response': '',
+  'h-captcha-response': '',
   [props.honeypot.nameFieldName]: '',
   [props.honeypot.validFromFieldName]: props.honeypot.encryptedValidFrom,
 })
 
+// Use hCaptcha site key instead of Google reCAPTCHA
+const siteKey = import.meta.env.VITE_HCAPTCHA_SITEKEY
 const isSubmitting = ref(false)
+const hcaptchaWidgetId = ref<string | null>(null)
+const isDark = useDark()
 
-onMounted(() => {
-  // Load reCAPTCHA script
-  const script = document.createElement('script')
-  script.src = `https://www.google.com/recaptcha/api.js?render=${import.meta.env.VITE_GOOGLE_RECAPTCHA_SITE_KEY}`
-  document.head.appendChild(script)
-})
+// Load hCaptcha script
+const loadHCaptchaScript = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (window.hcaptcha) {
+      resolve()
+      return
+    }
 
-const executeRecaptcha = async () => {
-  try {
-    const token = await window.grecaptcha.execute(import.meta.env.VITE_GOOGLE_RECAPTCHA_SITE_KEY, { action: 'contact' })
-    form['g-recaptcha-response'] = token
-    return true
-  } catch (error) {
-    console.error('reCAPTCHA error:', error)
-    toast.error('Verification Error', {
-      description: 'Failed to verify you are human. Please try again.'
-    })
-    return false
-  }
+    const script = document.createElement('script')
+    script.src = 'https://js.hcaptcha.com/1/api.js'
+    script.async = true
+    script.defer = true
+
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Failed to load hCaptcha script'))
+
+    document.head.appendChild(script)
+  })
 }
 
-const onVerify = (token: string) => {
+// hCaptcha callback functions
+const onHCaptchaVerify = (token: string) => {
   form['h-captcha-response'] = token
 }
 
-const onError = (error: Error) => {
+const onHCaptchaExpire = () => {
+  form['h-captcha-response'] = ''
+  toast.warning('Captcha Expired', {
+    description: 'Please complete the captcha again.'
+  })
+}
+
+const onHCaptchaError = (error: string) => {
+  form['h-captcha-response'] = ''
   console.error('hCaptcha error:', error)
   toast.error('Captcha Error', {
-    description: 'Failed to load captcha. Please refresh and try again.'
+    description: 'There was an issue with the captcha. Please try again.'
   })
 }
 
-const onExpire = () => {
-  form['h-captcha-response'] = ''
-  toast.error('Captcha Expired', {
-    description: 'The captcha has expired. Please verify again.'
-  })
-}
-
-/*const handleSubmit = async () => {
+// Initialize hCaptcha
+const initHCaptcha = async () => {
   try {
-    if (!form['h-captcha-response']) {
-      toast.error('Verification Required', {
-        description: 'Please complete the captcha verification.'
-      })
-      return
-    }
+    await loadHCaptchaScript()
 
-    const response = await form.post(route('contact.submit'))
-
-    if (response.data.message) {
-      toast.success('Success!', {
-        description: response.data.message
-      })
-
-      // Reset form and captcha
-      form.reset()
-      hcaptcha.value?.reset()
-    }
-  } catch (error: any) {
-    if (error.response?.status === 429) {
-      toast.error('Too Many Attempts', {
-        description: error.response.data.message
-      })
-    } else {
-      const errors = error.response?.data?.errors || {}
-      Object.entries(errors).forEach(([field, messages]) => {
-        toast.error('Validation Error', {
-          description: Array.isArray(messages) ? messages[0] : messages
-        })
+    if (window.hcaptcha && siteKey) {
+      hcaptchaWidgetId.value = window.hcaptcha.render('hcaptcha-container', {
+        sitekey: siteKey,
+        callback: onHCaptchaVerify,
+        'expired-callback': onHCaptchaExpire,
+        'error-callback': onHCaptchaError,
+        theme: isDark.value ? 'dark' : 'light',
+        size: 'normal' // or 'compact'
       })
     }
+  } catch (error) {
+    console.error('Failed to initialize hCaptcha:', error)
+    toast.error('Captcha Loading Error', {
+      description: 'Failed to load captcha. Please refresh the page.'
+    })
   }
-}*/
+}
 
 const handleSubmit = async () => {
   if (isSubmitting.value) return
+
+  // Check if hCaptcha is completed
+  if (!form['h-captcha-response']) {
+    toast.error('Captcha Required', {
+      description: 'Please complete the captcha before submitting.'
+    })
+    return
+  }
+
   isSubmitting.value = true
 
   try {
-    const recaptchaSuccess = await executeRecaptcha()
-    if (!recaptchaSuccess) {
-      isSubmitting.value = false
-      return
-    }
-
     const response = await form.post(route('contact.submit'))
 
     if (response.data.message) {
@@ -130,15 +119,25 @@ const handleSubmit = async () => {
         description: response.data.message
       })
       form.reset()
+
+      // Reset hCaptcha
+      if (window.hcaptcha && hcaptchaWidgetId.value) {
+        window.hcaptcha.reset(hcaptchaWidgetId.value)
+      }
     }
   } catch (error: any) {
+    // Reset hCaptcha on error
+    if (window.hcaptcha && hcaptchaWidgetId.value) {
+      window.hcaptcha.reset(hcaptchaWidgetId.value)
+    }
+
     if (error.response?.status === 429) {
       toast.error('Too Many Attempts', {
         description: error.response.data.message
       })
     } else {
       const errors = error.response?.data?.errors || {}
-      Object.entries(errors).forEach(([field, messages]) => {
+      Object.entries(errors).forEach(([, messages]) => {
         toast.error('Validation Error', {
           description: Array.isArray(messages) ? messages[0] : messages
         })
@@ -148,26 +147,66 @@ const handleSubmit = async () => {
     isSubmitting.value = false
   }
 }
+
+onMounted(() => {
+  if (siteKey) {
+    initHCaptcha()
+  } else {
+    console.warn('hCaptcha site key not found. Please set VITE_HCAPTCHA_SITE_KEY in your environment variables.')
+  }
+})
+
+onUnmounted(() => {
+  // Clean up if needed
+  if (window.hcaptcha && hcaptchaWidgetId.value) {
+    try {
+      window.hcaptcha.remove(hcaptchaWidgetId.value)
+    } catch (error) {
+      console.warn('Error removing hCaptcha widget:', error)
+    }
+  }
+})
+
+// Type declaration for hCaptcha
+declare global {
+  interface Window {
+    hcaptcha: {
+      render: (container: string, params: any) => string
+      reset: (widgetId?: string) => void
+      remove: (widgetId: string) => void
+      execute: (widgetId?: string) => void
+      getResponse: (widgetId?: string) => string
+    }
+  }
+}
 </script>
 
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-6">
+    <!-- Honeypot fields -->
     <div v-if="honeypot.enabled" style="display:none;">
-      <input type="text"
-             :name="honeypot.nameFieldName"
-             :id="honeypot.nameFieldName"
-             v-model="form[honeypot.nameFieldName]" />
-      <input type="text"
-             name="valid_from"
-             v-model="form.valid_from" />
+      <input
+        type="text"
+        :name="honeypot.nameFieldName"
+        :id="honeypot.nameFieldName"
+        v-model="form[honeypot.nameFieldName]"
+        tabindex="-1"
+        autocomplete="off"
+      />
+
+      <input
+        type="text"
+        :name="honeypot.validFromFieldName"
+        v-model="form[honeypot.validFromFieldName]"
+        tabindex="-1"
+        autocomplete="off"
+      />
     </div>
 
     <!-- Name and Email Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="space-y-2">
-        <Label for="name" class="font-medium">
-          Full Name
-        </Label>
+        <Label for="name" class="font-medium">Full Name</Label>
         <Input
           id="name"
           v-model="form.name"
@@ -177,15 +216,14 @@ const handleSubmit = async () => {
           required
           :class="{ 'border-red-500': form.errors.has('name') }"
         />
+
         <p v-if="form.errors.has('name')" class="text-sm text-red-500">
           {{ form.errors.get('name') }}
         </p>
       </div>
 
       <div class="space-y-2">
-        <Label for="email" class="font-medium">
-          Email Address
-        </Label>
+        <Label for="email" class="font-medium">Email Address</Label>
         <Input
           id="email"
           v-model="form.email"
@@ -195,6 +233,7 @@ const handleSubmit = async () => {
           required
           :class="{ 'border-red-500': form.errors.has('email') }"
         />
+
         <p v-if="form.errors.has('email')" class="text-sm text-red-500">
           {{ form.errors.get('email') }}
         </p>
@@ -203,9 +242,7 @@ const handleSubmit = async () => {
 
     <!-- Subject -->
     <div class="space-y-2">
-      <Label for="subject" class="font-medium">
-        Subject
-      </Label>
+      <Label for="subject" class="font-medium">Subject</Label>
       <Input
         id="subject"
         v-model="form.subject"
@@ -215,6 +252,7 @@ const handleSubmit = async () => {
         required
         :class="{ 'border-red-500': form.errors.has('subject') }"
       />
+
       <p v-if="form.errors.has('subject')" class="text-sm text-red-500">
         {{ form.errors.get('subject') }}
       </p>
@@ -222,9 +260,7 @@ const handleSubmit = async () => {
 
     <!-- Message -->
     <div class="space-y-2">
-      <Label for="message" class="font-medium">
-        Message
-      </Label>
+      <Label for="message" class="font-medium">Message</Label>
       <Textarea
         id="message"
         v-model="form.message"
@@ -233,34 +269,27 @@ const handleSubmit = async () => {
         required
         :class="{ 'border-red-500': form.errors.has('message') }"
       />
+
       <p v-if="form.errors.has('message')" class="text-sm text-red-500">
         {{ form.errors.get('message') }}
       </p>
     </div>
 
-    <!-- Captcha -->
-<!--    <div class="space-y-2">-->
-<!--      <VueHcaptcha-->
-<!--        ref="hcaptcha"-->
-<!--        :sitekey="sitekey"-->
-<!--        @verify="onVerify"-->
-<!--        @error="onError"-->
-<!--        @expired="onExpire"-->
-<!--        :theme="isDark ? 'dark' : 'light'"-->
-<!--      />-->
-<!--      <p v-if="form.errors.has('h-captcha-response')" class="text-sm text-red-500">-->
-<!--        {{ form.errors.get('h-captcha-response') }}-->
-<!--      </p>-->
-<!--    </div>-->
+    <!-- hCaptcha -->
+    <div class="space-y-2">
+      <div id="hcaptcha-container"></div>
+      <p v-if="form.errors.has('h-captcha-response')" class="text-sm text-red-500">
+        {{ form.errors.get('h-captcha-response') }}
+      </p>
+    </div>
 
     <!-- Submit Button -->
     <div>
       <Button
         type="submit"
         :disabled="form.busy"
-        class="inline-flex items-center h-14 px-6 py-3 bg-ca-highlight text-white rounded-lg hover:bg-ca-highlight/90 transition-colors duration-300"
-      >
-        <span>{{ form.busy ? 'Sending...' : 'Send Message' }}</span>
+        class="h-14 px-6 py-3 bg-ca-highlight text-white rounded-lg hover:bg-ca-highlight/90 disabled:opacity-50">
+        <span>{{ (form.busy) ? 'Sending...' : 'Send Message' }}</span>
         <LucideAirplay v-if="!form.busy" class="w-5 h-5 ml-2" />
       </Button>
     </div>

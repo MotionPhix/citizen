@@ -35,10 +35,9 @@ return [
     ],
   ],
 
-  // Add this to your existing services.php config file
   'hcaptcha' => [
-    'sitekey' => env('HCAPTCHA_SITE_KEY'),
-    'secret' => env('HCAPTCHA_SECRET_KEY'),
+    'sitekey' => env('HCAPTCHA_SITEKEY'),
+    'secret' => env('HCAPTCHA_SECRET'),
   ],
 
   'recaptcha' => [

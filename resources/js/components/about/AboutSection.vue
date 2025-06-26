@@ -1,15 +1,4 @@
 <script setup lang="ts">
-const scrollToSection = (event: Event) => {
-  event.preventDefault()
-  const target = event.target as HTMLAnchorElement
-  const href = target.getAttribute('href')
-  if (href) {
-    const element = document.querySelector(href)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-}
 </script>
 
 <template>
@@ -50,14 +39,14 @@ const scrollToSection = (event: Event) => {
 
           <!-- Key Stats -->
           <div class="grid grid-cols-2 gap-6 mb-8">
-            <div class="bg-white/60 dark:bg-fuchsia-400/20 backdrop-blur-sm rounded-xl border border-white/20">
+            <div class="backdrop-blur-sm">
               <div class="text-3xl font-bold text-blue-600 mb-2">12+</div>
               <div class="text-gray-700 dark:text-gray-200 font-medium">Years of Impact</div>
             </div>
 
-            <div class="bg-white/60 dark:bg-blue-300 backdrop-blur-sm rounded-xl border border-white/20">
+            <div class="backdrop-blur-sm">
               <div class="text-3xl font-bold text-green-600 mb-2">28</div>
-              <div class="text-gray-700 font-medium">Districts Reached</div>
+              <div class="text-gray-700 dark:text-gray-200 font-medium">Districts Reached</div>
             </div>
           </div>
 

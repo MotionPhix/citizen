@@ -121,38 +121,38 @@ class ContactSubmissionResource extends Resource
           ]),
       ])
       ->actions([
-        ActionGroup::make()
+        Tables\Actions\ActionGroup::make([
+          Tables\Actions\ViewAction::make(),
+          Tables\Actions\Action::make('reply')
+            ->form([
+              Forms\Components\Textarea::make('response')
+                ->label('Your Response')
+                ->required()
+                ->maxLength(65535),
+            ])
+            ->action(function (ContactSubmission $record, array $data): void {
+              $record->update([
+                'response' => $data['response'],
+                'status' => 'replied',
+              ]);
+
+              // Send email to the contact
+              Notification::make()
+                ->title('Response sent successfully')
+                ->success()
+                ->send();
+
+              // Send the email using your existing notification system
+              $record->notify(new ContactFormResponse($record, $data['response']));
+            })
+            ->visible(fn($record) => $record->status !== 'replied')
+            ->icon('heroicon-o-paper-airplane')
+            ->color('success'),
+
+          Tables\Actions\DeleteAction::make(),
+        ])
           ->label('Actions')
-          ->icon('heroicon-o-cog')
-          ->actions([
-            Tables\Actions\ViewAction::make(),
-            Tables\Actions\Action::make('reply')
-              ->form([
-                Forms\Components\Textarea::make('response')
-                  ->label('Your Response')
-                  ->required()
-                  ->maxLength(65535),
-              ])
-              ->action(function (ContactSubmission $record, array $data): void {
-                $record->update([
-                  'response' => $data['response'],
-                  'status' => 'replied',
-                ]);
-
-                // Send email to the contact
-                Notification::make()
-                  ->title('Response sent successfully')
-                  ->success()
-                  ->send();
-
-                // Send the email using your existing notification system
-                $record->notify(new ContactFormResponse($record, $data['response']));
-              })
-              ->visible(fn($record) => $record->status !== 'replied')
-              ->icon('heroicon-o-paper-airplane')
-              ->color('success'),
-            Tables\Actions\DeleteAction::make(),
-          ]),
+          ->icon('heroicon-o-cog'),
       ])
       ->bulkActions([
         Tables\Actions\BulkActionGroup::make([
