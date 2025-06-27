@@ -15,7 +15,7 @@ return new class extends Migration {
       $table->timestamp('submitted_at')->nullable();
       $table->float('spam_score')->default(0.0);
       $table->timestamp('responded_at')->nullable();
-      $table->foreignId('responded_by')->constrained('users', 'id');
+      $table->foreignId('responded_by')->nullable()->constrained('users', 'id');
       $table->json('metadata')->nullable();
     });
   }

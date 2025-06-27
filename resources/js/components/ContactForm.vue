@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { toast } from 'vue-sonner'
 import { LucideAirplay } from 'lucide-vue-next'
-import { useDark } from '@vueuse/core';
+import { useDark, useTextareaAutosize } from '@vueuse/core';
 
 const props = defineProps<{
   honeypot: {
@@ -34,6 +34,8 @@ const siteKey = import.meta.env.VITE_HCAPTCHA_SITEKEY
 const isSubmitting = ref(false)
 const hcaptchaWidgetId = ref<string | null>(null)
 const isDark = useDark()
+
+const { textarea: userMessageTextarea } = useTextareaAutosize()
 
 // Load hCaptcha script
 const loadHCaptchaScript = (): Promise<void> => {
@@ -120,13 +122,11 @@ const handleSubmit = async () => {
       })
       form.reset()
 
-      // Reset hCaptcha
       if (window.hcaptcha && hcaptchaWidgetId.value) {
         window.hcaptcha.reset(hcaptchaWidgetId.value)
       }
     }
   } catch (error: any) {
-    // Reset hCaptcha on error
     if (window.hcaptcha && hcaptchaWidgetId.value) {
       window.hcaptcha.reset(hcaptchaWidgetId.value)
     }
@@ -141,6 +141,10 @@ const handleSubmit = async () => {
         toast.error('Validation Error', {
           description: Array.isArray(messages) ? messages[0] : messages
         })
+      })
+
+      toast.error(error.response?.data?.error_code, {
+        description: error.response?.data?.message
       })
     }
   } finally {
@@ -157,7 +161,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  // Clean up if needed
   if (window.hcaptcha && hcaptchaWidgetId.value) {
     try {
       window.hcaptcha.remove(hcaptchaWidgetId.value)
@@ -262,11 +265,13 @@ declare global {
     <div class="space-y-2">
       <Label for="message" class="font-medium">Message</Label>
       <Textarea
+        ref="userMessageTextarea"
         id="message"
         v-model="form.message"
         rows="5"
         placeholder="Write your message here..."
         required
+        class="resize-none"
         :class="{ 'border-red-500': form.errors.has('message') }"
       />
 

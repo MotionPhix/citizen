@@ -256,7 +256,7 @@ class ContactSubmission extends Model
   /**
    * Boot method for model events.
    */
-  protected static function boot()
+  protected static function boot(): void
   {
     parent::boot();
 
@@ -265,41 +265,7 @@ class ContactSubmission extends Model
       if (!$submission->submitted_at) {
         $submission->submitted_at = now();
       }
-
-      // Auto-categorize based on subject
-      if (!$submission->category) {
-        $submission->category = $submission->determineCategory();
-      }
     });
-
-    static::created(function ($submission) {
-      // Set priority based on content
-      $submission->setPriorityFromContent();
-    });
-  }
-
-  /**
-   * Determine category based on subject/content.
-   */
-  protected function determineCategory(): string
-  {
-    $subject = strtolower($this->subject ?? '');
-    $message = strtolower($this->message ?? '');
-    $content = $subject . ' ' . $message;
-
-    if (str_contains($content, 'support') || str_contains($content, 'help')) {
-      return 'support';
-    } elseif (str_contains($content, 'sales') || str_contains($content, 'pricing') || str_contains($content, 'buy')) {
-      return 'sales';
-    } elseif (str_contains($content, 'partnership') || str_contains($content, 'collaborate')) {
-      return 'partnership';
-    } elseif (str_contains($content, 'feedback') || str_contains($content, 'suggestion')) {
-      return 'feedback';
-    } elseif (str_contains($content, 'complaint') || str_contains($content, 'issue') || str_contains($content, 'problem')) {
-      return 'complaint';
-    }
-
-    return 'general';
   }
 
   /**
@@ -331,8 +297,6 @@ class ContactSubmission extends Model
       'Subject' => $this->subject,
       'Message' => $this->message,
       'Status' => $this->status,
-      'Priority' => $this->priority,
-      'Category' => $this->category,
       'Spam Score' => $this->spam_score,
       'IP Address' => $this->ip_address,
       'Submitted At' => $this->submitted_at?->format('Y-m-d H:i:s'),

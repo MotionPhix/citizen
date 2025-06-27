@@ -15,7 +15,8 @@ return new class extends Migration {
       $table->string('name');
       $table->string('email');
       $table->string('subject');
-      $table->text('message');
+      $table->longText('message');
+      $table->longText('response')->nullable();
       $table->string('status')->default('unread');
       $table->string('ip_address')->nullable();
       $table->string('user_agent')->nullable();
