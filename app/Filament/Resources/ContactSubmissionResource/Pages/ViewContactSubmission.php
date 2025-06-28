@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ContactSubmissionResource\Pages;
 
 use App\Filament\Resources\ContactSubmissionResource;
+use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
@@ -12,7 +13,7 @@ class ViewContactSubmission extends ViewRecord
 {
   protected static string $resource = ContactSubmissionResource::class;
 
-  public function mount(int | string $record): void
+  public function mount(int|string $record): void
   {
     parent::mount($record);
 
@@ -80,15 +81,15 @@ class ViewContactSubmission extends ViewRecord
             Infolists\Components\TextEntry::make('responder.name')
               ->label('Responded by')
               ->icon('heroicon-o-user')
-              ->visible(fn ($record) => $record->responder),
+              ->visible(fn($record) => $record->responder),
 
             Infolists\Components\TextEntry::make('response_time')
               ->label('Response Time')
               ->icon('heroicon-o-clock')
-              ->visible(fn ($record) => $record->responded_at),
+              ->visible(fn($record) => $record->responded_at),
           ])
           ->columns(3)
-          ->visible(fn ($record) => !empty($record->response)),
+          ->visible(fn($record) => !empty($record->response)),
 
         // Submission Details Section
         Infolists\Components\Section::make('Submission Details')
@@ -113,19 +114,19 @@ class ViewContactSubmission extends ViewRecord
             Infolists\Components\TextEntry::make('spam_score')
               ->numeric(2)
               ->suffix('%')
-              ->color(fn ($state) => $state > 70 ? 'danger' : ($state > 40 ? 'warning' : 'success'))
+              ->color(fn($state) => $state > 70 ? 'danger' : ($state > 40 ? 'warning' : 'success'))
               ->icon('heroicon-o-shield-exclamation'),
 
             Infolists\Components\TextEntry::make('is_likely_spam')
               ->label('Likely Spam')
               ->badge()
-              ->color(fn ($state) => $state ? 'danger' : 'success')
-              ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
+              ->color(fn($state) => $state ? 'danger' : 'success')
+              ->formatStateUsing(fn($state) => $state ? 'Yes' : 'No'),
 
             Infolists\Components\TextEntry::make('referrer')
               ->label('Referrer URL')
               ->openUrlInNewTab()
-              ->visible(fn ($record) => !empty($record->referrer))
+              ->visible(fn($record) => !empty($record->referrer))
               ->columnSpanFull(),
 
             Infolists\Components\TextEntry::make('user_agent')
@@ -153,144 +154,113 @@ class ViewContactSubmission extends ViewRecord
               })
               ->html(),
           ])
-          ->visible(fn ($record) => !empty($record->metadata))
+          ->visible(fn($record) => !empty($record->metadata))
           ->collapsible(),
       ]);
   }
 
-  /*protected function getHeaderActions(): array
+  protected function getActions(): array
   {
     return [
-      \Filament\Actions\Action::make('reply')
-        ->form([
-          \Filament\Forms\Components\Textarea::make('response')
-            ->label('Your Response')
-            ->required()
-            ->rows(8) // Make the response textarea larger too
-            ->maxLength(65535),
-        ])
-        ->action(function (array $data): void {
-          $this->record->update([
-            'response' => $data['response'],
-            'status' => 'replied',
-          ]);
+      ActionGroup::make([
+        // Mark as Read/Unread Action
+        \Filament\Actions\Action::make('toggleReadStatus')
+          ->label(fn() => $this->record->status === 'unread' ? 'Mark as Read' : 'Mark as Unread')
+          ->icon(fn() => $this->record->status === 'unread' ? 'heroicon-o-eye' : 'heroicon-o-eye-slash')
+          ->color(fn() => $this->record->status === 'unread' ? 'success' : 'warning')
+          ->action(function (): void {
+            if ($this->record->status === 'unread') {
+              $this->record->markAsRead();
+            } else {
+              $this->record->update(['status' => 'unread']);
+            }
 
-          // Send email to the contact
-          $this->record->notify(new \App\Notifications\ContactFormResponse(
-            $this->record,
-            $data['response']
-          ));
+            \Filament\Notifications\Notification::make()
+              ->success()
+              ->title('Status updated successfully')
+              ->send();
 
-          \Filament\Notifications\Notification::make()
-            ->success()
-            ->title('Response sent successfully')
-            ->send();
-        })
-        ->visible(fn() => $this->record->status !== 'replied')
-        ->icon('heroicon-o-paper-airplane')
-        ->color('success'),
-    ];
-  }*/
+            $this->refreshFormData(['status']);
+          })
+          ->visible(fn() => in_array($this->record->status, ['unread', 'read'])),
 
-  protected function getHeaderActions(): array
-  {
-    return [
-      // Mark as Read/Unread Action
-      \Filament\Actions\Action::make('toggleReadStatus')
-        ->label(fn () => $this->record->status === 'unread' ? 'Mark as Read' : 'Mark as Unread')
-        ->icon(fn () => $this->record->status === 'unread' ? 'heroicon-o-eye' : 'heroicon-o-eye-slash')
-        ->color(fn () => $this->record->status === 'unread' ? 'success' : 'warning')
-        ->action(function (): void {
-          if ($this->record->status === 'unread') {
-            $this->record->markAsRead();
-          } else {
-            $this->record->update(['status' => 'unread']);
-          }
+        // Mark as Spam Action
+        \Filament\Actions\Action::make('markAsSpam')
+          ->label('Mark as Spam')
+          ->icon('heroicon-o-shield-exclamation')
+          ->color('danger')
+          ->requiresConfirmation()
+          ->action(function (): void {
+            $this->record->markAsSpam();
 
-          \Filament\Notifications\Notification::make()
-            ->success()
-            ->title('Status updated successfully')
-            ->send();
+            \Filament\Notifications\Notification::make()
+              ->success()
+              ->title('Marked as spam')
+              ->send();
 
-          $this->refreshFormData(['status']);
-        })
-        ->visible(fn () => in_array($this->record->status, ['unread', 'read'])),
+            $this->refreshFormData(['status']);
+          })
+          ->visible(fn() => $this->record->status !== 'spam'),
 
-      // Mark as Spam Action
-      \Filament\Actions\Action::make('markAsSpam')
-        ->label('Mark as Spam')
-        ->icon('heroicon-o-shield-exclamation')
-        ->color('danger')
-        ->requiresConfirmation()
-        ->action(function (): void {
-          $this->record->markAsSpam();
+        // Archive Action
+        \Filament\Actions\Action::make('archive')
+          ->label('Archive')
+          ->icon('heroicon-o-archive-box')
+          ->color('gray')
+          ->requiresConfirmation()
+          ->action(function (): void {
+            $this->record->archive();
 
-          \Filament\Notifications\Notification::make()
-            ->success()
-            ->title('Marked as spam')
-            ->send();
+            \Filament\Notifications\Notification::make()
+              ->success()
+              ->title('Message archived')
+              ->send();
 
-          $this->refreshFormData(['status']);
-        })
-        ->visible(fn () => $this->record->status !== 'spam'),
+            $this->refreshFormData(['status']);
+          })
+          ->visible(fn() => $this->record->status !== 'archived'),
 
-      // Archive Action
-      \Filament\Actions\Action::make('archive')
-        ->label('Archive')
-        ->icon('heroicon-o-archive-box')
-        ->color('gray')
-        ->requiresConfirmation()
-        ->action(function (): void {
-          $this->record->archive();
+        // Reply Action
+        \Filament\Actions\Action::make('reply')
+          ->form([
+            \Filament\Forms\Components\Textarea::make('response')
+              ->label('Your Response')
+              ->required()
+              ->rows(8)
+              ->maxLength(65535),
+          ])
+          ->action(function (array $data): void {
+            $this->record->update([
+              'response' => $data['response'],
+              'status' => 'responded',
+              'responded_at' => now(),
+              'responded_by' => auth()->id(),
+            ]);
 
-          \Filament\Notifications\Notification::make()
-            ->success()
-            ->title('Message archived')
-            ->send();
+            // Send email to the contact
+            $this->record->notify(new \App\Notifications\ContactFormResponse(
+              $this->record,
+              $data['response']
+            ));
 
-          $this->refreshFormData(['status']);
-        })
-        ->visible(fn () => $this->record->status !== 'archived'),
+            \Filament\Notifications\Notification::make()
+              ->success()
+              ->title('Response sent successfully')
+              ->send();
 
-      // Reply Action
-      \Filament\Actions\Action::make('reply')
-        ->form([
-          \Filament\Forms\Components\Textarea::make('response')
-            ->label('Your Response')
-            ->required()
-            ->rows(8)
-            ->maxLength(65535),
-        ])
-        ->action(function (array $data): void {
-          $this->record->update([
-            'response' => $data['response'],
-            'status' => 'responded',
-            'responded_at' => now(),
-            'responded_by' => auth()->id(),
-          ]);
-
-          // Send email to the contact
-          $this->record->notify(new \App\Notifications\ContactFormResponse(
-            $this->record,
-            $data['response']
-          ));
-
-          \Filament\Notifications\Notification::make()
-            ->success()
-            ->title('Response sent successfully')
-            ->send();
-
-          $this->refreshFormData(['response', 'status', 'responded_at', 'responded_by']);
-        })
-        ->visible(fn () => !in_array($this->record->status, ['responded', 'replied']))
-        ->icon('heroicon-o-paper-airplane')
-        ->color('success'),
+            $this->refreshFormData(['response', 'status', 'responded_at', 'responded_by']);
+          })
+          ->visible(fn() => !in_array($this->record->status, ['responded', 'replied']))
+          ->icon('heroicon-o-paper-airplane')
+          ->color('success'),
+      ])->dropdownPlacement('bottom-end')
+        ->icon('heroicon-o-ellipsis-horizontal')
     ];
   }
 
   public function getTitle(): string
   {
-    $statusBadge = match($this->record->status) {
+    $statusBadge = match ($this->record->status) {
       'unread' => '🔴',
       'read' => '🟡',
       'responded', 'replied' => '✅',

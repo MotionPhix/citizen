@@ -20,7 +20,7 @@ class EditImpactMetric extends EditRecord
 
   public function getMaxContentWidth(): MaxWidth
   {
-    return MaxWidth::ThreeExtraLarge;
+    return MaxWidth::FourExtraLarge;
   }
 
   protected function getHeaderActions(): array

@@ -24,6 +24,6 @@ class ListImpactMetrics extends ListRecords
 
   public function getMaxContentWidth(): MaxWidth
   {
-    return MaxWidth::ThreeExtraLarge;
+    return MaxWidth::FourExtraLarge;
   }
 }

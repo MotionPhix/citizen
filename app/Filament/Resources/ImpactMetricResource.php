@@ -5,9 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ImpactMetricResource\Pages;
 use App\Models\ImpactMetric;
 use Filament\Forms;
-use Filament\Forms\Components\Section;
 use Filament\Resources\Resource;
-use Filament\Support\Enums\FontFamily;
 use Filament\Support\RawJs;
 use Filament\Tables;
 
@@ -23,45 +21,41 @@ class ImpactMetricResource extends Resource
   {
     return $form
       ->schema([
-        Section::make()
-          ->aside()
-          ->schema([
-            Forms\Components\Select::make('icon')
-              ->required()
-              ->options([
-                'users' => 'Users',
-                'handshake' => 'Handshake',
-                'medical' => 'Medical',
-                'water' => 'Water',
-                'training' => 'Training',
-                'women' => 'Women',
-                'volunteers' => 'Volunteers',
-              ])
-              ->helperText('Select an icon for this metric'),
-
-            Forms\Components\TextInput::make('title')
-              ->required()
-              ->maxLength(255),
-
-            Forms\Components\TextInput::make('metric')
-              ->required()
-              ->numeric()
-              ->mask(RawJs::make('$money($input, ",")'))
-              ->stripCharacters(',')
-              ->helperText('Enter the numeric value for this metric, e.g., 55000'),
-
-            Forms\Components\TextInput::make('sort_order')
-              ->numeric()
-              ->default(0),
-
-            Forms\Components\Textarea::make('description')
-              ->required()
-              ->maxLength(500)
-              ->columnSpan('full'),
-
-            Forms\Components\Toggle::make('is_published')
-              ->default(true),
+        Forms\Components\Select::make('icon')
+          ->required()
+          ->options([
+            'users' => 'Users',
+            'handshake' => 'Handshake',
+            'medical' => 'Medical',
+            'water' => 'Water',
+            'training' => 'Training',
+            'women' => 'Women',
+            'volunteers' => 'Volunteers',
           ])
+          ->helperText('Select an icon for this metric'),
+
+        Forms\Components\TextInput::make('title')
+          ->required()
+          ->maxLength(255),
+
+        Forms\Components\TextInput::make('metric')
+          ->required()
+          ->numeric()
+          ->mask(RawJs::make('$money($input, ",")'))
+          ->stripCharacters(',')
+          ->helperText('Enter the numeric value for this metric, e.g., 55000'),
+
+        Forms\Components\TextInput::make('sort_order')
+          ->numeric()
+          ->default(0),
+
+        Forms\Components\Textarea::make('description')
+          ->required()
+          ->maxLength(500)
+          ->columnSpan('full'),
+
+        Forms\Components\Toggle::make('is_published')
+          ->default(true),
       ]);
   }
 
@@ -72,7 +66,7 @@ class ImpactMetricResource extends Resource
         Tables\Columns\TextColumn::make('title')
           ->label('Metric Title')
           ->description(
-            fn (ImpactMetric $record): string => $record->metric,
+            fn(ImpactMetric $record): string => $record->metric,
             position: 'above'
           )
           ->searchable([
