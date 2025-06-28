@@ -20,6 +20,12 @@ return new class extends Migration {
       $table->string('status')->default('unread');
       $table->string('ip_address')->nullable();
       $table->string('user_agent')->nullable();
+      $table->string('referrer')->nullable();
+      $table->timestamp('submitted_at')->nullable();
+      $table->float('spam_score')->default(0.0);
+      $table->timestamp('responded_at')->nullable();
+      $table->foreignId('responded_by')->nullable()->constrained('users', 'id');
+      $table->json('metadata')->nullable();
       $table->timestamps();
     });
   }
