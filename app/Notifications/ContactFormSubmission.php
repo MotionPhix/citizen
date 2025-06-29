@@ -27,6 +27,7 @@ class ContactFormSubmission extends Notification implements ShouldQueue
       ->subject('New Contact Form Submission')
       ->view('emails.contact-form', [
         'data' => [
+          'serial' => $this->submission->id,
           'name' => $this->submission->name,
           'email' => $this->submission->email,
           'subject' => $this->submission->subject,

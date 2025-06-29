@@ -8,12 +8,12 @@ use Filament\Resources\Pages\ListRecords;
 
 class ListNewsletterIssues extends ListRecords
 {
-    protected static string $resource = NewsletterIssueResource::class;
+  protected static string $resource = NewsletterIssueResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\CreateAction::make(),
-        ];
-    }
+  protected function getHeaderActions(): array
+  {
+    return [
+      Actions\CreateAction::make(),
+    ];
+  }
 }

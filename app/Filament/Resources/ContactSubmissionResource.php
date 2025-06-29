@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ContactSubmissionResource\Pages;
 use Filament\Support\Enums\ActionSize;
+use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\MaxWidth;
 use Filament\Support\Enums\VerticalAlignment;
 use App\Models\ContactSubmission;
@@ -35,7 +36,13 @@ class ContactSubmissionResource extends Resource
           ->searchable(['name', 'email']),
 
         Tables\Columns\TextColumn::make('subject')
-          ->searchable()
+          ->label('Message')
+          ->searchable([
+            'subject',
+            'message',
+          ])
+          ->color('primary')
+          ->description(fn($record) => str($record->message)->limit(20))
           ->verticalAlignment(VerticalAlignment::Start)
           ->limit(40),
 

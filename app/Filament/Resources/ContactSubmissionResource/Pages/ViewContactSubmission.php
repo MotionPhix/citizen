@@ -229,6 +229,8 @@ class ViewContactSubmission extends ViewRecord
               ->rows(8)
               ->maxLength(65535),
           ])
+          ->modalIcon('heroicon-o-envelope')
+          ->modalWidth(MaxWidth::ExtraLarge)
           ->action(function (array $data): void {
             $this->record->update([
               'response' => $data['response'],

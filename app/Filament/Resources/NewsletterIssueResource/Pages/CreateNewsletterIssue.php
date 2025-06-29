@@ -8,5 +8,5 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateNewsletterIssue extends CreateRecord
 {
-    protected static string $resource = NewsletterIssueResource::class;
+  protected static string $resource = NewsletterIssueResource::class;
 }

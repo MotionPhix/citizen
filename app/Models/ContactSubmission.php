@@ -311,9 +311,29 @@ class ContactSubmission extends Model
       return null;
     }
 
+    // Calculate the difference in a more reliable way
+    $submittedAt = $this->submitted_at;
+    $respondedAt = $this->responded_at;
 
-    $diff = $this->created_at->diffForHumans($this->responded_at, true);
+    // Get the difference in total minutes
+    $diffInMinutes = $submittedAt->diffInMinutes($respondedAt);
 
-    return $diff->format('%h hours %i minutes');
+    if ($diffInMinutes < 60) {
+      return $diffInMinutes . ' minutes';
+    } elseif ($diffInMinutes < 1440) { // Less than 24 hours
+      $hours = floor($diffInMinutes / 60);
+      $minutes = $diffInMinutes % 60;
+      return $hours . ' hours' . ($minutes > 0 ? ' ' . $minutes . ' minutes' : '');
+    } else { // 24 hours or more
+      $days = floor($diffInMinutes / 1440);
+      $remainingMinutes = $diffInMinutes % 1440;
+      $hours = floor($remainingMinutes / 60);
+
+      $result = $days . ' day' . ($days > 1 ? 's' : '');
+      if ($hours > 0) {
+        $result .= ' ' . $hours . ' hour' . ($hours > 1 ? 's' : '');
+      }
+      return $result;
+    }
   }
 }

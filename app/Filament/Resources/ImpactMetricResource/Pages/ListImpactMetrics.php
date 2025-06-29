@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ImpactMetricResource\Pages;
 
 use App\Filament\Resources\ImpactMetricResource;
+use App\Filament\Resources\ImpactMetricResource\Widgets\ImpactMetricsStatsWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\MaxWidth;
@@ -19,6 +20,13 @@ class ListImpactMetrics extends ListRecords
         ->icon('heroicon-o-plus')
         ->color('primary')
         ->successNotificationTitle('Metric created successfully'),
+    ];
+  }
+
+  protected function getHeaderWidgets(): array
+  {
+    return [
+      ImpactMetricsStatsWidget::class,
     ];
   }
 
