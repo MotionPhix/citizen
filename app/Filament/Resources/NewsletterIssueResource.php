@@ -3,9 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\NewsletterIssueResource\Pages;
-use App\Filament\Resources\NewsletterIssueResource\RelationManagers\EventsRelationManager;
-use App\Filament\Resources\NewsletterIssueResource\RelationManagers\StoriesRelationManager;
-use App\Filament\Resources\NewsletterIssueResource\RelationManagers\UpdatesRelationManager;
+use App\Filament\Resources\NewsletterIssueResource\RelationManagers\ContentsRelationManager;
 use App\Models\NewsletterIssue;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -125,9 +123,7 @@ class NewsletterIssueResource extends Resource
   public static function getRelations(): array
   {
     return [
-      StoriesRelationManager::class,
-      UpdatesRelationManager::class,
-      EventsRelationManager::class,
+      ContentsRelationManager::class,
     ];
   }
 

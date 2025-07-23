@@ -16,11 +16,11 @@ defineProps<Props>()
 </script>
 
 <template>
-  <section class="py-16 bg-gray-50 dark:bg-ca-secondary">
+  <section class="py-16 bg-gray-50 dark:bg-ca-secondary rounded-2xl">
     <ContentContainer>
-      <h2 class="text-4xl md:text-5xl font-display font-bold text-center mb-12 text-ca-primary dark:text-gray-200">
-        What People Say About Us
-      </h2>
+<!--      <h2 class="text-4xl md:text-5xl font-display font-bold text-center mb-12 text-ca-primary dark:text-gray-200">-->
+<!--        What People Say About Us-->
+<!--      </h2>-->
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div v-for="testimonial in testimonials" :key="testimonial.name" class="flex h-auto">

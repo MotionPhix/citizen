@@ -122,12 +122,6 @@ const clearFilters = () => {
     <!-- Full-width Hero Section -->
     <ProjectHero />
 
-    <!-- Full-width Impact Stats -->
-    <ImpactStats
-      v-if="impactStats.length > 0"
-      :stats="impactStats"
-    />
-
     <!-- Featured Projects Section - Full Width Background -->
     <section
       v-if="featuredProjects.length > 0"

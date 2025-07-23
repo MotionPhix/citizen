@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
+use App\Mail\ContactAutoReply;
 use Spatie\Honeypot\Honeypot;
 use Carbon\Carbon;
 use Inertia\Inertia;
@@ -33,7 +34,7 @@ class ContactController extends Controller
   /**
    * Handle contact form submission with enhanced security and features.
    */
-  public function submit(ContactFormRequest $request): JsonResponse
+  public function submit(ContactFormRequest $request): JsonResponse|Response
   {
     $ip = $request->ip();
     $userAgent = $request->userAgent();
@@ -140,11 +141,10 @@ class ContactController extends Controller
         $this->cleanupOldCacheEntries();
       }
 
-      return response()->json([
+      return inertia('Contact', [
+        'honeypot' => new Honeypot(config('honeypot')),
         'message' => 'Thank you for your message! We have received your inquiry and will get back to you within 24 hours.',
-        'submission_id' => $submission->id,
-        'estimated_response_time' => '24 hours'
-      ], 201);
+      ]);
 
     } catch (\Illuminate\Database\QueryException $e) {
       $this->logError('Database error during contact submission', $e, $request);
@@ -364,12 +364,17 @@ class ContactController extends Controller
   {
     try {
       if ($submission->spam_score < 0.5) {
-        // Auto-reply implementation would go here
-        // Mail::to($submission->email)->send(new ContactAutoReply($submission));
+        // Send auto-reply confirmation email to the user
+        Mail::to($submission->email)->send(new ContactAutoReply($submission));
 
         Log::info('Auto-reply sent', [
           'email' => $submission->email,
           'submission_id' => $submission->id,
+        ]);
+      } else {
+        Log::info('Auto-reply skipped due to high spam score', [
+          'submission_id' => $submission->id,
+          'spam_score' => $submission->spam_score,
         ]);
       }
     } catch (\Exception $e) {

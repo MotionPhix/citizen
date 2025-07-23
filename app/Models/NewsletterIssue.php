@@ -80,6 +80,39 @@ class NewsletterIssue extends Model implements HasMedia
     return $this->hasMany(Event::class)->orderBy('order');
   }
 
+  /**
+   * Unified content relationship
+   */
+  public function contents(): HasMany
+  {
+    return $this->hasMany(NewsletterContent::class)->orderBy('order');
+  }
+
+  public function contentStories(): HasMany
+  {
+    return $this->hasMany(NewsletterContent::class)->where('type', 'story')->orderBy('order');
+  }
+
+  public function contentEvents(): HasMany
+  {
+    return $this->hasMany(NewsletterContent::class)->where('type', 'event')->orderBy('order');
+  }
+
+  public function contentUpdates(): HasMany
+  {
+    return $this->hasMany(NewsletterContent::class)->where('type', 'update')->orderBy('order');
+  }
+
+  public function contentAnnouncements(): HasMany
+  {
+    return $this->hasMany(NewsletterContent::class)->where('type', 'announcement')->orderBy('order');
+  }
+
+  public function featuredContents(): HasMany
+  {
+    return $this->hasMany(NewsletterContent::class)->where('is_featured', true)->orderBy('order');
+  }
+
   public function feedback(): HasMany
   {
     return $this->hasMany(NewsletterFeedback::class);

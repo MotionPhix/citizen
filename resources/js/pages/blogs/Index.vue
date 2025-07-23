@@ -238,9 +238,9 @@ const formatNumber = (num: number) => {
     </section>
 
     <!-- Blog Statistics -->
-    <ContentSection background="white" padding="lg">
-      <BlogStats :stats="blogStats" />
-    </ContentSection>
+<!--    <ContentSection background="white" padding="lg">-->
+<!--      <BlogStats :stats="blogStats" />-->
+<!--    </ContentSection>-->
 
     <!-- Featured Posts Section -->
     <ContentSection
