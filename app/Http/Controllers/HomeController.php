@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\ImpactMetric;
 use App\Models\Program;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class HomeController extends Controller
 {
-  public function index(): View
+  public function index(): Response
   {
     $programs = Program::where('is_published', true)
       ->orderBy('sort_order')
@@ -18,7 +19,7 @@ class HomeController extends Controller
       ->orderBy('sort_order')
       ->get();
 
-    return view('pages.home', [
+    return Inertia::render('Home', [
       'slides' => $this->getSliderData(),
       'approaches' => $this->getApproachData(),
       'metrics' => $metrics,

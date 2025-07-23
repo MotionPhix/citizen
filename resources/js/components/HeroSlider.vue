@@ -2,13 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { type Slide } from '@/types'
 import { Button } from '@/components/ui/button'
-import { ArrowRightIcon, ChevronRight, MoveLeftIcon } from 'lucide-vue-next'
+import { ArrowRightIcon, MoveLeftIcon } from 'lucide-vue-next'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, EffectFade, Navigation } from 'swiper/modules'
 import { gsap } from 'gsap'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
 import 'swiper/css/pagination'
+import { router } from '@inertiajs/vue3';
 
 interface Props {
   slides: Slide[]
@@ -121,23 +122,22 @@ onMounted(() => {
 
               <!-- Description -->
               <p
-                class="slide-description text-xl md:text-2xl mb-8 text-gray-200 dark:text-gray-300"
+                class="slide-description max-w-3xl text-xl md:text-2xl mb-8 text-gray-200 dark:text-gray-300"
                 v-text="slide.description"
               />
 
               <!-- CTA Button -->
-              <div class="slide-button">
+              <div class="slide-button" v-show="slide.cta">
                 <Button
-                  variant="default"
                   size="lg"
-                  class="bg-ca-primary hover:bg-ca-primary/90 dark:bg-ca-highlight dark:hover:bg-ca-highlight/90 text-white dark:text-gray-950"
-                  asChild>
-                  <a
-                    size="lg"
-                    :href="route('about')">
-                    Learn More
-                    <ChevronRight class="ml-2 h-5 w-5" />
-                  </a>
+                  class="hover:bg-ca-primary/90 dark:bg-ca-highlight dark:hover:bg-ca-highlight/90 text-white dark:text-gray-50"
+                  @click="() => router.visit(route(slide.cta?.url))">
+                  <span>{{ slide.cta?.text }}</span>
+                  <component
+                    v-if="slide.cta?.icon"
+                    :is="slide.cta.icon || ArrowRightIcon"
+                    class="ml-2 h-5 w-5 transform transition-transform duration-300 group-hover:translate-x-1"
+                  />
                 </Button>
               </div>
             </div>

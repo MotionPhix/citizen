@@ -43,13 +43,34 @@ class BlogResource extends Resource
               ->unique(ignoreRecord: true)
               ->disabled(),
 
-            Forms\Components\MarkdownEditor::make('content')
+            Forms\Components\RichEditor::make('content')
               ->required()
-              ->columnSpanFull(),
+              ->columnSpanFull()
+              ->toolbarButtons([
+                'attachFiles',
+                'blockquote',
+                'bold',
+                'bulletList',
+                'codeBlock',
+                'h2',
+                'h3',
+                'italic',
+                'link',
+                'orderedList',
+                'redo',
+                'strike',
+                'underline',
+                'undo',
+              ])
+              ->fileAttachmentsDisk('public')
+              ->fileAttachmentsDirectory('blog-attachments')
+              ->fileAttachmentsVisibility('public'),
 
-            Forms\Components\TextInput::make('excerpt')
-              ->maxLength(255)
-              ->columnSpanFull(),
+            Forms\Components\Textarea::make('excerpt')
+              ->maxLength(500)
+              ->rows(3)
+              ->columnSpanFull()
+              ->helperText('A brief description of the blog post (optional).'),
 
             Forms\Components\SpatieTagsInput::make('tags')
               ->columnSpanFull(),
@@ -67,18 +88,21 @@ class BlogResource extends Resource
               ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
               ->maxSize(5120)
               ->downloadable()
-              ->columnSpanFull(),
+              ->columnSpanFull()
+              ->helperText('Upload a featured image for the blog post. Recommended size: 1920x1080px.'),
           ])
           ->columnSpan(['lg' => 2]),
 
-        Forms\Components\Section::make()
+        Forms\Components\Section::make('Publishing')
           ->schema([
             Forms\Components\DateTimePicker::make('published_at')
-              ->label('Publish Date'),
+              ->label('Publish Date')
+              ->helperText('Leave empty to publish immediately when status is set to published.'),
 
             Forms\Components\Toggle::make('is_published')
               ->label('Published')
-              ->default(false),
+              ->default(false)
+              ->helperText('Toggle to publish or unpublish this blog post.'),
 
             Forms\Components\Placeholder::make('created_at')
               ->label('Created Date')
@@ -97,15 +121,23 @@ class BlogResource extends Resource
   {
     return $table
       ->columns([
-        Tables\Columns\ImageColumn::make('featured_image.thumbnail')
+        Tables\Columns\SpatieMediaLibraryImageColumn::make('featured_image')
           ->label('Image')
-          ->circular(),
+          ->collection('blog_images')
+          ->conversion('thumbnail')
+          ->circular()
+          ->defaultImageUrl(url('/images/placeholder-blog.jpg')),
 
         Tables\Columns\TextColumn::make('title')
           ->searchable()
           ->wrap()
           ->lineClamp(2)
           ->sortable(),
+
+        Tables\Columns\TextColumn::make('user.name')
+          ->label('Author')
+          ->sortable()
+          ->searchable(),
 
         Tables\Columns\TextColumn::make('is_published')
           ->label('Status')
@@ -116,17 +148,30 @@ class BlogResource extends Resource
             false => 'danger',
           }),
 
+        Tables\Columns\TextColumn::make('published_at')
+          ->label('Published')
+          ->dateTime()
+          ->sortable()
+          ->toggleable(),
+
         Tables\Columns\TextColumn::make('view_count')
           ->label('Views')
           ->numeric()
           ->sortable()
-          ->alignCenter(),
+          ->alignCenter()
+          ->toggleable(),
 
         Tables\Columns\TextColumn::make('likes_count')
           ->label('Likes')
           ->numeric()
           ->sortable()
-          ->alignCenter(),
+          ->alignCenter()
+          ->toggleable(),
+
+        Tables\Columns\TextColumn::make('created_at')
+          ->dateTime()
+          ->sortable()
+          ->toggleable(isToggledHiddenByDefault: true),
       ])
       ->defaultSort('created_at', 'desc')
       ->filters([
@@ -138,8 +183,10 @@ class BlogResource extends Resource
 
         Tables\Filters\Filter::make('published_at')
           ->form([
-            Forms\Components\DatePicker::make('published_from'),
-            Forms\Components\DatePicker::make('published_until'),
+            Forms\Components\DatePicker::make('published_from')
+              ->label('Published from'),
+            Forms\Components\DatePicker::make('published_until')
+              ->label('Published until'),
           ])
           ->query(function (Builder $query, array $data): Builder {
             return $query
@@ -155,11 +202,13 @@ class BlogResource extends Resource
       ])
       ->actions([
         Tables\Actions\ActionGroup::make([
-          Tables\Actions\EditAction::make()
-            ->iconButton(),
+          Tables\Actions\ViewAction::make()
+            ->url(fn (Blog $record): string => route('blogs.show', $record->slug))
+            ->openUrlInNewTab(),
 
-          Tables\Actions\DeleteAction::make()
-            ->iconButton(),
+          Tables\Actions\EditAction::make(),
+
+          Tables\Actions\DeleteAction::make(),
         ])
       ])
       ->bulkActions([

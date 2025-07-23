@@ -11,20 +11,21 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Honeypot\Honeypot;
 use Carbon\Carbon;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ContactController extends Controller
 {
   /**
    * Show the contact form page.
    */
-  public function index(): View
+  public function index(): Response
   {
-    return view('pages.contact', [
+    return Inertia::render('Contact', [
       'honeypot' => new Honeypot(config('honeypot'))
     ]);
   }

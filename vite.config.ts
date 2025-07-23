@@ -11,7 +11,6 @@ export default defineConfig({
     laravel({
       input: [
         'resources/js/app.ts',
-        'resources/js/blade-app.ts',
         'resources/css/app.css',
         'node_modules/fslightbox/index.js'
       ],

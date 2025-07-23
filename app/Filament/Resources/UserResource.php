@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Nnjeim\World\World;
 use Spatie\Permission\Models\Role;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 
 class UserResource extends Resource
 {

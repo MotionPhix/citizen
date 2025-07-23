@@ -36,6 +36,14 @@ class Blog extends Model implements HasMedia
     'view_count' => 'integer',
   ];
 
+  protected $appends = [
+    'featured_image_url',
+    'featured_image_thumbnail_url',
+    'featured_image_preview_url',
+    'featured_image_hero_url',
+    'reading_time'
+  ];
+
   public function getSlugOptions(): SlugOptions
   {
     return SlugOptions::create()
@@ -43,7 +51,7 @@ class Blog extends Model implements HasMedia
       ->saveSlugsTo('slug');
   }
 
-  public function registerMediaConversions(Media $media = null): void
+  public function registerMediaConversions(?Media $media = null): void
   {
     if ($media === null) {
       return;
@@ -69,6 +77,8 @@ class Blog extends Model implements HasMedia
       ->width(1920)
       ->height(1080)
       ->sharpen(10)
+      ->optimize()
+      ->performOnCollections('blog_images')
       ->nonQueued();
   }
 
@@ -82,7 +92,7 @@ class Blog extends Model implements HasMedia
 
   public function getContentAttribute($value): string
   {
-    return ContentFormatter::removeImageLinks($value);
+    return ContentFormatter::formatContent($value);
   }
 
   // Helper method to get the featured image URL with different sizes
@@ -98,6 +108,27 @@ class Blog extends Model implements HasMedia
       'hero' => $this->getFirstMediaUrl('blog_images', 'hero'),
       'original' => $this->getFirstMediaUrl('blog_images'),
     ];
+  }
+
+  // Helper methods for individual image URLs
+  public function getFeaturedImageUrlAttribute()
+  {
+    return $this->getFirstMediaUrl('blog_images');
+  }
+
+  public function getFeaturedImageThumbnailUrlAttribute()
+  {
+    return $this->getFirstMediaUrl('blog_images', 'thumbnail');
+  }
+
+  public function getFeaturedImagePreviewUrlAttribute()
+  {
+    return $this->getFirstMediaUrl('blog_images', 'preview');
+  }
+
+  public function getFeaturedImageHeroUrlAttribute()
+  {
+    return $this->getFirstMediaUrl('blog_images', 'hero');
   }
 
   // Relationship to User (Author)
@@ -168,5 +199,4 @@ class Blog extends Model implements HasMedia
       $builder->withCount('likes');
     });
   }
-
 }

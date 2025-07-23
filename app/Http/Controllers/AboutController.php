@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Subscriber;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AboutController extends Controller
 {
-  public function index(): View
+  public function index(): Response
   {
     $subscriberCount = Subscriber::where('status', 'subscribed')->count();
 
-    return view('pages.about', [
+    return Inertia::render('About', [
       'values' => $this->getValues(),
       'team' => $this->getTeamMembers(),
       'timeline' => $this->getTimeline(),

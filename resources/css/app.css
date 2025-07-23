@@ -187,4 +187,8 @@ html {
   @apply object-cover rounded-2xl;
 }
 
+figure img {
+  @apply !rounded-xl w-full;
+}
+
 html body { overflow: auto !important; padding-right: 0 !important; }

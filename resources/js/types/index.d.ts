@@ -1,6 +1,7 @@
 import type { PageProps } from '@inertiajs/core';
 import type { LucideIcon } from 'lucide-vue-next';
 import type { Config } from 'ziggy-js';
+import { type Component } from 'vue';
 
 export interface Auth {
     user: User;
@@ -40,8 +41,9 @@ export interface Slide {
   description: string
   image: string
   cta?: {
-    text: string
-    url: string
+    text?: string
+    url?: string
+    icon?: Component
   }
 }
 

@@ -93,7 +93,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet">
 
   @routes
-  @vite(['resources/js/app.ts', 'resources/js/blade-app.ts'])
+  @vite(['resources/js/app.ts'])
   @inertiaHead
 
   <script src="https://js.hcaptcha.com/1/api.js" async defer></script>

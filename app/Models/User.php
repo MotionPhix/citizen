@@ -12,8 +12,10 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable implements HasMedia
+class User extends Authenticatable implements HasMedia, FilamentUser
 {
   /** @use HasFactory<\Database\Factories\UserFactory> */
   use HasFactory, HasUuid, HasRoles, Notifiable, HasApiTokens, InteractsWithMedia;
@@ -145,5 +147,10 @@ class User extends Authenticatable implements HasMedia
         $user->assignRole('super-admin');
       }
     });
+  }
+
+  public function canAccessPanel(Panel $panel): bool
+  {
+    return true; // You might want to adjust this based on your requirements
   }
 }

@@ -1,137 +1,151 @@
 <script setup lang="ts">
-import { ArrowRight } from 'lucide-vue-next';
-import { Badge } from '@/components/ui/badge';
-import { computed } from 'vue';
-
-interface MediaItem {
-  collection_name: string;
-  preview_url: string;
-  original_url: string;
-}
-
-interface Tag {
-  id: number;
-  name: {
-    en: string
-  };
-}
+import { computed } from 'vue'
+import { Link } from '@inertiajs/vue3'
+import { ArrowRight, Calendar, MapPin, Users } from 'lucide-vue-next'
+import { Badge } from '@/components/ui/badge'
 
 interface Project {
-  id: number;
-  title: string;
-  slug: string;
-  description: string;
-  status: 'current' | 'completed' | 'upcoming';
-  start_date: string;
-  funded_by: string;
-  people_reached: number;
-  budget: string;
-  media: MediaItem[];
-  tags: Tag[];
+  id: number
+  title: string
+  slug: string
+  description: string
+  featured_image_url?: string
+  status: string
+  location?: string
+  start_date: string
+  end_date?: string
+  people_reached?: number
+  budget?: number
+  funded_by?: string
+  tags?: Array<{ id: number; name: string }>
 }
 
-const props = defineProps<{
+interface Props {
   project: Project
-}>();
+  featured?: boolean
+}
 
-// Get the main project image (first image from project_image collection)
-const projectImage = computed(() => {
-  return props.project.media.find(
-    media => media.collection_name === 'project_image'
-  )?.preview_url;
-});
-
-// Format the status text
-const statusLabel = computed(() => {
-  return props.project.status.charAt(0).toUpperCase() + props.project.status.slice(1);
-});
-
-// Format numbers with commas
-const formatNumber = (num: number) => {
-  return new Intl.NumberFormat().format(num);
-};
-
-// Format currency
-const formatCurrency = (amount: string) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Number(amount));
-};
+const props = withDefaults(defineProps<Props>(), {
+  featured: false
+})
 
 // Get status badge variant
 const statusVariant = computed(() => {
   switch (props.project.status) {
     case 'current':
-      return 'success';
+      return 'default'
     case 'completed':
-      return 'secondary';
+      return 'secondary'
     case 'upcoming':
-      return 'warning';
+      return 'outline'
     default:
-      return 'secondary';
+      return 'secondary'
   }
-});
+})
+
+// Format date
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short'
+  })
+}
+
+// Format number with commas
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat().format(num)
+}
 </script>
 
 <template>
-  <a
-    :href="`/projects/s/${project.uuid}`"
-    class="group block">
-    <div class="relative aspect-w-16 aspect-h-12 overflow-hidden bg-gray-100 rounded-2xl dark:bg-neutral-800">
-      <img
-        :src="projectImage"
-        :alt="project.title"
-        class="group-hover:scale-105 transition-transform duration-500 ease-in-out object-cover rounded-2xl"
-      >
+  <Link
+    :href="route('projects.show', project.slug)"
+    class="group block"
+  >
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-ca-primary/50 dark:hover:border-ca-highlight/50">
+      <!-- Project Image -->
+      <div class="relative aspect-w-16 aspect-h-10 overflow-hidden">
+        <img
+          v-if="project.featured_image_url"
+          :src="project.featured_image_url"
+          :alt="project.title"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <div
+          v-else
+          class="w-full h-full bg-gradient-to-br from-ca-primary/20 to-ca-highlight/20 flex items-center justify-center"
+        >
+          <span class="text-2xl font-bold text-ca-primary dark:text-ca-highlight">
+            {{ project.title.charAt(0) }}
+          </span>
+        </div>
 
-      <span>
-      <Badge :variant="statusVariant" class="absolute top-0 -right-1 rounded-bl-lg rounded-t-none rounded-br-none">
-        {{ statusLabel }}
-      </Badge>
-      </span>
-    </div>
+        <!-- Status Badge -->
+        <div class="absolute -top-1 -left-1">
+          <Badge :variant="statusVariant" class="rounded-none rounded-br-lg">
+            {{ project.status.charAt(0).toUpperCase() + project.status.slice(1) }}
+          </Badge>
+        </div>
 
-    <div class="pt-4 space-y-3">
-      <h3
-        class="relative font-display inline-block font-medium prose-xl before:absolute before:bottom-0.5 before:start-0 before:-z-[1] before:w-full before:h-1 before:bg-blue-400 before:transition before:origin-left before:scale-x-0 group-hover:before:scale-x-100 dark:text-white">
-        {{ project.title }}
-      </h3>
-
-      <div class="text-gray-600 dark:text-neutral-400 prose line-clamp-2">
-        {{ project.description }}
+        <!-- Overlay for featured projects -->
+        <div
+          v-if="featured"
+          class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
+        />
       </div>
 
-<!--      <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-neutral-400">-->
-<!--        <div class="flex items-center gap-1">-->
-<!--          <span class="font-medium">{{ formatNumber(project.people_reached) }}</span>-->
-<!--          <span>people reached</span>-->
-<!--        </div>-->
-<!--        -->
-<!--        <div class="flex items-center gap-1">-->
-<!--          <span class="font-medium">{{ formatCurrency(project.budget) }}</span>-->
-<!--          <span>invested</span>-->
-<!--        </div>-->
-<!--      </div>-->
+      <!-- Project Content -->
+      <div class="p-6">
+        <!-- Header -->
+        <div class="mb-3">
+          <div class="flex items-center gap-2 mb-2 text-sm text-gray-500 dark:text-gray-400">
+            <Calendar class="h-3 w-3" />
+            <span>{{ formatDate(project.start_date) }}</span>
+            <span v-if="project.location" class="flex items-center">
+              <MapPin class="h-3 w-3 ml-2 mr-1" />
+              {{ project.location }}
+            </span>
+          </div>
 
-<!--      <div class="flex flex-wrap gap-2">-->
-<!--        <Badge-->
-<!--          v-for="tag in project.tags"-->
-<!--          :key="tag.id"-->
-<!--          variant="outline"-->
-<!--          class="dark:border-neutral-700 dark:text-neutral-400"-->
-<!--        >-->
-<!--          {{ tag.name.en }}-->
-<!--        </Badge>-->
-<!--      </div>-->
+          <h3 class="text-lg font-display font-semibold text-gray-900 dark:text-white group-hover:text-ca-primary dark:group-hover:text-ca-highlight transition-colors duration-300 line-clamp-2">
+            {{ project.title }}
+          </h3>
+        </div>
 
-      <div
-        class="flex items-center text-ca-primary dark:text-ca-highlight group-hover:text-ca-highlight dark:group-hover:text-white transition-colors duration-300">
-        <span>Get Insights</span>
-        <ArrowRight class="w-4 h-4 ml-1" />
+        <!-- Description -->
+        <p class="truncate text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4">
+          {{ project.description }}
+        </p>
+
+        <!-- Stats -->
+        <div v-if="project.people_reached || project.funded_by" class="flex items-center gap-4 mb-4 text-xs text-gray-500 dark:text-gray-400">
+          <div v-if="project.people_reached" class="flex items-center">
+            <Users class="h-3 w-3 mr-1" />
+            <span>{{ formatNumber(project.people_reached) }} people</span>
+          </div>
+
+          <div v-if="project.funded_by" class="truncate">
+            <span>{{ project.funded_by }}</span>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div v-if="project.tags && project.tags.length > 0" class="flex flex-wrap gap-1">
+          <span
+            v-for="tag in project.tags.slice(0, 2)"
+            :key="tag.id"
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+            {{ tag.name.en }}
+          </span>
+
+          <span
+            v-if="project.tags.length > 2"
+            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+          >
+            +{{ project.tags.length - 2 }}
+          </span>
+        </div>
       </div>
     </div>
-  </a>
+  </Link>
 </template>

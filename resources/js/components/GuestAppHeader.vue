@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useDark } from '@vueuse/core'
 import { Menu, X } from 'lucide-vue-next'
 import ModeSwitch from './ModeSwitch.vue'
+import { Link } from '@inertiajs/vue3'
 
 interface NavLink {
   name: string
@@ -64,27 +65,26 @@ onUnmounted(() => {
       <nav class="flex items-center justify-between h-16">
         <!-- Logo -->
         <div class="flex-shrink-0">
-          <a href="/" class="block">
+          <Link href="/" class="block">
             <img
               :src="isDark ? logo.dark : logo.light"
               alt="Logo"
               class="h-8 w-auto"
             >
-          </a>
+          </Link>
         </div>
 
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center space-x-2">
           <template v-for="link in links" :key="link.url">
-            <a
+            <Link
               :href="link.url"
               class="relative px-3 py-2 rounded-md transition ease-in-out duration-300"
               :class="link.isActive
                 ? 'text-ca-primary font-black text-underline dark:text-ca-highlight underline decoration-wavy underline-offset-8 '
                 : 'text-gray-600 dark:text-gray-300 hover:text-ca-primary'">
               {{ link.name }}
-<!--              <span v-if="link.isActive" class="absolute inset-x-0 -bottom-1 border-wave border-b-2 border-ca-primary"></span>-->
-            </a>
+            </Link>
           </template>
 
           <!-- Dark Mode Toggle -->
@@ -96,8 +96,7 @@ onUnmounted(() => {
         <!-- Mobile Menu Button -->
         <button
           class="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-ca-primary dark:focus:ring-ca-highlight menu-button"
-          @click="toggleMenu"
-        >
+          @click="toggleMenu">
           <span class="sr-only">Toggle main menu</span>
           <Menu v-if="!isMenuOpen" class="h-6 w-6" />
           <X v-else class="h-6 w-6" />
@@ -119,16 +118,15 @@ onUnmounted(() => {
         >
           <div class="px-2 pt-2 pb-3 bg-white dark:bg-gray-900">
             <template v-for="link in links" :key="link.url">
-              <a
+              <Link
                 :href="link.url"
                 class="block px-4 py-2 rounded-md text-base font-medium transition duration-200 ease-in-out"
                 :class="link.isActive
                   ? 'text-ca-primary dark:text-ca-highlight bg-ca-primary/10 dark:bg-ca-highlight/10'
                   : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'"
-                @click="isMenuOpen = false"
-              >
+                @click="isMenuOpen = false">
                 {{ link.name }}
-              </a>
+              </Link>
             </template>
 
             <!-- Mobile Dark Mode Toggle -->
