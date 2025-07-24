@@ -323,7 +323,7 @@ class ContactController extends Controller
       if ($submission->spam_score < 0.7) {
         $notificationCount = 0;
 
-        User::role(['super-admin', 'content-manager'])
+        User::role(['super_admin', 'content_manager'])
           ->chunk(100, function ($admins) use ($submission, &$notificationCount) {
             foreach ($admins as $admin) {
               try {

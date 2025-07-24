@@ -238,6 +238,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_any_comment', 'view_comment', 'create_comment', 'update_comment',
             'delete_comment', 'delete_any_comment',
 
+            // Project viewing (content managers should see projects)
+            'view_any_project', 'view_project',
+
             // Newsletter management
             'view_any_newsletter::content', 'view_newsletter::content', 'create_newsletter::content',
             'update_newsletter::content', 'delete_newsletter::content',
@@ -255,13 +258,13 @@ class RolesAndPermissionsSeeder extends Seeder
 
             // Relevant widgets
             'widget_BlogOverviewStats', 'widget_EngagementStats', 'widget_NewsletterIssueStats',
-            'widget_SubscriberStats',
+            'widget_ProjectOverviewStats', 'widget_SubscriberStats',
 
             // System access
             'access_admin_panel',
         ]);
 
-        // 4. Editor - Content creation and editing
+        // 4. Editor - Content creation and editing (NO PROJECT ACCESS)
         $editorRole = Role::firstOrCreate(['name' => 'editor']);
         $editorRole->syncPermissions([
             // Blog management (limited)
@@ -278,7 +281,7 @@ class RolesAndPermissionsSeeder extends Seeder
             // Limited user viewing
             'view_any_user', 'view_user',
 
-            // Relevant widgets
+            // Relevant widgets (NO PROJECT WIDGET)
             'widget_BlogOverviewStats', 'widget_EngagementStats',
 
             // System access

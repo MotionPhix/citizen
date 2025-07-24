@@ -55,34 +55,37 @@ Route::prefix('blogs')->name('blogs.')->group(function () {
     [\App\Http\Controllers\BlogController::class, 'show']
   )->name('show');
 
+  // Comments routes (allow anonymous commenting)
+  Route::get('/{blog:slug}/comments', [App\Http\Controllers\CommentController::class, 'index'])
+    ->name('comments.index');
+
+  Route::post('/{blog:slug}/comments', [App\Http\Controllers\CommentController::class, 'store'])
+    ->name('comments.store')
+    ->middleware('throttle:5,60'); // 5 comments per minute
+
+  Route::put('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'update'])
+    ->name('comments.update');
+
+  Route::delete('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'destroy'])
+    ->name('comments.destroy');
+
   // Protected routes that require authentication
   Route::middleware(['auth'])->group(function () {
-    // Comments routes
-    Route::post(
-      '/{blog:slug}/comments',
-      [App\Http\Controllers\CommentController::class, 'store']
-    )->name('comments.store');
-
-    Route::put('/comments/{comment}', [App\Http\Controllers\CommentController::class, 'update'])
-      ->name('comments.update')
-      ->middleware('can:update,comment');
-
-    Route::delete(
-      '/comments/{comment}',
-      [App\Http\Controllers\CommentController::class, 'destroy']
-    )->name('comments.destroy')
-      ->middleware('can:delete,comment');
-
-    Route::post(
-      '/comments/{comment}/like',
-      [App\Http\Controllers\CommentLikeController::class, 'toggle']
-    )->name('comments.like.toggle');
+    Route::post('/comments/{comment}/like', [App\Http\Controllers\CommentLikeController::class, 'toggle'])
+      ->name('comments.like.toggle');
 
     // Likes routes
     Route::post('/{blog:slug}/like', [App\Http\Controllers\LikeController::class, 'toggle'])
       ->name('likes.toggle');
   });
 });
+
+// Email-based comment reply routes (outside blogs prefix)
+Route::post('/comments/{comment}/reply', [App\Http\Controllers\CommentController::class, 'replyViaEmail'])
+  ->name('comments.reply');
+
+Route::post('/comments/{comment}/unsubscribe', [App\Http\Controllers\CommentController::class, 'unsubscribe'])
+  ->name('comments.unsubscribe');
 
 Route::middleware(['auth'])->group(function () {
   Route::post('/profile/avatar', function (Request $request) {

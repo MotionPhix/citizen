@@ -90,7 +90,7 @@ class User extends Authenticatable implements HasMedia, FilamentUser
    */
   public function isAdmin(): bool
   {
-    return $this->hasRole(['super-admin', 'admin']);
+    return $this->hasRole(['super_admin', 'admin']);
   }
 
   /**
@@ -98,7 +98,7 @@ class User extends Authenticatable implements HasMedia, FilamentUser
    */
   public function canManagePosts(): bool
   {
-    return $this->hasAnyPermission(['create blogs', 'edit blogs', 'delete blogs']);
+    return $this->hasAnyPermission(['create_blog', 'update_blog', 'delete_blog']);
   }
 
   /**
@@ -106,7 +106,7 @@ class User extends Authenticatable implements HasMedia, FilamentUser
    */
   public function canManageComments(): bool
   {
-    return $this->hasPermissionTo('moderate comments');
+    return $this->hasPermissionTo('update_comment') || $this->hasPermissionTo('delete_comment');
   }
 
   /**
@@ -114,10 +114,9 @@ class User extends Authenticatable implements HasMedia, FilamentUser
    */
   public function canDeleteComment(Comment $comment): bool
   {
-    return $this->hasPermissionTo('delete comments') ||
-      ($comment->user_id === $this->id && $this->hasPermissionTo('edit comments'));
+    return $this->hasPermissionTo('delete_comment') ||
+      ($comment->user_id === $this->id && $this->hasPermissionTo('update_comment'));
   }
-
 
   /**
    * Get total likes across all user's posts.
@@ -138,13 +137,21 @@ class User extends Authenticatable implements HasMedia, FilamentUser
     return $this->hasMany(Blog::class);
   }
 
+  /**
+   * Get all comments by the user.
+   */
+  public function comments()
+  {
+    return $this->hasMany(Comment::class);
+  }
+
   public static function boot()
   {
     parent::boot();
 
     static::creating(function ($user) {
       if (self::count() <= 0 && !$user->role) {
-        $user->assignRole('super-admin');
+        $user->assignRole('super_admin');
       }
     });
   }
