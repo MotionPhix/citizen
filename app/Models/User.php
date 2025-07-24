@@ -151,6 +151,6 @@ class User extends Authenticatable implements HasMedia, FilamentUser
 
   public function canAccessPanel(Panel $panel): bool
   {
-    return true; // You might want to adjust this based on your requirements
+    return $this->hasPermissionTo('access_admin_panel') || $this->hasRole('super_admin');
   }
 }

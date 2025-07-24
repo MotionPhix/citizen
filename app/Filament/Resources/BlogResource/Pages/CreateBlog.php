@@ -17,8 +17,8 @@ class CreateBlog extends CreateRecord
     return $data;
   }
 
-  public function getMaxContentWidth(): MaxWidth|string|null
+  public function getMaxContentWidth(): MaxWidth
   {
-    return MaxWidth::FourExtraLarge;
+    return MaxWidth::FiveExtraLarge;
   }
 }

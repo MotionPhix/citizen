@@ -11,19 +11,20 @@ use App\Models\ContactSubmission;
 use App\Notifications\ContactFormResponse;
 use Filament\Forms;
 use Filament\Notifications\Notification;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class ContactSubmissionResource extends Resource
+class ContactSubmissionResource extends Resource implements HasShieldPermissions
 {
   protected static ?string $model = ContactSubmission::class;
   protected static ?string $navigationIcon = 'heroicon-o-inbox';
-  protected static ?string $navigationGroup = 'Communication';
-  protected static ?string $navigationLabel = 'Messages';
-  protected static ?string $breadcrumb = 'Messages';
-  protected static ?int $navigationSort = 4;
+  protected static ?string $navigationGroup = 'Communications';
+  protected static ?string $navigationLabel = 'Contact Messages';
+  protected static ?string $breadcrumb = 'Contact Messages';
+  protected static ?int $navigationSort = 1;
 
   public static function table(Table $table): Table
   {
@@ -218,4 +219,22 @@ class ContactSubmissionResource extends Resource
   {
     return static::getModel()::where('status', 'unread')->count() ?: null;
   }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+        ];
+    }
 }

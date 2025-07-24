@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Comment;
+use App\Models\Project;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class CommentPolicy
+class ProjectPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class CommentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_comment');
+        return $user->can('view_any_project');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Comment $comment): bool
+    public function view(User $user, Project $project): bool
     {
-        return $user->can('view_comment');
+        return $user->can('view_project');
     }
 
     /**
@@ -31,23 +31,23 @@ class CommentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_comment');
+        return $user->can('create_project');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Comment $comment): bool
+    public function update(User $user, Project $project): bool
     {
-        return $user->can('update_comment');
+        return $user->can('update_project');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Comment $comment): bool
+    public function delete(User $user, Project $project): bool
     {
-        return $user->can('delete_comment');
+        return $user->can('delete_project');
     }
 
     /**
@@ -55,15 +55,15 @@ class CommentPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_comment');
+        return $user->can('delete_any_project');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Comment $comment): bool
+    public function forceDelete(User $user, Project $project): bool
     {
-        return $user->can('force_delete_comment');
+        return $user->can('force_delete_project');
     }
 
     /**
@@ -71,15 +71,15 @@ class CommentPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_comment');
+        return $user->can('force_delete_any_project');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Comment $comment): bool
+    public function restore(User $user, Project $project): bool
     {
-        return $user->can('restore_comment');
+        return $user->can('restore_project');
     }
 
     /**
@@ -87,15 +87,15 @@ class CommentPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_comment');
+        return $user->can('restore_any_project');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Comment $comment): bool
+    public function replicate(User $user, Project $project): bool
     {
-        return $user->can('replicate_comment');
+        return $user->can('replicate_project');
     }
 
     /**
@@ -103,6 +103,6 @@ class CommentPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_comment');
+        return $user->can('reorder_project');
     }
 }

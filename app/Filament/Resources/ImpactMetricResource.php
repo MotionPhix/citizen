@@ -5,17 +5,18 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ImpactMetricResource\Pages;
 use App\Models\ImpactMetric;
 use Filament\Forms;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Resources\Resource;
 use Filament\Support\RawJs;
 use Filament\Tables;
 
-class ImpactMetricResource extends Resource
+class ImpactMetricResource extends Resource implements HasShieldPermissions
 {
   protected static ?string $model = ImpactMetric::class;
-  protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-up';
-  protected static ?string $navigationGroup = 'Content';
-  protected static ?string $navigationLabel = 'Metrics';
-  protected static ?int $navigationSort = 3;
+  protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+  protected static ?string $navigationGroup = 'Analytics';
+  protected static ?string $navigationLabel = 'Impact Metrics';
+  protected static ?int $navigationSort = 1;
 
   public static function form(Forms\Form $form): Forms\Form
   {
@@ -121,4 +122,22 @@ class ImpactMetricResource extends Resource
   {
     return static::getModel()::count();
   }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+        ];
+    }
 }

@@ -6,13 +6,14 @@ use App\Filament\Resources\ProjectResource\Pages;
 use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Form;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectResource extends Resource
+class ProjectResource extends Resource implements HasShieldPermissions
 {
   protected static ?string $model = Project::class;
   protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -198,4 +199,22 @@ class ProjectResource extends Resource
   {
     return static::getModel()::count();
   }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+        ];
+    }
 }

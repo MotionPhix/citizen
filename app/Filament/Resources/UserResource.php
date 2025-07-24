@@ -4,265 +4,285 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
-use Nnjeim\World\World;
 use Spatie\Permission\Models\Role;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
+use Spatie\Permission\Models\Permission;
+use Filament\Support\Enums\MaxWidth;
 
-class UserResource extends Resource
+class UserResource extends Resource implements HasShieldPermissions
 {
-  protected static ?string $model = User::class;
-  protected static ?string $navigationIcon = 'heroicon-o-users';
-  protected static ?string $navigationGroup = 'System';
-  protected static ?int $navigationSort = 7;
+    protected static ?string $model = User::class;
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationGroup = 'System';
+    protected static ?string $navigationLabel = 'Users';
+    protected static ?int $navigationSort = 1;
 
-  public static function form(Form $form): Form
-  {
-    $countries = World::countries()
-      ->data
-      ->pluck('name', 'iso2')
-      ->toArray();
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('User Information')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
 
-    return $form
-      ->schema([
-        Forms\Components\Section::make()
-          ->schema([
-            Forms\Components\TextInput::make('name')
-              ->required()
-              ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
 
-            Forms\Components\TextInput::make('email')
-              ->email()
-              ->required()
-              ->maxLength(255)
-              ->unique(ignoreRecord: true),
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn (string $context): bool => $context === 'create')
+                            ->minLength(8)
+                            ->helperText('Leave empty to keep current password when editing'),
 
-            Forms\Components\TextInput::make('password')
-              ->password()
-              ->dehydrateStateUsing(fn($state) => Hash::make($state))
-              ->dehydrated(fn($state) => filled($state))
-              ->required(fn(string $context): bool => $context === 'create'),
+                        Forms\Components\Toggle::make('is_active')
+                            ->label('Active')
+                            ->default(true)
+                            ->helperText('Inactive users cannot access the system'),
 
-            Forms\Components\Select::make('roles.name')
-              ->label('Role')
-              ->relationship('roles', 'name')
-              ->preload()
-              ->native(false),
+                        Forms\Components\DateTimePicker::make('email_verified_at')
+                            ->label('Email Verified At')
+                            ->helperText('Set to mark email as verified'),
+                    ])
+                    ->columns(2)
+                    ->columnSpan(['lg' => 2]),
 
-            Forms\Components\SpatieMediaLibraryFileUpload::make('avatar')
-              ->collection('avatar')
-              ->image()
-              ->imageEditor()
-              ->circleCropper()
-              ->columnSpanFull(),
+                Forms\Components\Section::make('Roles & Permissions')
+                    ->schema([
+                        Forms\Components\Select::make('roles')
+                            ->relationship('roles', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->optionsLimit(50)
+                            ->helperText('Assign roles to this user. Roles define what the user can access.')
+                            ->columnSpanFull(),
 
-            Forms\Components\Toggle::make('is_active')
-              ->label('Active')
-              ->default(true),
-          ])
-          ->columns(2),
+                        Forms\Components\Select::make('permissions')
+                            ->relationship('permissions', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->optionsLimit(100)
+                            ->helperText('Grant specific permissions to this user (in addition to role permissions)')
+                            ->columnSpanFull(),
 
-        Forms\Components\Section::make('Metadata')
-          ->description('Additional user information')
-          ->schema([
-            Forms\Components\TextInput::make('metadata.phone')
-              ->label('Phone Number')
-              ->tel()
-              ->maxLength(20),
+                        Forms\Components\Placeholder::make('role_info')
+                            ->label('Role Information')
+                            ->content(function (?User $record): string {
+                                if (!$record) {
+                                    return 'Save the user to see role information';
+                                }
 
-            Forms\Components\TextInput::make('metadata.position')
-              ->label('Job Position')
-              ->maxLength(100),
+                                $roles = $record->roles;
+                                if ($roles->isEmpty()) {
+                                    return 'No roles assigned';
+                                }
 
-            Forms\Components\Select::make('metadata.department')
-              ->label('Department')
-              ->options([
-                'engineering' => 'Engineering',
-                'marketing' => 'Marketing',
-                'sales' => 'Sales',
-                'finance' => 'Finance',
-                'hr' => 'Human Resources',
-                'other' => 'Other',
-              ]),
+                                $roleInfo = [];
+                                foreach ($roles as $role) {
+                                    $permissionCount = $role->permissions()->count();
+                                    $roleInfo[] = "{$role->name} ({$permissionCount} permissions)";
+                                }
 
-            Forms\Components\DatePicker::make('metadata.joined_date')
-              ->label('Join Date')
-              ->default(now()),
+                                return implode(' • ', $roleInfo);
+                            })
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpan(['lg' => 1]),
 
-            Forms\Components\Textarea::make('metadata.bio')
-              ->label('Biography')
-              ->columnSpanFull()
-              ->rows(3),
+                Forms\Components\Section::make('Profile')
+                    ->schema([
+                        Forms\Components\SpatieMediaLibraryFileUpload::make('avatar')
+                            ->collection('avatar')
+                            ->image()
+                            ->imageEditor()
+                            ->circleCropper()
+                            ->maxSize(2048)
+                            ->helperText('Upload a profile picture (max 2MB)')
+                            ->columnSpanFull(),
 
-            Forms\Components\Section::make('Social Media')
-              ->schema([
-                Forms\Components\TextInput::make('metadata.social.linkedin')
-                  ->label('LinkedIn')
-                  ->prefix('https://linkedin.com/in/')
-                  ->maxLength(100),
-
-                Forms\Components\TextInput::make('metadata.social.twitter')
-                  ->label('Twitter')
-                  ->prefix('@')
-                  ->maxLength(100),
-
-                Forms\Components\TextInput::make('metadata.social.github')
-                  ->label('GitHub')
-                  ->prefix('https://github.com/')
-                  ->maxLength(100),
-              ])
-              ->columns(3),
-
-            Forms\Components\Group::make()
-              ->schema([
-                Forms\Components\TextInput::make('metadata.address.street')
-                  ->label('Street Address'),
-
-                Forms\Components\TextInput::make('metadata.address.city')
-                  ->label('City'),
-
-                Forms\Components\TextInput::make('metadata.address.state')
-                  ->label('State/Province'),
-
-                Forms\Components\TextInput::make('metadata.address.postal_code')
-                  ->label('Postal Code'),
-
-                Forms\Components\Select::make('metadata.address.country')
-                  ->label('Country')
-                  ->searchable()
-                  ->options($countries),
-              ])
-              ->columns(2),
-          ])
-          ->collapsible(),
-      ]);
-  }
-
-  public static function table(Table $table): Table
-  {
-    return $table
-      ->columns([
-        Tables\Columns\SpatieMediaLibraryImageColumn::make('avatar')
-          ->collection('avatar')
-          ->circular(),
-
-        Tables\Columns\TextColumn::make('name')
-          ->searchable()
-          ->sortable(),
-
-        Tables\Columns\TextColumn::make('email')
-          ->searchable()
-          ->sortable(),
-
-        Tables\Columns\TextColumn::make('roles.name')
-          ->badge()
-          ->formatStateUsing(fn(string $state) => str($state)->title())
-          ->colors([
-            'danger' => 'super-admin',
-            'warning' => 'admin',
-            'success' => 'editor',
-            'primary' => 'user',
-          ]),
-
-
-        Tables\Columns\TextColumn::make('is_active')
-          ->label('Status')
-          ->badge()
-          ->formatStateUsing(fn(bool $state) => $state ? 'Active' : 'Inactive')
-          ->color(fn(bool $state): string => match ($state) {
-            true => 'success',
-            false => 'danger',
-          })
-          ->sortable(),
-
-        Tables\Columns\TextColumn::make('created_at')
-          ->dateTime()
-          ->sortable()
-          ->toggleable(isToggledHiddenByDefault: true),
-
-        Tables\Columns\TextColumn::make('updated_at')
-          ->dateTime()
-          ->sortable()
-          ->toggleable(isToggledHiddenByDefault: true),
-      ])
-      ->filters([
-        Tables\Filters\SelectFilter::make('role')
-          ->options(fn() => Role::pluck('name', 'name')),
-
-        Tables\Filters\TernaryFilter::make('is_active')
-          ->label('Active'),
-      ])
-      ->actions([
-        Tables\Actions\ActionGroup::make([
-          Tables\Actions\EditAction::make(),
-          Tables\Actions\DeleteAction::make()
-            ->before(function (User $record) {
-              if ($record->hasRole('super-admin') && User::role('super-admin')->count() <= 1) {
-                throw new \Exception('Cannot delete the last super administrator.');
-              }
-            }),
-        ])
-      ])
-      ->bulkActions([
-        Tables\Actions\BulkActionGroup::make([
-          Tables\Actions\DeleteBulkAction::make()
-            ->before(function (User $record) {
-              if ($record->hasRole('super-admin') && User::role('super-admin')->count() <= 1) {
-                Notification::make()
-                  ->title('Cannot delete the last Super Admin')
-                  ->danger()
-                  ->send();
-              }
-            }),
-        ]),
-      ]);
-  }
-
-  public static function getRelations(): array
-  {
-    return [
-      //
-    ];
-  }
-
-  public static function getPages(): array
-  {
-    return [
-      'index' => Pages\ListUsers::route('/'),
-      'create' => Pages\CreateUser::route('/create'),
-      'edit' => Pages\EditUser::route('/{record}/edit'),
-      'view' => Pages\ViewUser::route('/{record}'),
-    ];
-  }
-
-  public static function getGlobalSearchResultDetails(Model $record): array
-  {
-    return [
-      'Role' => str($record->role)->title(),
-    ];
-  }
-
-  protected function mutateFormDataBeforeSave(array $data): array
-  {
-    // Ensure we're working with a single role
-    if (isset($data['role'])) {
-      $this->record?->roles()->detach();
-      $this->record?->assignRole($data['role']);
+                        Forms\Components\KeyValue::make('metadata')
+                            ->keyLabel('Field')
+                            ->valueLabel('Value')
+                            ->reorderable()
+                            ->helperText('Additional user information')
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpan(['lg' => 2])
+                    ->collapsible(),
+            ])
+            ->columns(3);
     }
 
-    return $data;
-  }
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\SpatieMediaLibraryImageColumn::make('avatar')
+                    ->collection('avatar')
+                    ->conversion('thumb')
+                    ->circular()
+                    ->defaultImageUrl(url('/images/default-avatar.png')),
 
-  public static function getNavigationBadge(): ?string
-  {
-    return static::getModel()::count();
-  }
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (User $record): string => $record->email),
+
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Roles')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'super_admin' => 'danger',
+                        'admin' => 'warning',
+                        'content_manager' => 'success',
+                        'editor' => 'info',
+                        'project_manager' => 'purple',
+                        'subscriber_manager' => 'orange',
+                        'viewer' => 'gray',
+                        default => 'gray',
+                    })
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label('Status')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->sortable(),
+
+                Tables\Columns\IconColumn::make('email_verified_at')
+                    ->label('Verified')
+                    ->boolean()
+                    ->getStateUsing(fn (User $record): bool => $record->email_verified_at !== null)
+                    ->trueIcon('heroicon-o-shield-check')
+                    ->falseIcon('heroicon-o-shield-exclamation')
+                    ->trueColor('success')
+                    ->falseColor('warning')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Joined')
+                    ->dateTime('M j, Y')
+                    ->sortable()
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Last Updated')
+                    ->since()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->filters([
+                Tables\Filters\SelectFilter::make('roles')
+                    ->relationship('roles', 'name')
+                    ->multiple()
+                    ->preload(),
+
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label('Status')
+                    ->placeholder('All users')
+                    ->trueLabel('Active users')
+                    ->falseLabel('Inactive users'),
+
+                Tables\Filters\TernaryFilter::make('email_verified_at')
+                    ->label('Email Verification')
+                    ->placeholder('All users')
+                    ->trueLabel('Verified emails')
+                    ->falseLabel('Unverified emails')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereNotNull('email_verified_at'),
+                        false: fn (Builder $query) => $query->whereNull('email_verified_at'),
+                    ),
+
+                Tables\Filters\Filter::make('recent_users')
+                    ->label('Recent (Last 30 days)')
+                    ->query(fn (Builder $query): Builder => $query->where('created_at', '>=', now()->subDays(30)))
+                    ->toggle(),
+            ])
+            ->actions([
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->requiresConfirmation(),
+                ])
+                    ->label('Actions')
+                    ->icon('heroicon-o-ellipsis-vertical'),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->emptyStateHeading('No users found')
+            ->emptyStateDescription('Create your first user to get started with user management.')
+            ->emptyStateIcon('heroicon-o-users');
+    }
+
+    public static function getRelations(): array
+    {
+        return [];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'view' => Pages\ViewUser::route('/{record}'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['roles']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'roles.name'];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+        ];
+    }
 }

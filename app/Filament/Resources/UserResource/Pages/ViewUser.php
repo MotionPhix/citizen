@@ -3,186 +3,160 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Infolists;
+use Filament\Infolists\Infolist;
 
 class ViewUser extends ViewRecord
 {
-  protected static string $resource = UserResource::class;
+    protected static string $resource = UserResource::class;
 
-  public function infolist(Infolists\Infolist $infolist): Infolists\Infolist
-  {
-    return $infolist
-      ->schema([
-        Infolists\Components\Section::make('User Details')
-          ->schema([
-            Infolists\Components\SpatieMediaLibraryImageEntry::make('avatar')
-              ->collection('avatar')
-              ->label('Profile Picture')
-              ->extraAttributes([
-                'alt' => 'User profile picture',
-                'loading' => 'lazy',
-              ])
-              ->columnSpan(2),
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\EditAction::make(),
 
-            Infolists\Components\TextEntry::make('name')
-              ->label('Full Name')
-              ->weight('bold')
-              ->formatStateUsing(fn(string $state) => str($state)->title()),
+            Actions\Action::make('manage_roles')
+                ->label('Manage Roles')
+                ->icon('heroicon-o-shield-check')
+                ->color('warning')
+                ->url(fn (): string => static::getResource()::getUrl('edit', ['record' => $this->record])),
 
-            Infolists\Components\TextEntry::make('email')
-              ->label('Email Address')
-              ->weight('bold')
-              ->formatStateUsing(fn(string $state) => str($state)->lower()),
+            Actions\DeleteAction::make(),
+        ];
+    }
 
-            Infolists\Components\TextEntry::make('roles.name')
-              ->label('Role')
-              ->badge()
-              ->formatStateUsing(fn(string $state) => str($state)->title())
-              ->color(fn($state) => match ($state) {
-                'super-admin' => 'danger',
-                'admin' => 'warning',
-                'editor' => 'success',
-                default => 'primary',
-              }),
+    public function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Infolists\Components\Section::make('User Information')
+                    ->schema([
+                        Infolists\Components\Split::make([
+                            Infolists\Components\Grid::make(2)
+                                ->schema([
+                                    Infolists\Components\TextEntry::make('name')
+                                        ->size(Infolists\Components\TextEntry\TextEntrySize::Large)
+                                        ->weight('bold'),
 
-            Infolists\Components\TextEntry::make('is_active')
-              ->label('Status')
-              ->badge()
-              ->formatStateUsing(fn(bool $state) => $state ? 'Active' : 'Inactive')
-              ->color(fn($state) => $state ? 'success' : 'danger'),
+                                    Infolists\Components\TextEntry::make('email')
+                                        ->icon('heroicon-o-envelope')
+                                        ->copyable(),
 
-            Infolists\Components\TextEntry::make('created_at')
-              ->dateTime()
-              ->label('Created At'),
+                                    Infolists\Components\IconEntry::make('is_active')
+                                        ->label('Status')
+                                        ->boolean()
+                                        ->trueIcon('heroicon-o-check-circle')
+                                        ->falseIcon('heroicon-o-x-circle')
+                                        ->trueColor('success')
+                                        ->falseColor('danger'),
 
-            Infolists\Components\TextEntry::make('updated_at')
-              ->dateTime()
-              ->label('Last Modified'),
-          ])
-          ->columns(2),
+                                    Infolists\Components\IconEntry::make('email_verified_at')
+                                        ->label('Email Verified')
+                                        ->boolean()
+                                        ->getStateUsing(fn (User $record): bool => $record->email_verified_at !== null)
+                                        ->trueIcon('heroicon-o-shield-check')
+                                        ->falseIcon('heroicon-o-shield-exclamation')
+                                        ->trueColor('success')
+                                        ->falseColor('warning'),
 
-        Infolists\Components\Section::make('Contact & Position')
-          ->schema([
-            Infolists\Components\TextEntry::make('metadata.phone')
-              ->label('Phone Number')
-              ->icon('heroicon-m-phone'),
+                                    Infolists\Components\TextEntry::make('created_at')
+                                        ->label('Joined')
+                                        ->dateTime()
+                                        ->since(),
 
-            Infolists\Components\TextEntry::make('metadata.position')
-              ->label('Job Position')
-              ->icon('heroicon-m-briefcase'),
+                                    Infolists\Components\TextEntry::make('updated_at')
+                                        ->label('Last Updated')
+                                        ->dateTime()
+                                        ->since(),
+                                ]),
 
-            Infolists\Components\TextEntry::make('metadata.department')
-              ->label('Department')
-              ->badge()
-              ->formatStateUsing(fn($state) => str($state)->title())
-              ->icon('heroicon-m-building-office'),
+                            Infolists\Components\SpatieMediaLibraryImageEntry::make('avatar')
+                                ->collection('avatar')
+                                ->conversion('medium')
+                                ->circular()
+                                ->grow(false),
+                        ])->from('lg'),
+                    ])
+                    ->columns(2),
 
-            Infolists\Components\TextEntry::make('metadata.joined_date')
-              ->label('Join Date')
-              ->date()
-              ->icon('heroicon-m-calendar'),
-          ])
-          ->columns(2),
+                Infolists\Components\Section::make('Roles & Permissions')
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('roles')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('name')
+                                    ->badge()
+                                    ->color(fn (string $state): string => match ($state) {
+                                        'super-admin' => 'danger',
+                                        'admin' => 'warning',
+                                        'editor' => 'success',
+                                        'author' => 'info',
+                                        'moderator' => 'gray',
+                                        'subscriber-manager' => 'purple',
+                                        'viewer' => 'slate',
+                                        default => 'gray',
+                                    }),
+                            ])
+                            ->columns(1)
+                            ->grid(4),
 
-        Infolists\Components\Section::make('Biography')
-          ->schema([
-            Infolists\Components\TextEntry::make('metadata.bio')
-              ->markdown()
-              ->columnSpanFull(),
-          ]),
+                        Infolists\Components\TextEntry::make('all_permissions')
+                            ->label('All Permissions')
+                            ->getStateUsing(function (User $record): string {
+                                $permissions = $record->getAllPermissions();
+                                if ($permissions->isEmpty()) {
+                                    return 'No permissions assigned';
+                                }
+                                return $permissions->pluck('name')->sort()->implode(', ');
+                            })
+                            ->prose()
+                            ->columnSpanFull(),
 
-        Infolists\Components\Section::make('Social Media')
-          ->schema([
-            Infolists\Components\TextEntry::make('metadata.social.linkedin')
-              ->label('LinkedIn')
-              ->url(fn($state) => "https://linkedin.com/in/{$state}")
-              ->icon('heroicon-m-link')
-              ->openUrlInNewTab(),
+                        Infolists\Components\TextEntry::make('direct_permissions')
+                            ->label('Direct Permissions')
+                            ->getStateUsing(function (User $record): string {
+                                $permissions = $record->permissions;
+                                if ($permissions->isEmpty()) {
+                                    return 'No direct permissions assigned';
+                                }
+                                return $permissions->pluck('name')->sort()->implode(', ');
+                            })
+                            ->prose()
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2),
 
-            Infolists\Components\TextEntry::make('metadata.social.twitter')
-              ->label('Twitter')
-              ->url(fn($state) => "https://twitter.com/{$state}")
-              ->formatStateUsing(fn($state) => '@' . $state)
-              ->icon('heroicon-m-link')
-              ->openUrlInNewTab(),
+                Infolists\Components\Section::make('Activity Summary')
+                    ->schema([
+                        Infolists\Components\Grid::make(3)
+                            ->schema([
+                                Infolists\Components\TextEntry::make('posts_count')
+                                    ->label('Blog Posts')
+                                    ->getStateUsing(fn (User $record): int => $record->posts()->count())
+                                    ->icon('heroicon-o-document-text'),
 
-            Infolists\Components\TextEntry::make('metadata.social.github')
-              ->label('GitHub')
-              ->url(fn($state) => "https://github.com/{$state}")
-              ->icon('heroicon-m-link')
-              ->openUrlInNewTab(),
-          ])
-          ->columns(3),
+                                Infolists\Components\TextEntry::make('total_likes')
+                                    ->label('Total Likes Received')
+                                    ->getStateUsing(fn (User $record): int => $record->totalPostLikes())
+                                    ->icon('heroicon-o-heart'),
 
-        Infolists\Components\Section::make('Address')
-          ->schema([
-            Infolists\Components\TextEntry::make('metadata.address.street')
-              ->label('Street Address'),
+                                Infolists\Components\TextEntry::make('comments_count')
+                                    ->label('Comments Made')
+                                    ->getStateUsing(fn (User $record): int => $record->comments()->count() ?? 0)
+                                    ->icon('heroicon-o-chat-bubble-left'),
+                            ]),
+                    ])
+                    ->collapsible(),
 
-            Infolists\Components\TextEntry::make('metadata.address.city')
-              ->label('City'),
-
-            Infolists\Components\TextEntry::make('metadata.address.state')
-              ->label('State/Province'),
-
-            Infolists\Components\TextEntry::make('metadata.address.postal_code')
-              ->label('Postal Code'),
-
-            Infolists\Components\TextEntry::make('metadata.address.country')
-              ->label('Country'),
-          ])
-          ->columns(2),
-
-        Infolists\Components\Section::make('System Information')
-          ->schema([
-            Infolists\Components\TextEntry::make('created_at')
-              ->dateTime()
-              ->label('Created At')
-              ->icon('heroicon-m-clock'),
-
-            Infolists\Components\TextEntry::make('updated_at')
-              ->dateTime()
-              ->label('Last Modified')
-              ->icon('heroicon-m-clock'),
-          ])
-          ->columns(2),
-
-        Infolists\Components\Section::make('Role Permissions')
-          ->description('Permissions granted through the assigned role')
-          ->schema([
-            Infolists\Components\RepeatableEntry::make('roles')
-              ->hiddenLabel()
-              ->schema([
-                Infolists\Components\RepeatableEntry::make('permissions')
-                  ->schema([
-                    Infolists\Components\TextEntry::make('name')
-                      ->hiddenLabel()
-                      ->formatStateUsing(fn(string $state) => str($state)->title())
-                      ->color('info'),
-                  ])
-                  ->grid(3),
-              ]),
-          ])
-          ->collapsible(),
-      ]);
-  }
-
-  protected function getHeaderActions(): array
-  {
-    return [
-      Actions\EditAction::make(),
-    ];
-  }
-
-  public function getTitle(): \Illuminate\Contracts\Support\Htmlable|string
-  {
-    return $this->record->name . '`s Details';
-  }
-
-  public function getMaxContentWidth(): \Filament\Support\Enums\MaxWidth
-  {
-    return \Filament\Support\Enums\MaxWidth::FourExtraLarge;
-  }
+                Infolists\Components\Section::make('Additional Information')
+                    ->schema([
+                        Infolists\Components\KeyValueEntry::make('metadata')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
+            ]);
+    }
 }

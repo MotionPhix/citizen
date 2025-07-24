@@ -6,15 +6,17 @@ use App\Filament\Resources\CommentResource\Pages;
 use App\Models\Comment;
 use Filament\Forms;
 use Filament\Forms\Form;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class CommentResource extends Resource
+class CommentResource extends Resource implements HasShieldPermissions
 {
   protected static ?string $model = Comment::class;
   protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
   protected static ?string $navigationGroup = 'Content';
+  protected static ?int $navigationSort = 3;
 
   public static function form(Form $form): Form
   {
@@ -87,4 +89,22 @@ class CommentResource extends Resource
   {
     return static::getModel()::count();
   }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+        ];
+    }
 }

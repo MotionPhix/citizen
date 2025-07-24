@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\BlogResource\Pages;
 use App\Models\Blog;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Form;
@@ -14,11 +15,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class BlogResource extends Resource
+class BlogResource extends Resource implements HasShieldPermissions
 {
   protected static ?string $model = Blog::class;
   protected static ?string $navigationIcon = 'heroicon-o-document-text';
   protected static ?string $navigationGroup = 'Content';
+  protected static ?string $navigationLabel = 'Blog Posts';
+  protected static ?int $navigationSort = 1;
 
   public static function form(Form $form): Form
   {
@@ -246,5 +249,23 @@ class BlogResource extends Resource
   public static function getNavigationBadge(): ?string
   {
     return static::getModel()::count();
+  }
+
+  public static function getPermissionPrefixes(): array
+  {
+    return [
+      'view',
+      'view_any',
+      'create',
+      'update',
+      'delete',
+      'delete_any',
+      'force_delete',
+      'force_delete_any',
+      'restore',
+      'restore_any',
+      'replicate',
+      'reorder',
+    ];
   }
 }

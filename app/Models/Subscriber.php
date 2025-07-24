@@ -14,13 +14,14 @@ class Subscriber extends Model
   protected $fillable = [
     'email',
     'name',
+    'status',
     'preferences',
-    'status'
+    'unsubscribed_at'
   ];
 
   protected $casts = [
     'preferences' => 'array',
-    'last_sent_at' => 'datetime'
+    'unsubscribed_at' => 'datetime'
   ];
 
   public const FREQUENCIES = [
@@ -71,10 +72,42 @@ class Subscriber extends Model
   }
 
   /**
-   * Scope a query to only include active subscribers.
+   * Scope a query to only include subscribed subscribers.
    */
   public function scopeActive(Builder $query): void
   {
-    $query->where('status', 'active');
+    $query->where('status', 'subscribed');
+  }
+
+  /**
+   * Scope a query to only include subscribed subscribers.
+   */
+  public function scopeSubscribed(Builder $query): void
+  {
+    $query->where('status', 'subscribed');
+  }
+
+  /**
+   * Scope a query to only include unsubscribed subscribers.
+   */
+  public function scopeUnsubscribed(Builder $query): void
+  {
+    $query->where('status', 'unsubscribed');
+  }
+
+  /**
+   * Check if the subscriber is currently subscribed.
+   */
+  public function isSubscribed(): bool
+  {
+    return $this->status === 'subscribed';
+  }
+
+  /**
+   * Check if the subscriber is unsubscribed.
+   */
+  public function isUnsubscribed(): bool
+  {
+    return $this->status === 'unsubscribed';
   }
 }

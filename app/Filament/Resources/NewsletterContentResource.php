@@ -4,27 +4,31 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\NewsletterContentResource\Pages;
 use App\Models\NewsletterContent;
+use App\Models\NewsletterIssue;
 use Filament\Forms;
 use Filament\Forms\Form;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Notifications\Notification;
 
-class NewsletterContentResource extends Resource
+class NewsletterContentResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = NewsletterContent::class;
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Newsletter';
     protected static ?string $navigationLabel = 'Content';
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Basic Information')
+                Forms\Components\Section::make('Newsletter Assignment')
                     ->schema([
                         Forms\Components\Select::make('newsletter_issue_id')
                             ->relationship('newsletterIssue', 'title')
@@ -33,10 +37,47 @@ class NewsletterContentResource extends Resource
                             ->preload()
                             ->createOptionForm([
                                 Forms\Components\TextInput::make('title')
-                                    ->required(),
-                                Forms\Components\Textarea::make('description'),
-                            ]),
+                                    ->required()
+                                    ->placeholder('e.g., Weekly Update - March 2024'),
+                                Forms\Components\Textarea::make('description')
+                                    ->rows(3),
+                                Forms\Components\DateTimePicker::make('published_at')
+                                    ->default(now()),
+                            ])
+                            ->createOptionUsing(function (array $data): int {
+                                $issue = NewsletterIssue::create($data);
 
+                                Notification::make()
+                                    ->success()
+                                    ->title('Newsletter issue created')
+                                    ->body('You can now add content to this issue.')
+                                    ->send();
+
+                                return $issue->id;
+                            })
+                            ->helperText('Select which newsletter issue this content belongs to'),
+
+                        Forms\Components\Placeholder::make('newsletter_info')
+                            ->label('Newsletter Info')
+                            ->content(function (Forms\Get $get): string {
+                                if (!$get('newsletter_issue_id')) {
+                                    return 'Select a newsletter to see details';
+                                }
+
+                                $issue = NewsletterIssue::find($get('newsletter_issue_id'));
+                                if (!$issue) {
+                                    return 'Newsletter not found';
+                                }
+
+                                $contentCount = $issue->contents()->count();
+                                return "Status: {$issue->status} • Content pieces: {$contentCount} • Publish date: " . $issue->published_at?->format('M j, Y');
+                            })
+                            ->reactive(),
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make('Content Details')
+                    ->schema([
                         Forms\Components\Select::make('type')
                             ->options(NewsletterContent::getTypes())
                             ->required()
@@ -52,11 +93,12 @@ class NewsletterContentResource extends Resource
                             ->maxLength(500)
                             ->rows(3)
                             ->visible(fn ($get) => in_array($get('type'), ['story', 'update', 'announcement']))
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->helperText('Brief description that appears in the newsletter preview'),
                     ])
                     ->columns(2),
 
-                Forms\Components\Section::make('Content')
+                Forms\Components\Section::make('Content Body')
                     ->schema([
                         Forms\Components\RichEditor::make('content')
                             ->toolbarButtons([
@@ -118,7 +160,8 @@ class NewsletterContentResource extends Resource
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
-                    ->visible(fn ($get) => $get('type') === 'event'),
+                    ->visible(fn ($get) => $get('type') === 'event')
+                    ->collapsible(),
 
                 // Story-specific fields
                 Forms\Components\Section::make('Story Details')
@@ -145,7 +188,8 @@ class NewsletterContentResource extends Resource
                             ->placeholder('Select source'),
                     ])
                     ->columns(3)
-                    ->visible(fn ($get) => $get('type') === 'story'),
+                    ->visible(fn ($get) => $get('type') === 'story')
+                    ->collapsible(),
 
                 // Update-specific fields
                 Forms\Components\Section::make('Update Details')
@@ -170,7 +214,8 @@ class NewsletterContentResource extends Resource
                             ->placeholder('When does this update take effect?'),
                     ])
                     ->columns(3)
-                    ->visible(fn ($get) => in_array($get('type'), ['update', 'announcement'])),
+                    ->visible(fn ($get) => in_array($get('type'), ['update', 'announcement']))
+                    ->collapsible(),
 
                 Forms\Components\Section::make('Settings')
                     ->schema([
@@ -201,7 +246,14 @@ class NewsletterContentResource extends Resource
                     ->label('Newsletter')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->description(fn (NewsletterContent $record): string =>
+                        "Status: {$record->newsletterIssue->status} • " .
+                        $record->newsletterIssue->published_at?->format('M j, Y')
+                    )
+                    ->url(fn (NewsletterContent $record): string =>
+                        route('filament.admin.resources.newsletter-issues.edit', $record->newsletterIssue)
+                    )
+                    ->color('primary'),
 
                 Tables\Columns\BadgeColumn::make('type')
                     ->colors([
@@ -215,7 +267,10 @@ class NewsletterContentResource extends Resource
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->sortable()
-                    ->limit(50),
+                    ->limit(50)
+                    ->description(fn (NewsletterContent $record): ?string =>
+                        $record->excerpt ? str($record->excerpt)->limit(60) : null
+                    ),
 
                 Tables\Columns\TextColumn::make('category')
                     ->badge()
@@ -223,7 +278,10 @@ class NewsletterContentResource extends Resource
                     ->sortable()
                     ->toggleable(),
 
-                Tables\Columns\ImageColumn::make('image')
+                Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
+                    ->collection('images')
+                    ->conversion('thumbnail')
+                    ->circular()
                     ->label('Image')
                     ->toggleable(),
 
@@ -239,17 +297,17 @@ class NewsletterContentResource extends Resource
 
                 Tables\Columns\TextColumn::make('published_at')
                     ->label('Published')
-                    ->dateTime()
+                    ->dateTime('M j, Y')
                     ->sortable()
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created')
-                    ->dateTime()
+                    ->since()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('order')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('newsletter_issue_id')
                     ->relationship('newsletterIssue', 'title')
@@ -277,29 +335,82 @@ class NewsletterContentResource extends Resource
                     ->label('Scheduled'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\Action::make('duplicate')
-                    ->icon('heroicon-o-document-duplicate')
-                    ->action(function (NewsletterContent $record) {
-                        $newRecord = $record->replicate();
-                        $newRecord->title = $record->title . ' (Copy)';
-                        $newRecord->save();
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('view_newsletter')
+                        ->label('View Newsletter')
+                        ->icon('heroicon-o-envelope')
+                        ->color('primary')
+                        ->url(fn (NewsletterContent $record): string =>
+                            route('filament.admin.resources.newsletter-issues.edit', $record->newsletterIssue)
+                        ),
 
-                        return redirect()->route('filament.admin.resources.newsletter-contents.edit', $newRecord);
-                    }),
+                    Tables\Actions\EditAction::make()
+                        ->modalWidth(MaxWidth::FourExtraLarge),
+
+                    Tables\Actions\DeleteAction::make(),
+
+                    Tables\Actions\Action::make('duplicate')
+                        ->label('Duplicate')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->form([
+                            Forms\Components\Select::make('newsletter_issue_id')
+                                ->label('Target Newsletter')
+                                ->relationship('newsletterIssue', 'title')
+                                ->default(fn (NewsletterContent $record) => $record->newsletter_issue_id)
+                                ->required(),
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->default(fn (NewsletterContent $record) => $record->title . ' (Copy)'),
+                        ])
+                        ->action(function (NewsletterContent $record, array $data): void {
+                            $newRecord = $record->replicate();
+                            $newRecord->newsletter_issue_id = $data['newsletter_issue_id'];
+                            $newRecord->title = $data['title'];
+                            $newRecord->save();
+
+                            Notification::make()
+                                ->success()
+                                ->title('Content duplicated')
+                                ->send();
+                        }),
+                ])
+                    ->label('Actions')
+                    ->icon('heroicon-o-ellipsis-vertical'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+
                     Tables\Actions\BulkAction::make('feature')
                         ->label('Mark as Featured')
                         ->icon('heroicon-o-star')
-                        ->action(fn ($records) => $records->each->update(['is_featured' => true])),
+                        ->action(fn ($records) => $records->each->update(['is_featured' => true]))
+                        ->deselectRecordsAfterCompletion(),
+
                     Tables\Actions\BulkAction::make('unfeature')
                         ->label('Remove Featured')
                         ->icon('heroicon-o-star')
-                        ->action(fn ($records) => $records->each->update(['is_featured' => false])),
+                        ->action(fn ($records) => $records->each->update(['is_featured' => false]))
+                        ->deselectRecordsAfterCompletion(),
+
+                    Tables\Actions\BulkAction::make('move_to_newsletter')
+                        ->label('Move to Newsletter')
+                        ->icon('heroicon-o-arrow-right')
+                        ->form([
+                            Forms\Components\Select::make('newsletter_issue_id')
+                                ->label('Target Newsletter')
+                                ->relationship('newsletterIssue', 'title')
+                                ->required(),
+                        ])
+                        ->action(function ($records, array $data): void {
+                            $records->each->update(['newsletter_issue_id' => $data['newsletter_issue_id']]);
+
+                            Notification::make()
+                                ->success()
+                                ->title('Content moved')
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ])
             ->reorderable('order');
@@ -321,7 +432,9 @@ class NewsletterContentResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::count();
+        return static::getModel()::whereHas('newsletterIssue', function ($query) {
+            $query->where('status', 'draft');
+        })->count() ?: null;
     }
 
     public static function getGlobalSearchEloquentQuery(): Builder
@@ -332,5 +445,23 @@ class NewsletterContentResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['title', 'excerpt', 'content', 'newsletterIssue.title'];
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+        ];
     }
 }

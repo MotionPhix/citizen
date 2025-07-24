@@ -18,8 +18,8 @@ class ListBlogs extends ListRecords
     ];
   }
 
-  public function getMaxContentWidth(): \Filament\Support\Enums\MaxWidth
+  public function getMaxContentWidth(): MaxWidth
   {
-    return \Filament\Support\Enums\MaxWidth::FourExtraLarge;
+    return MaxWidth::FiveExtraLarge;
   }
 }
